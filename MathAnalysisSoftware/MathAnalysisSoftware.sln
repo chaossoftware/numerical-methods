@@ -1,0 +1,67 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MathLib", "MathLib\MathLib.csproj", "{EDA2C4F0-1D19-4FC8-A608-5B0607EEA67A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ModelledSystems", "ModelledSystems\ModelledSystems.csproj", "{F54C531B-1F6C-4A67-9341-8745778B1CDF}"
+	ProjectSection(ProjectDependencies) = postProject
+		{EDA2C4F0-1D19-4FC8-A608-5B0607EEA67A} = {EDA2C4F0-1D19-4FC8-A608-5B0607EEA67A}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TimeSeriesAnalysis", "TimeSeriesAnalysis\TimeSeriesAnalysis.csproj", "{EEE84F65-7802-418F-A69B-34D515D93260}"
+	ProjectSection(ProjectDependencies) = postProject
+		{EDA2C4F0-1D19-4FC8-A608-5B0607EEA67A} = {EDA2C4F0-1D19-4FC8-A608-5B0607EEA67A}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EbPanelTemperature", "EbPanelTemperature\EbPanelTemperature.csproj", "{687D9242-3BD8-4254-8019-19C5A01DF501}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NeuralNetwork", "NeuralNetwork\NeuralNetwork.csproj", "{CA380EF7-0E34-4141-B31C-14AE4187A213}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EDA2C4F0-1D19-4FC8-A608-5B0607EEA67A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EDA2C4F0-1D19-4FC8-A608-5B0607EEA67A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EDA2C4F0-1D19-4FC8-A608-5B0607EEA67A}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{EDA2C4F0-1D19-4FC8-A608-5B0607EEA67A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EDA2C4F0-1D19-4FC8-A608-5B0607EEA67A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EDA2C4F0-1D19-4FC8-A608-5B0607EEA67A}.Release|x86.ActiveCfg = Release|Any CPU
+		{F54C531B-1F6C-4A67-9341-8745778B1CDF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F54C531B-1F6C-4A67-9341-8745778B1CDF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F54C531B-1F6C-4A67-9341-8745778B1CDF}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{F54C531B-1F6C-4A67-9341-8745778B1CDF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F54C531B-1F6C-4A67-9341-8745778B1CDF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F54C531B-1F6C-4A67-9341-8745778B1CDF}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{F54C531B-1F6C-4A67-9341-8745778B1CDF}.Release|x86.ActiveCfg = Release|Any CPU
+		{EEE84F65-7802-418F-A69B-34D515D93260}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EEE84F65-7802-418F-A69B-34D515D93260}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EEE84F65-7802-418F-A69B-34D515D93260}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{EEE84F65-7802-418F-A69B-34D515D93260}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EEE84F65-7802-418F-A69B-34D515D93260}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EEE84F65-7802-418F-A69B-34D515D93260}.Release|x86.ActiveCfg = Release|Any CPU
+		{687D9242-3BD8-4254-8019-19C5A01DF501}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{687D9242-3BD8-4254-8019-19C5A01DF501}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{687D9242-3BD8-4254-8019-19C5A01DF501}.Debug|x86.ActiveCfg = Debug|x86
+		{687D9242-3BD8-4254-8019-19C5A01DF501}.Debug|x86.Build.0 = Debug|x86
+		{687D9242-3BD8-4254-8019-19C5A01DF501}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{687D9242-3BD8-4254-8019-19C5A01DF501}.Release|Any CPU.Build.0 = Release|Any CPU
+		{687D9242-3BD8-4254-8019-19C5A01DF501}.Release|x86.ActiveCfg = Release|x86
+		{687D9242-3BD8-4254-8019-19C5A01DF501}.Release|x86.Build.0 = Release|x86
+		{CA380EF7-0E34-4141-B31C-14AE4187A213}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CA380EF7-0E34-4141-B31C-14AE4187A213}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CA380EF7-0E34-4141-B31C-14AE4187A213}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{CA380EF7-0E34-4141-B31C-14AE4187A213}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CA380EF7-0E34-4141-B31C-14AE4187A213}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CA380EF7-0E34-4141-B31C-14AE4187A213}.Release|x86.ActiveCfg = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

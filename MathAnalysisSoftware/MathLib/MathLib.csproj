@@ -1,0 +1,97 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{EDA2C4F0-1D19-4FC8-A608-5B0607EEA67A}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MathLib</RootNamespace>
+    <AssemblyName>MathLib</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>none</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\_Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="MatlabEngine, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>lib\MatlabEngine.dll</HintPath>
+    </Reference>
+    <Reference Include="MWArray, Version=2.16.1.0, Culture=neutral, PublicKeyToken=e1d84a0da19db86f, processorArchitecture=MSIL" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="DrawEngine\Charts\ColorMaps\ColorMap.cs" />
+    <Compile Include="DrawEngine\Charts\ColorMaps\ParulaColorMap.cs" />
+    <Compile Include="DrawEngine\Charts\ColouredMapPlot.cs" />
+    <Compile Include="DrawEngine\DDArray.cs" />
+    <Compile Include="DrawEngine\Charts\MultiSignalPlot.cs" />
+    <Compile Include="DrawEngine\Charts\TimedSignalPlot.cs" />
+    <Compile Include="DrawEngine\Charts\PlotObject.cs" />
+    <Compile Include="DrawEngine\Charts\MapPlot.cs" />
+    <Compile Include="DrawEngine\Charts\SignalPlot.cs" />
+    <Compile Include="DrawEngine\DataSeries.cs" />
+    <Compile Include="DrawEngine\DataPoint.cs" />
+    <Compile Include="Ext.cs" />
+    <Compile Include="IO\DataReader.cs" />
+    <Compile Include="IO\DataWriter.cs" />
+    <Compile Include="IO\SourceData.cs" />
+    <Compile Include="MathMethods\Lyapunov\BenettinMethod.cs" />
+    <Compile Include="MathMethods\Lyapunov\KantzMethodNew.cs" />
+    <Compile Include="MathMethods\Lyapunov\KantzMethod2.cs" />
+    <Compile Include="MathMethods\Lyapunov\KantzMethod.cs" />
+    <Compile Include="MathMethods\Lyapunov\LyapunovMethod.cs" />
+    <Compile Include="MathMethods\Lyapunov\RosensteinMethod.cs" />
+    <Compile Include="MathMethods\Solvers\RK6.cs" />
+    <Compile Include="Threading\ThreadedRun.cs" />
+    <Compile Include="NeuralNet\ActivationFunction\ActivationFunction.cs" />
+    <Compile Include="NeuralNet\ActivationFunction\Functions.cs" />
+    <Compile Include="MathMethods\Orthogonalization\CGS.cs" />
+    <Compile Include="MathMethods\Orthogonalization\HH.cs" />
+    <Compile Include="MathMethods\Orthogonalization\MGS.cs" />
+    <Compile Include="MathMethods\Orthogonalization\Orthogonalization.cs" />
+    <Compile Include="MathMethods\Solvers\RK4.cs" />
+    <Compile Include="MathMethods\Solvers\SimpleSolver.cs" />
+    <Compile Include="MathMethods\Solvers\Solver.cs" />
+    <Compile Include="MathMethods\Solvers\SystemEquations.cs" />
+    <Compile Include="MathMethods\Lyapunov\WolfMethod.cs" />
+    <Compile Include="NeuralNet\NeuralNet.cs" />
+    <Compile Include="NeuralNet\NeuralNetEquations.cs" />
+    <Compile Include="NeuralNet\NeuralNetParams.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Transform\Fourier.cs" />
+    <Compile Include="Transform\Model3D.cs" />
+    <Compile Include="Transform\PoincareMap.cs" />
+    <Compile Include="Transform\Sound.cs" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
