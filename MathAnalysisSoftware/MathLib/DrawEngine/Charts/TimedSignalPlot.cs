@@ -91,7 +91,12 @@ namespace MathLib.DrawEngine.Charts
             gp.AddLines(points.ToArray());
             g.DrawPath(plotPen, gp);
 
-            g.DrawString(GetAxisValue(da.t), gridFont, br, (float)PointMax.X, (float)(PointMin.Y - 20), FormatR);
+
+            StringFormat FormatT = new StringFormat();
+            FormatT.LineAlignment = StringAlignment.Center;
+            FormatT.Alignment = StringAlignment.Far;
+
+            g.DrawString(GetAxisValue(da.t), gridFont, br, PointMax.Xint, BitmapSize.Height - 4 * axisTitleFont.Size, FormatT);
 
             gp.Dispose();
             g.Dispose();
@@ -113,13 +118,46 @@ namespace MathLib.DrawEngine.Charts
             g.DrawLine(gridPen, crossPoint, new Point(PointMin.Xint, PointMax.Yint));
             g.DrawLine(gridPen, crossPoint, new Point(PointMax.Xint, PointMin.Yint));
 
-            g.DrawString(timeStart, gridFont, br, PointMin.Xint, PointMin.Yint + 3);
-            g.DrawString(timeEnd, gridFont, br, PointMax.Xint, PointMin.Yint + 3, FormatR);
-            g.DrawString(LabelX, axisTitleFont, br, PointMax.Xint / 2, BitmapSize.Height - gridFont.Height);
+            // x axis text
+            float xAxisY = BitmapSize.Height - axisTitleFont.Size;
 
-            g.DrawString(GetAxisValue(TsPointMax.Y), gridFont, br, PointMin.Xint - gridFont.Height, PointMax.Yint, FormatV);
-            g.DrawString(GetAxisValue(TsPointMin.Y), gridFont, br, PointMin.Xint - gridFont.Height, PointMin.Yint, FormatVR);
-            g.DrawString(LabelY, axisTitleFont, br, 0, PointMin.Yint / 2 + 15, FormatVR);
+            StringFormat FormatX = new StringFormat();
+            FormatX.LineAlignment = StringAlignment.Center;
+
+            FormatX.Alignment = StringAlignment.Near;
+            g.DrawString(timeStart, gridFont, br, PointMin.Xint, xAxisY, FormatX);
+
+            FormatX.Alignment = StringAlignment.Far;
+            g.DrawString(timeEnd, gridFont, br, PointMax.Xint, xAxisY, FormatX);
+
+            FormatX.Alignment = StringAlignment.Center;
+            g.DrawString(LabelX, axisTitleFont, br, PointMax.Xint / 2 + PointMin.Xint, xAxisY, FormatX);
+
+
+            //y axis text
+
+            g.RotateTransform(180, MatrixOrder.Append);
+            g.TranslateTransform(PointMin.Xint, PointMin.Yint, MatrixOrder.Append);
+
+            float yAxisX = PointMin.Xint - axisTitleFont.Size;
+
+            StringFormat FormatY = new StringFormat();
+            FormatY.LineAlignment = StringAlignment.Center;
+            FormatY.FormatFlags = StringFormatFlags.DirectionVertical;
+
+            //min value at max as text rotated
+            FormatY.Alignment = StringAlignment.Near;
+            g.DrawString(GetAxisValue(TsPointMin.Y), gridFont, br, yAxisX, PointMax.Yint, FormatY);
+
+            //max value at min as text rotated
+            FormatY.Alignment = StringAlignment.Far;
+            g.DrawString(GetAxisValue(TsPointMax.Y), gridFont, br, yAxisX, PointMin.Yint, FormatY);
+
+            FormatY.Alignment = StringAlignment.Center;
+            g.DrawString(LabelY, axisTitleFont, br, yAxisX, PointMin.Yint / 2, FormatY);
+
+            g.RotateTransform(-180, MatrixOrder.Append);
+            g.TranslateTransform(PointMin.Xint, PointMin.Yint, MatrixOrder.Append);
         }
 
     }

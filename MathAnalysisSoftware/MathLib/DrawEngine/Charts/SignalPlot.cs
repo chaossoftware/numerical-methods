@@ -112,6 +112,7 @@ namespace MathLib.DrawEngine.Charts
             g.DrawString(LabelY, axisTitleFont, br, yAxisX, PointMin.Yint / 2, FormatY);
 
             g.RotateTransform(-180, MatrixOrder.Append);
+            g.TranslateTransform(PointMin.Xint, PointMin.Yint, MatrixOrder.Append);
         }
     }
 }
