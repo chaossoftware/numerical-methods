@@ -96,12 +96,12 @@ namespace MathLib.DrawEngine.Charts {
             g.DrawLine(gridPen, crossPoint, new Point(xRight, crossY));
 
             g.DrawString(timeStart, gridFont, br, (float)crossX, (float)crossY + 3);
-            g.DrawString(timeEnd, gridFont, br, (float)xRight, (float)crossY + 3, FormatR);
+            g.DrawString(timeEnd, gridFont, br, (float)xRight, (float)crossY + 3, new StringFormat());
             g.DrawString(LabelX, axisTitleFont, br, (float)xRight / 2, BitmapSize.Height - gridFont.Height);
 
-            g.DrawString(String.Format("{0:F4}", maxVal).TrimEnd('0').TrimEnd('.'), gridFont, br, (float)crossX - gridFont.Height, (float)yUp, FormatV);
-            g.DrawString(String.Format("{0:F4}", minVal).TrimEnd('0').TrimEnd('.'), gridFont, br, (float)crossX - gridFont.Height, (float)crossY, FormatVR);
-            g.DrawString(LabelY, axisTitleFont, br, 0, (float)crossY / 2 + 15, FormatVR);
+            g.DrawString(String.Format("{0:F4}", maxVal).TrimEnd('0').TrimEnd('.'), gridFont, br, (float)crossX - gridFont.Height, (float)yUp, new StringFormat());
+            g.DrawString(String.Format("{0:F4}", minVal).TrimEnd('0').TrimEnd('.'), gridFont, br, (float)crossX - gridFont.Height, (float)crossY, new StringFormat());
+            g.DrawString(LabelY, axisTitleFont, br, 0, (float)crossY / 2 + 15, new StringFormat());
         }
 
 
