@@ -36,8 +36,8 @@ namespace MathLib.DrawEngine.Charts {
 
             plotPen = new Pen(Color.SteelBlue, thickness);
             gridPen = new Pen(Color.Black, 2);
-            gridFont = new Font(new FontFamily("Cambria Math"), 13f);
-            axisTitleFont = new Font(new FontFamily("Cambria Math"), 12f, FontStyle.Bold);
+            gridFont = new Font(new FontFamily("Cambria Math"), 10f);
+            axisTitleFont = new Font(new FontFamily("Cambria Math"), 11f, FontStyle.Bold);
             br = new SolidBrush(Color.Black);
         }
 
@@ -52,23 +52,6 @@ namespace MathLib.DrawEngine.Charts {
         /// </summary>
         protected abstract void DrawGrid();
 
-
-        /// <summary>
-        /// get X coefficient for coordinates to plot Phase portrait
-        /// </summary>
-        /// <param name="pBoxSize">PictureBox height</param>
-        /// <param name="maxVal">maximum absolute value from signal</param>
-        /// <returns></returns>
-        protected void GetXCoefficient() { }
-
-
-        /// <summary>
-        /// get Y coefficient for coordinates to plot Phase portrait
-        /// </summary>
-        /// <param name="pBoxSize">PictureBox height</param>
-        /// <param name="maxVal">maximum absolute value from signal</param>
-        /// <returns></returns>
-        protected void GetYCoefficient() { }
 
         protected string GetAxisValue(double value, int decPlaces = 5)
         {
