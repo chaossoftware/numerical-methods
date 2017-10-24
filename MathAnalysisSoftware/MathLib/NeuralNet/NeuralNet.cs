@@ -1,4 +1,5 @@
 ﻿using MathLib.MathMethods.Lyapunov;
+using MathLib.NeuralNet.Entities;
 using System;
 
 namespace MathLib.NeuralNetwork {
@@ -11,6 +12,9 @@ namespace MathLib.NeuralNetwork {
         public static NeuralNetEquations System_Equations;
 
         private static Random random = new Random();
+
+        public static Neuron[] HiddenNeurons;
+        public static Neuron OutputNeuron;
 
         //----- input data
         private static long nmax;  //lines in file
@@ -32,13 +36,8 @@ namespace MathLib.NeuralNetwork {
         private static double ddw;
 
         //----- arrays
-        public static double[,] a, abest, averybest;
-        public static double[] b, bbest, bverybest;
         public static double[] ex, exbest;
-        public static double[] dx;
 
-        private static int[,] prune;
-        
         public static double[] xlast;
 
         public static int successCount;
@@ -84,13 +83,13 @@ namespace MathLib.NeuralNetwork {
                     ddw = Math.Min(Task_Params.MaxPertrubation, Math.Sqrt(verybest));
                 }
 
-                bbest[0] = bverybest[0];
+                foreach (Synapse synapse in OutputNeuron.Inputs)
+                    synapse.WBest = synapse.WVeryBest;
 
                 for (int i = 1; i <= Task_Params.Neurons; i++) {
                     for (int j = 0; j <= Task_Params.Dimensions; j++) {
-                        abest[i, j] = averybest[i, j];
+                        HiddenNeurons[i].Inputs[j].WBest = HiddenNeurons[i].Inputs[j].WVeryBest;
                     }
-                    bbest[i] = bverybest[i];
                 }
 
 
@@ -103,19 +102,21 @@ namespace MathLib.NeuralNetwork {
                     Task_Params.ActFunction.cbest[0] = 1;
                 //----------------------------------------------------------------
 
-                int N_MUL_D_MINCT_PLUS_1_PLUS_N_PLUS_1 = neurons * (dims - Task_Params.ConstantTerm + 1) + neurons;
+                int N_MUL_D_MINCT_PLUS_1_PLUS_N_PLUS_1 = neurons * (dims - Task_Params.ConstantTerm + 1) + neurons + 1;
 
                 for (_c = 1; _c <= Task_Params.CMax; _c++) {
 
                     if (Task_Params.Pruning == 0)
-                        Array.Clear(prune, 0, prune.Length);//prune = new int[Task_Params.Neurons + 1, Task_Params.Dimensions + 1];
-
+                        foreach (Neuron neuron in HiddenNeurons)
+                            foreach (Synapse synapse in neuron.Inputs)
+                                synapse.Prune = false;
+                        
                     double e1 = 0;
                     int prunes = 0;
 
                     for (int i = 1; i <= neurons; i++)
                         for (int j = Task_Params.ConstantTerm; j <= dims; j++)
-                            if (a[i, j] == 0)
+                            if (HiddenNeurons[i].Inputs[j].Weight == 0)
                                 prunes++;
 
                     //Probability of changing a given parameter at each trial
@@ -123,28 +124,33 @@ namespace MathLib.NeuralNetwork {
                     double pc = 1d / Math.Sqrt(N_MUL_D_MINCT_PLUS_1_PLUS_N_PLUS_1 - prunes); // optimization
 
                     if (Task_Params.BiasTerm == 0)
-                        b[0] = bbest[0] + ddw * (Ext.Gauss2(random) - Task_Params.Nudge * Math.Sign(bbest[0]));
+                    {
+                        double wBest = OutputNeuron.Inputs[0].WBest;
+                        OutputNeuron.Inputs[0].Weight = wBest + ddw * (Ext.Gauss2(random) - Task_Params.Nudge * Math.Sign(wBest));
+                    }
                     else
-                        b[0] = 0;
+                        OutputNeuron.Inputs[0].Weight = 0;
 
                     for (int i = 1; i <= neurons; i++) {
-                        b[i] = bbest[i];
+                        double wBest = OutputNeuron.Inputs[i].WBest;
+                        OutputNeuron.Inputs[i].Weight = wBest;
                         if (random.NextDouble() < 9 * pc)
-                            b[i] += ddw * (Ext.Gauss2(random) - Task_Params.Nudge * Math.Sign(bbest[i]));
+                            OutputNeuron.Inputs[i].Weight += ddw * (Ext.Gauss2(random) - Task_Params.Nudge * Math.Sign(wBest));
             
                         //Eliminates constant term if ct=1
                         for (int j = Task_Params.ConstantTerm; j <= dims; j++) {
                 
                             //Reduce neighborhood for large j by a factor of 1-32
                             double dj = 1d/Math.Pow(2, MIN_D5_DIV_D * j);
-                            a[i, j] = abest[i, j];
+                            double aBest = HiddenNeurons[i].Inputs[j].WBest;
+                            HiddenNeurons[i].Inputs[j].Weight = aBest;
                 
                             if (random.NextDouble() < pc )
-                                a[i, j] += ddw * dj * (Ext.Gauss2(random) - Task_Params.Nudge * Math.Sign(abest[i, j]));
+                                HiddenNeurons[i].Inputs[j].Weight += ddw * dj * (Ext.Gauss2(random) - Task_Params.Nudge * Math.Sign(aBest));
                 
                             //This connection has been pruned
-                            if (prune[i, j] != 0)
-                                a[i, j] = 0; 
+                            if (HiddenNeurons[i].Inputs[j].Prune)
+                                HiddenNeurons[i].Inputs[j].Weight = 0; 
                         }
                     }
 
@@ -166,15 +172,15 @@ namespace MathLib.NeuralNetwork {
                         for (int j = 1; j <= Task_Params.Dimensions; j++)
                             xlast[j] = xdata[k - j];
             
-                        x = b[0];
+                        x = OutputNeuron.Inputs[0].Weight;
 
                         for (int i = 1; i <= Task_Params.Neurons; i++) {
-                            arg = a[i, 0];
+                            arg = HiddenNeurons[i].Inputs[0].Weight;
 
                             for (int j = 1; j <= Task_Params.Dimensions; j++)
-                                arg += a[i, j] * xlast[j];
+                                arg += HiddenNeurons[i].Inputs[j].Weight * xlast[j];
 
-                            x += b[i] * Task_Params.ActFunction.Phi(arg);
+                            x += OutputNeuron.Inputs[i].Weight * Task_Params.ActFunction.Phi(arg);
                         }
 
                         //Error in the prediction of the k-th data point
@@ -198,13 +204,13 @@ namespace MathLib.NeuralNetwork {
 
                         improved ++;
                         ebest = e1;
-                        bbest[0] = b[0];
+
+                        foreach (Synapse synapse in OutputNeuron.Inputs)
+                            synapse.WBest = synapse.Weight;
             
                         for (int i = 1; i <= Task_Params.Neurons; i++) {
                             for (int j = 0; j <= Task_Params.Dimensions; j++)
-                                abest[i, j] = a[i, j];
-                            
-                            bbest[i] = b[i];
+                                HiddenNeurons[i].Inputs[j].WBest = HiddenNeurons[i].Inputs[j].Weight;
                         }
 
 
@@ -261,8 +267,13 @@ namespace MathLib.NeuralNetwork {
                     if (Task_Params.Pruning != 0) 
                         for (int i = 1; i <= Task_Params.Neurons; i++)
                             for (int j = 0; j <= Task_Params.Dimensions; j++)
-                                if (abest[i, j] != 0 && Math.Abs(abest[i, j] * bbest[i]) < TEN_POW_MIN_PRUNING)
-                                    prune[i, j] = -1;
+                            {
+                                double aBest = HiddenNeurons[i].Inputs[j].WBest;
+                                double bBest = OutputNeuron.Inputs[i].WBest;
+                                if (aBest != 0 && Math.Abs(aBest * bBest) < TEN_POW_MIN_PRUNING)
+                                    HiddenNeurons[i].Inputs[j].Prune = true;
+                            }
+                                
                 }
 
 
@@ -274,14 +285,14 @@ namespace MathLib.NeuralNetwork {
                 countnd ++;
 
                 //Save the very best case
-                verybest = ebest; 
-                bverybest[0] = bbest[0];
+                verybest = ebest;
+
+                foreach (Synapse synapse in OutputNeuron.Inputs)
+                    synapse.WVeryBest = synapse.WBest;
                 
                 for (int i = 1; i <= Task_Params.Neurons; i++) {
                     for (int j = 0; j <= Task_Params.Dimensions; j++)
-                        averybest[i, j] = abest[i, j];
-                    
-                    bverybest[i] = bbest[i];
+                        HiddenNeurons[i].Inputs[j].WVeryBest = HiddenNeurons[i].Inputs[j].WBest;
                 }
 
 
@@ -311,6 +322,13 @@ namespace MathLib.NeuralNetwork {
         /// </summary>
         private void Init(double[] sourceArray) {
 
+            HiddenNeurons = new Neuron[Task_Params.Neurons + 1];
+            for (int i = 0; i < Task_Params.Neurons + 1; i++)
+                HiddenNeurons[i] = new Neuron(Task_Params.ActFunction, Task_Params.Dimensions + 1);
+
+            OutputNeuron = new Neuron(Task_Params.ActFunction, Task_Params.Neurons + 1);
+
+
             nmax = sourceArray.Length;
             xmax = Ext.countMaxAbs(sourceArray);
 
@@ -328,24 +346,15 @@ namespace MathLib.NeuralNetwork {
             neurons = Task_Params.Neurons;
             dims = Task_Params.Dimensions;
 
-            a = new double[Task_Params.Neurons + 1, Task_Params.Dimensions + 1];
-            abest = new double[Task_Params.Neurons + 1, Task_Params.Dimensions + 1];
-            averybest = new double[Task_Params.Neurons + 1, Task_Params.Dimensions + 1]; //averybest = new double[101, Task_Params.Dimensions + 1]; 
-
-            b = new double[Task_Params.Neurons + 1];
-            bbest = new double[Task_Params.Neurons + 1];
-            bverybest = new double[Task_Params.Neurons + 1];//bverybest = new double[101];
-            
             ex = new double[nmax + 1];
             exbest = new double[nmax + 1];
 
-            dx = new double[Task_Params.Dimensions + 1];
+            
 
             xlast = new double[Task_Params.Dimensions + 1];
 
-            prune = new int[Task_Params.Neurons + 1, Task_Params.Dimensions + 1];//prune = new int[101, Task_Params.Dimensions + 1];
-
             ddw = Task_Params.MaxPertrubation;
+
         }
 
     }
