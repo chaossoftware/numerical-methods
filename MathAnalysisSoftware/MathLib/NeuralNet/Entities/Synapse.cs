@@ -8,15 +8,15 @@ namespace MathLib.NeuralNet.Entities
     public class Synapse
     {
         public double Weight;
-        public double WBest;
-        public double WVeryBest;
+        public double WeightGood;
+        public double WeightBest;
         public bool Prune;
 
         public Synapse()
         {
             Weight = 0;
-            WBest = 0;
-            WVeryBest = 0;
+            WeightGood = 0;
+            WeightBest = 0;
             Prune = false;
         }
     }
