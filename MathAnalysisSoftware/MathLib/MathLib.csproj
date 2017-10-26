@@ -67,7 +67,11 @@
     <Compile Include="MathMethods\Lyapunov\LyapunovMethod.cs" />
     <Compile Include="MathMethods\Lyapunov\RosensteinMethod.cs" />
     <Compile Include="MathMethods\Solvers\RK6.cs" />
+    <Compile Include="NeuralNet\Entities\BiasNeuron.cs" />
     <Compile Include="NeuralNet\Entities\Neuron.cs" />
+    <Compile Include="NeuralNet\Entities\HiddenNeuron.cs" />
+    <Compile Include="NeuralNet\Entities\InputNeuron.cs" />
+    <Compile Include="NeuralNet\Entities\OutputNeuron.cs" />
     <Compile Include="NeuralNet\Entities\Synapse.cs" />
     <Compile Include="Threading\ThreadedRun.cs" />
     <Compile Include="NeuralNet\ActivationFunction\ActivationFunction.cs" />

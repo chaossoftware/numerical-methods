@@ -1,36 +1,31 @@
-﻿using MathLib.NeuralNetwork;
-
+﻿
 namespace MathLib.NeuralNet.Entities
 {
-    public class Neuron
+    public abstract class Neuron
     {
-        private ActivationFunction ActivationFunction;
 
-        public Synapse[] Inputs;
-
-        public double Output;
+        public Synapse[] Outputs;
 
 
-        public Neuron(ActivationFunction activationFunction)
+        public void UpdateMemoryWithBestResult()
         {
-            Output = 0;
-            ActivationFunction = activationFunction;
+            foreach (Synapse synapse in Outputs)
+                synapse.Memory = synapse.BestCase;
         }
 
-        public Neuron(ActivationFunction activationFunction, int inputsCount)
+        public void MemorizeWeights()
         {
-            Output = 0;
-            ActivationFunction = activationFunction;
+            foreach (Synapse synapse in Outputs)
+                synapse.Memory = synapse.Weight;
+        }
 
-            Inputs = new Synapse[inputsCount];
-            for (int i = 0; i < inputsCount; i++)
-                Inputs[i] = new Synapse();
+        public void SaveBestWeights()
+        {
+            foreach (Synapse synapse in Outputs)
+                synapse.BestCase = synapse.Memory;
         }
 
 
-        public void Process()
-        {
-
-        }
+        public abstract void Process();
     }
 }
