@@ -21,7 +21,7 @@ namespace MathLib.NeuralNetwork {
         public override double[,] Derivs(double[,] x, double[,] dxdt) { throw new NotImplementedException(); }
 
 
-        public double[,] Derivs(double[,] x, double[,] a, double[] b) {
+        public double[,] Derivs(double[,] x, double[,] a, double[] b, double bias) {
             double[] df = new double[N];
             double[,] xnew = new double[NN, N];
             double arg = 0;
@@ -29,9 +29,9 @@ namespace MathLib.NeuralNetwork {
             /*
              * Nonlinear neural net equations:
              */
-            xnew[0, 0] = b[0];
+            xnew[0, 0] = bias;
 
-            for (int i = 1; i <= Neurons; i++) {
+            for (int i = 0; i < Neurons; i++) {
                 arg = a[i, 0];
 
                 for (int j = 1; j <= N; j++)
@@ -50,7 +50,7 @@ namespace MathLib.NeuralNetwork {
             for (int k = 1; k <= N; k++) {
                 df[k-1] = 0;
 
-                for (int i = 1; i <= Neurons; i++) {
+                for (int i = 0; i < Neurons; i++) {
                     arg = a[i, 0];
 
                     for (int j = 1; j <= N; j++)

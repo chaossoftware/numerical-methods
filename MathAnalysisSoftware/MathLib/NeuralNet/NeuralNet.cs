@@ -16,6 +16,8 @@ namespace MathLib.NeuralNetwork {
         public static Neuron[] HiddenNeurons;
         public static Neuron OutputNeuron;
 
+        public static Synapse Bias;
+
         //----- input data
         private static long nmax;  //lines in file
         private static double xmax;//max value
@@ -83,12 +85,13 @@ namespace MathLib.NeuralNetwork {
                     ddw = Math.Min(Params.MaxPertrubation, Math.Sqrt(verybest));
                 }
 
+                Bias.WeightGood = Bias.WeightBest;
                 foreach (Synapse synapse in OutputNeuron.Inputs)
                     synapse.WeightGood = synapse.WeightBest;
 
-                for (int i = 1; i <= Params.Neurons; i++) {
+                foreach (Neuron neuron in HiddenNeurons) {
                     for (int j = 0; j <= Params.Dimensions; j++) {
-                        HiddenNeurons[i].Inputs[j].WeightGood = HiddenNeurons[i].Inputs[j].WeightBest;
+                        neuron.Inputs[j].WeightGood = neuron.Inputs[j].WeightBest;
                     }
                 }
 
@@ -114,7 +117,7 @@ namespace MathLib.NeuralNetwork {
                     double e1 = 0;
                     int prunes = 0;
 
-                    for (int i = 1; i <= neurons; i++)
+                    for (int i = 0; i < neurons; i++)
                         for (int j = Params.ConstantTerm; j <= dims; j++)
                             if (HiddenNeurons[i].Inputs[j].Weight == 0)
                                 prunes++;
@@ -124,13 +127,12 @@ namespace MathLib.NeuralNetwork {
 
                     if (Params.BiasTerm == 0)
                     {
-                        double wBest = OutputNeuron.Inputs[0].WeightGood;
-                        OutputNeuron.Inputs[0].Weight = wBest + ddw * (Ext.Gauss2(random) - Params.Nudge * Math.Sign(wBest));
+                        Bias.Weight = Bias.WeightGood + ddw * (Ext.Gauss2(random) - Params.Nudge * Math.Sign(Bias.WeightGood));
                     }
                     else
-                        OutputNeuron.Inputs[0].Weight = 0;
+                        Bias.Weight = 0;
 
-                    for (int i = 1; i <= neurons; i++) {
+                    for (int i = 0; i < neurons; i++) {
                         double wBest = OutputNeuron.Inputs[i].WeightGood;
                         OutputNeuron.Inputs[i].Weight = wBest;
                         if (random.NextDouble() < 9 * pc)
@@ -171,9 +173,9 @@ namespace MathLib.NeuralNetwork {
                         for (int j = 1; j <= Params.Dimensions; j++)
                             xlast[j] = xdata[k - j];
             
-                        x = OutputNeuron.Inputs[0].Weight;
+                        x = Bias.Weight;
 
-                        for (int i = 1; i <= Params.Neurons; i++) {
+                        for (int i = 0; i < Params.Neurons; i++) {
                             arg = HiddenNeurons[i].Inputs[0].Weight;
 
                             for (int j = 1; j <= Params.Dimensions; j++)
@@ -196,12 +198,13 @@ namespace MathLib.NeuralNetwork {
                         improved ++;
                         ebest = e1;
 
+                        Bias.WeightGood = Bias.Weight;
                         foreach (Synapse synapse in OutputNeuron.Inputs)
                             synapse.WeightGood = synapse.Weight;
             
-                        for (int i = 1; i <= Params.Neurons; i++) {
+                        foreach (Neuron neuron in HiddenNeurons) {
                             for (int j = 0; j <= Params.Dimensions; j++)
-                                HiddenNeurons[i].Inputs[j].WeightGood = HiddenNeurons[i].Inputs[j].Weight;
+                                neuron.Inputs[j].WeightGood = neuron.Inputs[j].Weight;
                         }
 
 
@@ -258,7 +261,7 @@ namespace MathLib.NeuralNetwork {
      		
                     //Mark the weakconnections for pruning
                     if (Params.Pruning != 0) 
-                        for (int i = 1; i <= Params.Neurons; i++)
+                        for (int i = 0; i < Params.Neurons; i++)
                             for (int j = 0; j <= Params.Dimensions; j++)
                             {
                                 double aBest = HiddenNeurons[i].Inputs[j].WeightGood;
@@ -280,12 +283,13 @@ namespace MathLib.NeuralNetwork {
                 //Save the very best case
                 verybest = ebest;
 
+                Bias.WeightBest = Bias.WeightGood;
                 foreach (Synapse synapse in OutputNeuron.Inputs)
                     synapse.WeightBest = synapse.WeightGood;
                 
-                for (int i = 1; i <= Params.Neurons; i++) {
+                foreach (Neuron neuron in HiddenNeurons) {
                     for (int j = 0; j <= Params.Dimensions; j++)
-                        HiddenNeurons[i].Inputs[j].WeightBest = HiddenNeurons[i].Inputs[j].WeightGood;
+                        neuron.Inputs[j].WeightBest = neuron.Inputs[j].WeightGood;
                 }
 
 
@@ -315,11 +319,13 @@ namespace MathLib.NeuralNetwork {
         /// </summary>
         private void Init(double[] sourceArray) {
 
-            HiddenNeurons = new Neuron[Params.Neurons + 1];
-            for (int i = 0; i < Params.Neurons + 1; i++)
+            HiddenNeurons = new Neuron[Params.Neurons];
+            for (int i = 0; i < Params.Neurons; i++)
                 HiddenNeurons[i] = new Neuron(Params.ActFunction, Params.Dimensions + 1);
 
-            OutputNeuron = new Neuron(Params.ActFunction, Params.Neurons + 1);
+            OutputNeuron = new Neuron(Params.ActFunction, Params.Neurons);
+
+            Bias = new Synapse();
 
             nmax = sourceArray.Length;
             xmax = Ext.countMaxAbs(sourceArray);
