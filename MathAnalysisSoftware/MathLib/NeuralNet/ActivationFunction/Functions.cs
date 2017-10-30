@@ -202,15 +202,31 @@ namespace MathLib.NeuralNetwork {
 
     public class PolynomialSixOrderFunction : ActivationFunction {
 
-        public bool additionalArray = true;
+        public PolynomialSixOrderFunction()
+        {
+            AdditionalNeuron = true;
+            InitNetworkLayer();
+        }
+
 
         public override double Phi(double arg) {
-            return c[0] + arg * (c[1] + arg * (c[2] + arg * (c[3] + arg * (c[4] + arg * (c[5] + arg * c[6])))));
+            return Neuron.Outputs[0].Weight + 
+                arg * (Neuron.Outputs[1].Weight + 
+                    arg * (Neuron.Outputs[2].Weight + 
+                        arg * (Neuron.Outputs[3].Weight + 
+                            arg * (Neuron.Outputs[4].Weight + 
+                                arg * (Neuron.Outputs[5].Weight + 
+                                    arg * Neuron.Outputs[6].Weight)))));
         }
 
 
         public override double Dphi(double arg) {
-            return c[1] + arg * (2d * c[2] + arg * (3d * c[3] + arg *(4d * c[4] + arg * (5d * c[5] + arg * 6d * c[6]))));
+            return Neuron.Outputs[1].Weight + 
+                arg * (2d * Neuron.Outputs[2].Weight + 
+                    arg * (3d * Neuron.Outputs[3].Weight + 
+                        arg * (4d * Neuron.Outputs[4].Weight + 
+                            arg * (5d * Neuron.Outputs[5].Weight + 
+                                arg * 6d * Neuron.Outputs[6].Weight))));
         }
 
 
@@ -222,18 +238,42 @@ namespace MathLib.NeuralNetwork {
 
     public class RationalFunction : ActivationFunction {
 
-        public bool additionalArray = true;
+        public RationalFunction()
+        {
+            AdditionalNeuron = true;
+            InitNetworkLayer();
+        }
 
         public override double Phi(double arg) {
-            return (c[0] + arg * (c[1] + arg * (c[2] + arg * c[3]))) / (1d + arg * (c[4] + arg * (c[5] + arg * c[6])));
+            return (Neuron.Outputs[0].Weight + 
+                arg * (Neuron.Outputs[1].Weight + 
+                    arg * (Neuron.Outputs[2].Weight + 
+                        arg * Neuron.Outputs[3].Weight))) 
+                / (1d + 
+                arg * (Neuron.Outputs[4].Weight + 
+                    arg * (Neuron.Outputs[5].Weight + 
+                        arg * Neuron.Outputs[6].Weight)));
         }
 
 
         public override double Dphi(double arg) {
-            double f = c[0] + arg * (c[1] + arg * (c[2] + arg * c[3]));
-            double df = c[1] + arg * (2d * c[2] + arg * 3d * c[3]);
-            double g = 1d +arg * (c[4] + arg * (c[5] + arg * c[6]));
-            double dg = c[4] + arg * (2d * c[5] + arg * 3d * c[6]);
+            double f = Neuron.Outputs[0].Weight + 
+                arg * (Neuron.Outputs[1].Weight + 
+                    arg * (Neuron.Outputs[2].Weight + 
+                        arg * Neuron.Outputs[3].Weight));
+
+            double df = Neuron.Outputs[1].Weight + 
+                arg * (2d * Neuron.Outputs[2].Weight + 
+                    arg * 3d * Neuron.Outputs[3].Weight);
+
+            double g = 1d + arg * (Neuron.Outputs[4].Weight + 
+                arg * (Neuron.Outputs[5].Weight + 
+                    arg * Neuron.Outputs[6].Weight));
+
+            double dg = Neuron.Outputs[4].Weight + 
+                arg * (2d * Neuron.Outputs[5].Weight + 
+                    arg * 3d * Neuron.Outputs[6].Weight);
+
             return (g * df - f * dg) / (g * g);
         }
 
@@ -245,18 +285,31 @@ namespace MathLib.NeuralNetwork {
 
     public class SpecialFunction : ActivationFunction {
 
-        public bool additionalArray = true;
+        public SpecialFunction()
+        {
+            AdditionalNeuron = true;
+            InitNetworkLayer();
+        }
 
         public override double Phi(double arg) {
             if (Math.Abs(arg) < 22d)
-                return c[0] + arg * (c[1] + arg * c[2]) + c[3] * (1d - 2d / (Math.Exp(2d * arg) + 1d));
+                return Neuron.Outputs[0].Weight + 
+                    arg * (Neuron.Outputs[1].Weight + 
+                        arg * Neuron.Outputs[2].Weight) +
+                    Neuron.Outputs[3].Weight * 
+                        (1d - 2d / (Math.Exp(2d * arg) + 1d));
             else
-                return c[0] + arg * (c[1] + arg * c[2]) + c[3] * Math.Sign(arg);
+                return Neuron.Outputs[0].Weight + 
+                    arg * (Neuron.Outputs[1].Weight + 
+                        arg * Neuron.Outputs[2].Weight) +
+                            Neuron.Outputs[3].Weight * Math.Sign(arg);
         }
 
 
         public override double Dphi(double arg) {
-            return c[1] + arg * 2d * c[2] + c[3] * Math.Pow(Sech(arg), 2);
+            return Neuron.Outputs[1].Weight + 
+                arg * 2d * Neuron.Outputs[2].Weight +
+                    Neuron.Outputs[3].Weight * Math.Pow(Sech(arg), 2);
         }
 
 

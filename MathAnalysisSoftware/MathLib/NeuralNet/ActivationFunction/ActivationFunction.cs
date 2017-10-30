@@ -1,14 +1,13 @@
-﻿using System;
+﻿using MathLib.NeuralNet.Entities;
+using System;
 
 namespace MathLib.NeuralNetwork {
 
     public abstract class ActivationFunction {
 
-        public double[] c = new double[7];
-        public double[] cbest = new double[7];
-        public double[] cverybest = new double[7];
+        public InputNeuron Neuron;
 
-        public bool additionalArray = false;
+        public bool AdditionalNeuron = false;
 
         public abstract double Phi(double arg);
 
@@ -24,6 +23,17 @@ namespace MathLib.NeuralNetwork {
             else {
                 return 0d;
             }
+        }
+
+        protected void InitNetworkLayer()
+        {
+            Neuron = new InputNeuron();
+            //Neuron.Inputs = new Synapse[7];
+            Neuron.Outputs = new Synapse[7];
+            //Neuron.Outputs[0] = new Synapse();
+
+            for (int i = 0; i < 7; i++)
+                Neuron.Outputs[i] = new Synapse();
         }
     }
 }

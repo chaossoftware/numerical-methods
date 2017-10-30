@@ -37,8 +37,6 @@ namespace MathLib.NeuralNetwork {
         private static double ddw;
 
         //----- arrays
-        public static double[] ex, exbest;
-
         public static double[] xlast;
 
         public static int successCount;
@@ -48,7 +46,7 @@ namespace MathLib.NeuralNetwork {
 
         public static int _c;
 
-        private static bool additionalArray;
+        private static bool AdditionalNeuron;
 
 
         public NeuralNet(NeuralNetParams taskParams, double[] array) {
@@ -56,7 +54,7 @@ namespace MathLib.NeuralNetwork {
             System_Equations = new NeuralNetEquations(Params.Dimensions, Params.Neurons, Params.ActFunction);
 
             Init(array);
-            additionalArray = Params.ActFunction.additionalArray;
+            AdditionalNeuron = Params.ActFunction.AdditionalNeuron;
         }
 
 
@@ -92,16 +90,16 @@ namespace MathLib.NeuralNetwork {
                     neuron.UpdateMemoryWithBestResult();
 
                 NeuronBias.UpdateMemoryWithBestResult();
+                
 
+                // same for Activation function neuron if needed
+                if(AdditionalNeuron)
+                {
+                    Params.ActFunction.Neuron.UpdateMemoryWithBestResult();
+                    if (Params.ActFunction.Neuron.Outputs[0].Memory == 0)
+                        Params.ActFunction.Neuron.Outputs[0].Memory = 1;
+                }
 
-                // TODO: 
-                //----------------------------------------------------------------
-                for (int j = 0; j <= 6; j++)
-                    Params.ActFunction.cbest[j] = Params.ActFunction.cverybest[j];
-
-                if (Params.ActFunction.cbest[0] == 0)
-                    Params.ActFunction.cbest[0] = 1;
-                //----------------------------------------------------------------
 
                 int N_MUL_D_MINCT_PLUS_1_PLUS_N_PLUS_1 = neurons * (dims - Params.ConstantTerm + 1) + neurons + 1;
 
@@ -154,16 +152,15 @@ namespace MathLib.NeuralNetwork {
                     }
 
 
-                    // TODO: 
-                    //----------------------------------------------------------------
-                    if (additionalArray) {
-                        for (int j = 0; j <= 6; j++) {
-                            Params.ActFunction.c[j] = Params.ActFunction.cbest[j];
+                    // same for Activation function neuron if needed
+                    if (AdditionalNeuron) {
+                        for (int j = 0; j < 7; j++) {
+                            double cBest = Params.ActFunction.Neuron.Outputs[j].Memory;
+                            Params.ActFunction.Neuron.Outputs[j].Weight = cBest;
                             if (random.NextDouble() < pc)
-                                Params.ActFunction.c[j] = Params.ActFunction.cbest[j] + ddw * (Ext.Gauss2(random) - Params.Nudge * Math.Sign(Params.ActFunction.cbest[j]));
+                                Params.ActFunction.Neuron.Outputs[j].Weight += ddw * (Ext.Gauss2(random) - Params.Nudge * Math.Sign(cBest));
                         }
                     }
-                    //----------------------------------------------------------------
 
 
                     for (int k = Params.Dimensions + 1; k <= nmax; k++) {
@@ -183,8 +180,8 @@ namespace MathLib.NeuralNetwork {
                         }
 
                         //Error in the prediction of the k-th data point
-                        ex[k] = Math.Abs(x - xdata[k]);
-                        e1 += Math.Pow(ex[k], Params.ErrorsExponent);
+                        double ex = Math.Abs(x - xdata[k]);
+                        e1 += Math.Pow(ex, Params.ErrorsExponent);
                     }
 
 
@@ -207,21 +204,15 @@ namespace MathLib.NeuralNetwork {
                         NeuronBias.MemorizeWeights();
 
 
-                        // TODO: 
-                        //----------------------------------------------------------------
-                        if (additionalArray) {
-                            for (int j = 0; j <= 6; j++)
-                                Params.ActFunction.cbest[j] = Params.ActFunction.c[j];
+                        // same for Activation function neuron if needed
+                        if (AdditionalNeuron) {
+                            Params.ActFunction.Neuron.MemorizeWeights();
                         }
-                        //----------------------------------------------------------------
-                        
-
-                        for (int k = 0; k <= nmax; k++)
-                            exbest[k] = ex[k];
                     }
                     else if (ddw > 0 && improved == 0) {
                         ddw = -ddw;     //Try going in the opposite direction
                     }
+                    //Reseed the random if the trial failed
                     else {
                         seed = random.Next(Int32.MaxValue);     //seed = (int) (1 / Math.Sqrt(e1));
             
@@ -240,8 +231,6 @@ namespace MathLib.NeuralNetwork {
                         continue;
 
 
-                    // TODO: 
-                    //-------------------------------------------------------------------
                     InvokeMethodForNeuralNet(LoggingMethod);
         
 
@@ -249,13 +238,11 @@ namespace MathLib.NeuralNetwork {
                         continue;
 
 
-                    // TODO: 
-                    //----------------------------------------------------------------
-                    if (additionalArray) {
-                        for (int j = 0; j <= 6; j++)
-                            Params.ActFunction.c[j] = Params.ActFunction.cbest[j];
+                    // same for Activation function neuron if needed
+                    if (AdditionalNeuron) {
+                        for (int j = 0; j < 7; j++)
+                            Params.ActFunction.Neuron.Outputs[j].Weight = Params.ActFunction.Neuron.Outputs[j].Memory;
                     }
-                    //----------------------------------------------------------------
 
      		
                     //Mark the weakconnections for pruning
@@ -268,7 +255,6 @@ namespace MathLib.NeuralNetwork {
                                 if (aBest != 0 && Math.Abs(aBest * bBest) < TEN_POW_MIN_PRUNING)
                                     NeuronsInput[j].Outputs[i].Prune = true;
                             }
-                                
                 }
 
 
@@ -289,22 +275,16 @@ namespace MathLib.NeuralNetwork {
 
                 NeuronBias.SaveBestWeights();
 
-
-                // TODO: 
-                //----------------------------------------------------------------
-                if (additionalArray) {
-                    for (int j = 0; j <= 6; j++) {
-                        Params.ActFunction.cverybest[j] = Params.ActFunction.cbest[j];
-                        Params.ActFunction.c[j] = Params.ActFunction.cverybest[j];
+                // same for Activation function neuron if needed
+                if (AdditionalNeuron) {
+                    Params.ActFunction.Neuron.SaveBestWeights();
+                    for (int j = 0; j < 7; j++) {
+                        Params.ActFunction.Neuron.Outputs[j].Weight = Params.ActFunction.Neuron.Outputs[j].BestCase;
                     }
                 }
-                //----------------------------------------------------------------
-
 
                 successCount++;
 
-                // TODO: 
-                //-------------------------------------------------------------------
                 InvokeMethodForNeuralNet(EndCycleMethod);
             }
         }
@@ -335,9 +315,6 @@ namespace MathLib.NeuralNetwork {
             
             neurons = Params.Neurons;
             dims = Params.Dimensions;
-
-            ex = new double[nmax + 1];
-            exbest = new double[nmax + 1];
 
             xlast = new double[Params.Dimensions + 1];
 
