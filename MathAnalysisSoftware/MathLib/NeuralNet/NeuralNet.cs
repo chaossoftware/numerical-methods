@@ -36,9 +36,6 @@ namespace MathLib.NeuralNetwork {
 
         private static double ddw;
 
-        //----- arrays
-        public static double[] xlast;
-
         public static int successCount;
 
         private static int improved = 0;
@@ -109,8 +106,7 @@ namespace MathLib.NeuralNetwork {
                         foreach (HiddenNeuron neuron in NeuronsHidden)
                             foreach (Synapse synapse in neuron.Inputs)
                                 synapse.Prune = false;
-                        
-                    double e1 = 0;
+                    
                     int prunes = 0;
 
                     for (int i = 0; i < neurons; i++)
@@ -162,11 +158,9 @@ namespace MathLib.NeuralNetwork {
                         }
                     }
 
+                    double e1 = 0;
 
                     for (int k = Params.Dimensions + 1; k <= nmax; k++) {
-            
-                        for (int j = 1; j <= Params.Dimensions; j++)
-                            xlast[j] = xdata[k - j];
             
                         x = NeuronBias.Outputs[0].Weight;
 
@@ -174,7 +168,7 @@ namespace MathLib.NeuralNetwork {
                             arg = NeuronsHidden[i].Inputs[0].Weight;
 
                             for (int j = 1; j <= Params.Dimensions; j++)
-                                arg += NeuronsInput[j].Outputs[i].Weight * xlast[j];
+                                arg += NeuronsInput[j].Outputs[i].Weight * xdata[k - j];
 
                             x += NeuronsHidden[i].Outputs[0].Weight * Params.ActFunction.Phi(arg);
                         }
@@ -315,8 +309,6 @@ namespace MathLib.NeuralNetwork {
             
             neurons = Params.Neurons;
             dims = Params.Dimensions;
-
-            xlast = new double[Params.Dimensions + 1];
 
             ddw = Params.MaxPertrubation;
 
