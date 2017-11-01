@@ -8,10 +8,6 @@ namespace MathLib.NeuralNet.Entities
     public class BiasNeuron : Neuron
     {
 
-        public override void Process()
-        {
-            throw new NotImplementedException();
-        }
 
     }
 }

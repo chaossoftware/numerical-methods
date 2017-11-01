@@ -15,10 +15,5 @@ namespace MathLib.NeuralNet.Entities
             Input = 0;
         }
 
-        public override void Process()
-        {
-            throw new NotImplementedException();
-        }
-
     }
 }

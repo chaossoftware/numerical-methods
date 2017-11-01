@@ -9,9 +9,5 @@ namespace MathLib.NeuralNet.Entities
     {
         public Synapse[] Inputs;
 
-        public override void Process()
-        {
-            throw new NotImplementedException();
-        }
     }
 }

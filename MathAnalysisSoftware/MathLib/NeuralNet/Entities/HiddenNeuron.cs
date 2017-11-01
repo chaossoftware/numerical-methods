@@ -17,14 +17,5 @@ namespace MathLib.NeuralNet.Entities
         {
 
         }
-
-
-        public override void Process()
-        {
-
-        }
-
-
-
     }
 }
