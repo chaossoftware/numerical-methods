@@ -13,6 +13,7 @@ namespace MathLib.NeuralNetwork {
         public static HiddenNeuron[] NeuronsHidden;
         public static OutputNeuron NeuronOutput;
         public static BiasNeuron NeuronBias;
+        public static BiasNeuron NeuronConstant;
 
         //----- input data
         private static long nmax;  //lines in file
@@ -75,10 +76,11 @@ namespace MathLib.NeuralNetwork {
                     neuron.UpdateMemoryWithBestResult();
 
                 NeuronBias.UpdateMemoryWithBestResult();
-                
+                NeuronConstant.UpdateMemoryWithBestResult();
+
 
                 // same for Activation function neuron if needed
-                if(AdditionalNeuron)
+                if (AdditionalNeuron)
                 {
                     Params.ActFunction.Neuron.UpdateMemoryWithBestResult();
                     if (Params.ActFunction.Neuron.Outputs[0].Memory == 0)
@@ -98,9 +100,15 @@ namespace MathLib.NeuralNetwork {
                     int prunes = 0;
 
                     for (int i = 0; i < neurons; i++)
-                        for (int j = Params.ConstantTerm; j <= dims; j++)
+                    {
+                        for (int j = 0; j < dims; j++)
                             if (NeuronsInput[j].Outputs[i].Weight == 0)
                                 prunes++;
+
+                        if (NeuronConstant.Outputs[i].Weight == 0 && Params.ConstantTerm == 0)
+                            prunes++;
+                    }
+
 
                     //Probability of changing a given parameter at each trial
                     double pc = 1d / Math.Sqrt(N_MUL_D_MINCT_PLUS_1_PLUS_N_PLUS_1 - prunes); // 1d / Sqrt(neurons * (dims - Task_Params.ConstantTerm + 1) + neurons + 1 - prunes)
@@ -115,9 +123,18 @@ namespace MathLib.NeuralNetwork {
                     for (int i = 0; i < neurons; i++) {
 
                         NeuronsHidden[i].CalculateWeight(0, ddw, 9 * pc);
-            
+
+                        if(Params.ConstantTerm == 0)
+                        {
+                            NeuronConstant.CalculateWeight(i, ddw, pc);
+
+                            //This connection has been pruned
+                            if (NeuronConstant.Outputs[i].Prune)
+                                NeuronConstant.Outputs[i].Weight = 0;
+                        }
+
                         //Eliminates constant term if ct=1
-                        for (int j = Params.ConstantTerm; j <= dims; j++) {
+                        for (int j = 0; j < dims; j++) {
                 
                             //Reduce neighborhood for large j by a factor of 1-32
                             double dj = 1d / Math.Pow(2, MIN_D5_DIV_D * j);
@@ -140,15 +157,15 @@ namespace MathLib.NeuralNetwork {
 
                     double e1 = 0;
 
-                    for (int k = Params.Dimensions + 1; k <= nmax; k++) {
+                    for (int k = Params.Dimensions; k < nmax; k++) {
             
                         double x = NeuronBias.Outputs[0].Weight;
 
                         for (int i = 0; i < Params.Neurons; i++) {
-                            double arg = NeuronsHidden[i].Inputs[0].Weight;
+                            double arg = NeuronConstant.Outputs[i].Weight;
 
-                            for (int j = 1; j <= Params.Dimensions; j++)
-                                arg += NeuronsInput[j].Outputs[i].Weight * xdata[k - j];
+                            for (int j = 0; j < Params.Dimensions; j++)
+                                arg += NeuronsInput[j].Outputs[i].Weight * xdata[k - j - 1];
 
                             x += NeuronsHidden[i].Outputs[0].Weight * Params.ActFunction.Phi(arg);
                         }
@@ -176,6 +193,7 @@ namespace MathLib.NeuralNetwork {
                             neuron.MemorizeWeights();
 
                         NeuronBias.MemorizeWeights();
+                        NeuronConstant.MemorizeWeights();
 
 
                         // same for Activation function neuron if needed
@@ -222,13 +240,18 @@ namespace MathLib.NeuralNetwork {
                     //Mark the weakconnections for pruning
                     if (Params.Pruning != 0) 
                         for (int i = 0; i < Params.Neurons; i++)
-                            for (int j = 0; j <= Params.Dimensions; j++)
+                        {
+                            for (int j = 0; j < Params.Dimensions; j++)
                             {
                                 double aBest = NeuronsInput[j].Outputs[i].Memory;
                                 double bBest = NeuronsHidden[i].Outputs[0].Memory;
                                 if (aBest != 0 && Math.Abs(aBest * bBest) < TEN_POW_MIN_PRUNING)
                                     NeuronsInput[j].Outputs[i].Prune = true;
                             }
+
+                            if (NeuronConstant.Outputs[i].Memory != 0 && Math.Abs(NeuronConstant.Outputs[i].Memory * NeuronsHidden[i].Outputs[0].Memory) < TEN_POW_MIN_PRUNING)
+                                NeuronConstant.Outputs[i].Prune = true;
+                        }
                 }
 
 
@@ -248,6 +271,7 @@ namespace MathLib.NeuralNetwork {
                     neuron.SaveBestWeights();
 
                 NeuronBias.SaveBestWeights();
+                NeuronConstant.SaveBestWeights();
 
                 // same for Activation function neuron if needed
                 if (AdditionalNeuron) {
@@ -273,11 +297,10 @@ namespace MathLib.NeuralNetwork {
             double xmax = Ext.countMaxAbs(sourceArray);
 
             // create array with data
-            xdata = new double[nmax + 1];
-            xdata[0] = 0;
+            xdata = new double[nmax];
 
-            for (int i = 1; i <= nmax; i++)
-                xdata[i] = sourceArray[i - 1];
+            for (int i = 0; i < nmax; i++)
+                xdata[i] = sourceArray[i];
 
             ConstructNetwork();
 
@@ -300,8 +323,8 @@ namespace MathLib.NeuralNetwork {
             Neuron.Randomizer = new Random();
 
             // init input layer
-            NeuronsInput = new InputNeuron[Params.Dimensions + 1];
-            for (int i = 0; i < Params.Dimensions + 1; i++)
+            NeuronsInput = new InputNeuron[Params.Dimensions];
+            for (int i = 0; i < Params.Dimensions; i++)
             {
                 InputNeuron neuron = new InputNeuron();
                 neuron.Nudge = Params.Nudge;
@@ -316,7 +339,7 @@ namespace MathLib.NeuralNetwork {
                 HiddenNeuron neuron = new HiddenNeuron();
                 neuron.Nudge = Params.Nudge;
                 NeuronsHidden[i] = neuron;
-                NeuronsHidden[i].Inputs = new Synapse[Params.Dimensions + 1];
+                NeuronsHidden[i].Inputs = new Synapse[Params.Dimensions];
                 NeuronsHidden[i].Outputs = new Synapse[1];
             }
 
@@ -333,9 +356,15 @@ namespace MathLib.NeuralNetwork {
             NeuronOutput.Outputs = new Synapse[1];
             NeuronOutput.Outputs[0] = new Synapse();
 
+            NeuronConstant = new BiasNeuron();
+            NeuronConstant.Nudge = Params.Nudge;
+            NeuronConstant.Outputs = new Synapse[Params.Neurons];
+            for (int i = 0; i < Params.Neurons; i++)
+                NeuronConstant.Outputs[i] = new Synapse();
+
 
             //Connect input and hidden layer neurons
-            for (int i = 0; i < Params.Dimensions + 1; i++)
+            for (int i = 0; i < Params.Dimensions; i++)
                 for(int j = 0; j < Params.Neurons; j++)
                 {
                     Synapse synapse = new Synapse();

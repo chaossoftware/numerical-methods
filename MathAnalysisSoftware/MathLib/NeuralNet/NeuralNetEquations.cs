@@ -1,5 +1,6 @@
 ﻿using System;
 using MathLib.MathMethods.Solvers;
+using MathLib.NeuralNet.Entities;
 
 namespace MathLib.NeuralNetwork {
     public class NeuralNetEquations : SystemEquations {
@@ -21,7 +22,7 @@ namespace MathLib.NeuralNetwork {
         public override double[,] Derivs(double[,] x, double[,] dxdt) { throw new NotImplementedException(); }
 
 
-        public double[,] Derivs(double[,] x, double[,] a, double[] b, double bias) {
+        public double[,] Derivs(double[,] x, double[,] a, double[] b, double bias, BiasNeuron constant) {
             double[] df = new double[N];
             double[,] xnew = new double[NN, N];
             double arg = 0;
@@ -32,10 +33,10 @@ namespace MathLib.NeuralNetwork {
             xnew[0, 0] = bias;
 
             for (int i = 0; i < Neurons; i++) {
-                arg = a[i, 0];
+                arg = constant.Outputs[i].Weight;
 
-                for (int j = 1; j <= N; j++)
-                    arg += a[i, j] * x[0, j - 1];
+                for (int j = 0; j < N; j++)
+                    arg += a[i, j] * x[0, j];
 
                 xnew[0, 0] += b[i] * Activation_Function.Phi(arg);
             }
@@ -47,16 +48,16 @@ namespace MathLib.NeuralNetwork {
             /*
              * Linearized neural net equations:
              */
-            for (int k = 1; k <= N; k++) {
-                df[k-1] = 0;
+            for (int k = 0; k < N; k++) {
+                df[k] = 0;
 
                 for (int i = 0; i < Neurons; i++) {
-                    arg = a[i, 0];
+                    arg = constant.Outputs[i].Weight;
 
-                    for (int j = 1; j <= N; j++)
-                        arg += a[i, j] * x[0, j-1];
+                    for (int j = 0; j < N; j++)
+                        arg += a[i, j] * x[0, j];
 
-                    df[k-1] += b[i] * a[i, k] * Activation_Function.Dphi(arg);
+                    df[k] += b[i] * a[i, k] * Activation_Function.Dphi(arg);
                 }
             }
 
@@ -83,7 +84,7 @@ namespace MathLib.NeuralNetwork {
         public void Init(double[,] x, double[] xdata) {
             // initial conditions for nonlinear map
             for (int i = 0; i < N; i++) {
-                x[0, i] = xdata[N - i];   //was xdata[dimensions - i + 1]
+                x[0, i] = xdata[N - i - 1];   //was xdata[dimensions - i + 1]
             }
 
             // initial conditions for linearized maps
