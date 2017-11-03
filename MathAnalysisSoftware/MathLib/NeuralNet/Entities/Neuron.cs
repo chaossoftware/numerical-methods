@@ -25,19 +25,19 @@ namespace MathLib.NeuralNet.Entities
         }
 
 
-        public void UpdateMemoryWithBestResult()
+        public void BestToMemory()
         {
             foreach (Synapse synapse in Outputs)
                 synapse.Memory = synapse.BestCase;
         }
 
-        public void MemorizeWeights()
+        public void WeightsToMemory()
         {
             foreach (Synapse synapse in Outputs)
                 synapse.Memory = synapse.Weight;
         }
 
-        public void SaveBestWeights()
+        public void MemoryToBest()
         {
             foreach (Synapse synapse in Outputs)
                 synapse.BestCase = synapse.Memory;

@@ -1,21 +1,24 @@
-﻿using MathLib.NeuralNetwork;
-
+﻿
 namespace MathLib.NeuralNet.Entities
 {
     public class HiddenNeuron : Neuron
     {
-        private ActivationFunction ActivationFunction;
-
         public Synapse[] Inputs;
+        public Synapse BiasInput;
 
-        public HiddenNeuron(ActivationFunction activationFunction)
+
+        public HiddenNeuron(int inputsCount, int outputsCount)
         {
-            ActivationFunction = activationFunction;
+            Inputs = new Synapse[inputsCount];
+            Outputs = new Synapse[outputsCount];
         }
 
-        public HiddenNeuron()
+        public HiddenNeuron(int inputsCount, int outputsCount, double nudge)
         {
-
+            Inputs = new Synapse[inputsCount];
+            Outputs = new Synapse[outputsCount];
+            Nudge = nudge;
         }
+
     }
 }

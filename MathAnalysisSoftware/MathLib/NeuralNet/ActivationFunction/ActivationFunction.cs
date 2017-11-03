@@ -27,10 +27,8 @@ namespace MathLib.NeuralNetwork {
 
         protected void InitNetworkLayer()
         {
-            Neuron = new InputNeuron();
-            //Neuron.Inputs = new Synapse[7];
+            Neuron = new InputNeuron(7);
             Neuron.Outputs = new Synapse[7];
-            //Neuron.Outputs[0] = new Synapse();
 
             for (int i = 0; i < 7; i++)
                 Neuron.Outputs[i] = new Synapse();

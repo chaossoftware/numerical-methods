@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
+﻿
 namespace MathLib.NeuralNet.Entities
 {
     public class InputNeuron : Neuron
@@ -10,10 +6,17 @@ namespace MathLib.NeuralNet.Entities
         public double Input;
 
 
-        public InputNeuron()
+        public InputNeuron(int outputsCount)
         {
+            Outputs = new Synapse[outputsCount];
             Input = 0;
         }
 
+        public InputNeuron(int outputsCount, double nudge)
+        {
+            Outputs = new Synapse[outputsCount];
+            Nudge = nudge;
+            Input = 0;
+        }
     }
 }
