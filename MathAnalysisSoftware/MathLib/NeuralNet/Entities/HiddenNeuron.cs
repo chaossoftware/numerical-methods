@@ -11,12 +11,16 @@ namespace MathLib.NeuralNet.Entities
         {
             Inputs = new Synapse[inputsCount];
             Outputs = new Synapse[outputsCount];
+            Memory = new double[outputsCount];
+            Best = new double[outputsCount];
         }
 
         public HiddenNeuron(int inputsCount, int outputsCount, double nudge)
         {
             Inputs = new Synapse[inputsCount];
             Outputs = new Synapse[outputsCount];
+            Memory = new double[outputsCount];
+            Best = new double[outputsCount];
             Nudge = nudge;
         }
 

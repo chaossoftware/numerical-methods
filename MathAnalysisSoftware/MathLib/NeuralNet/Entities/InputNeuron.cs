@@ -9,12 +9,16 @@ namespace MathLib.NeuralNet.Entities
         public InputNeuron(int outputsCount)
         {
             Outputs = new Synapse[outputsCount];
+            Memory = new double[outputsCount];
+            Best = new double[outputsCount];
             Input = 0;
         }
 
         public InputNeuron(int outputsCount, double nudge)
         {
             Outputs = new Synapse[outputsCount];
+            Memory = new double[outputsCount];
+            Best = new double[outputsCount];
             Nudge = nudge;
             Input = 0;
         }

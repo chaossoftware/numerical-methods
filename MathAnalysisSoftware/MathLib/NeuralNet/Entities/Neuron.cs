@@ -8,39 +8,53 @@ namespace MathLib.NeuralNet.Entities
         public static Random Randomizer;
 
         public Synapse[] Outputs;
+        public double[] Memory;
+        public double[] Best;
         public double Nudge;
 
 
         public virtual void CalculateWeight(int index, double pertrubation)
         {
-            Outputs[index].Weight = Outputs[index].Memory + pertrubation * (Gauss2() - Nudge * Math.Sign(Outputs[index].Memory));
+            Outputs[index].Weight = Memory[index] + pertrubation * (Gauss2() - Nudge * Math.Sign(Memory[index]));
         }
 
         public virtual void CalculateWeight(int index, double pertrubation, double lowerThan)
         {
-            Outputs[index].Weight = Outputs[index].Memory;
+            Outputs[index].Weight = Memory[index];
 
             if(Randomizer.NextDouble() < lowerThan)
-                Outputs[index].Weight += pertrubation * (Gauss2() - Nudge * Math.Sign(Outputs[index].Memory));
+                Outputs[index].Weight += pertrubation * (Gauss2() - Nudge * Math.Sign(Memory[index]));
         }
 
 
         public void BestToMemory()
         {
-            foreach (Synapse synapse in Outputs)
-                synapse.Memory = synapse.BestCase;
+            for(int i = 0; i < Outputs.Length; i++)
+                Memory[i] = Best[i];
         }
 
         public void WeightsToMemory()
         {
-            foreach (Synapse synapse in Outputs)
-                synapse.Memory = synapse.Weight;
+            for (int i = 0; i < Outputs.Length; i++)
+                Memory[i] = Outputs[i].Weight;
+        }
+
+        public void MemoryToWeights()
+        {
+            for (int i = 0; i < Outputs.Length; i++)
+                Outputs[i].Weight = Memory[i];
+        }
+
+        public void BestToWeights()
+        {
+            for (int i = 0; i < Outputs.Length; i++)
+                Outputs[i].Weight = Best[i];
         }
 
         public void MemoryToBest()
         {
-            foreach (Synapse synapse in Outputs)
-                synapse.BestCase = synapse.Memory;
+            for (int i = 0; i < Outputs.Length; i++)
+                Best[i] = Memory[i];
         }
 
 

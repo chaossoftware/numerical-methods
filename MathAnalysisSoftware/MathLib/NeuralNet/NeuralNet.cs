@@ -60,42 +60,46 @@ namespace MathLib.NeuralNetwork {
 
             while (successCount < Params.Trainings) {
 
-                if (NeuronOutput.Outputs[0].BestCase == 0) {
-                    NeuronOutput.Outputs[0].Memory = Params.TestingInterval;
+                if (NeuronOutput.Best[0] == 0) {
+                    NeuronOutput.Memory[0] = Params.TestingInterval;
                 }
                 else {
-                    NeuronOutput.Outputs[0].Memory = 10 * NeuronOutput.Outputs[0].BestCase;
-                    ddw = Math.Min(Params.MaxPertrubation, Math.Sqrt(NeuronOutput.Outputs[0].BestCase));
+                    NeuronOutput.Memory[0] = 10 * NeuronOutput.Best[0];
+                    ddw = Math.Min(Params.MaxPertrubation, Math.Sqrt(NeuronOutput.Best[0]));
                 }
 
                 //update memory with best results
                 foreach (InputNeuron neuron in NeuronsInput)
                     neuron.BestToMemory();
+                NeuronConstant.BestToMemory();
 
                 foreach (HiddenNeuron neuron in NeuronsHidden)
                     neuron.BestToMemory();
-
                 NeuronBias.BestToMemory();
-                NeuronConstant.BestToMemory();
 
 
                 // same for Activation function neuron if needed
                 if (AdditionalNeuron)
                 {
                     Params.ActFunction.Neuron.BestToMemory();
-                    if (Params.ActFunction.Neuron.Outputs[0].Memory == 0)
-                        Params.ActFunction.Neuron.Outputs[0].Memory = 1;
+                    if (Params.ActFunction.Neuron.Memory[0] == 0)
+                        Params.ActFunction.Neuron.Memory[0] = 1;
                 }
-
 
                 int N_MUL_D_MINCT_PLUS_1_PLUS_N_PLUS_1 = neurons * (dims - Params.ConstantTerm + 1) + neurons + 1;
 
                 for (_c = 1; _c <= Params.CMax; _c++) {
 
                     if (Params.Pruning == 0)
-                        foreach (HiddenNeuron neuron in NeuronsHidden)
-                            foreach (Synapse synapse in neuron.Inputs)
+                    {
+                        foreach (InputNeuron neuron in NeuronsInput)
+                            foreach (Synapse synapse in neuron.Outputs)
                                 synapse.Prune = false;
+
+                        foreach (Synapse synapse in NeuronConstant.Outputs)
+                            synapse.Prune = false;
+                    }
+                        
                     
                     int prunes = 0;
 
@@ -111,12 +115,11 @@ namespace MathLib.NeuralNetwork {
 
 
                     //Probability of changing a given parameter at each trial
-                    double pc = 1d / Math.Sqrt(N_MUL_D_MINCT_PLUS_1_PLUS_N_PLUS_1 - prunes); // 1d / Sqrt(neurons * (dims - Task_Params.ConstantTerm + 1) + neurons + 1 - prunes)
+                    //1 / Sqrt(neurons * (dims - Task_Params.ConstantTerm + 1) + neurons + 1 - prunes)
+                    double pc = 1d / Math.Sqrt(N_MUL_D_MINCT_PLUS_1_PLUS_N_PLUS_1 - prunes); 
 
                     if (Params.BiasTerm == 0)
-                    {
                         NeuronBias.CalculateWeight(0, ddw);
-                    }
                     else
                         NeuronBias.Outputs[0].Weight = 0;
 
@@ -179,10 +182,10 @@ namespace MathLib.NeuralNetwork {
                     //"Mean-square" error (even for e&<>2)
                     e1 = Math.Pow(e1 / NMAX_MINUS_D_XMAX_POW_E, 2 / Params.ErrorsExponent); 
 
-                    if (e1 < NeuronOutput.Outputs[0].Memory) {
+                    if (e1 < NeuronOutput.Memory[0]) {
 
                         improved ++;
-                        NeuronOutput.Outputs[0].Memory = e1;
+                        NeuronOutput.Memory[0] = e1;
 
 
                         //memorize current weights
@@ -226,14 +229,13 @@ namespace MathLib.NeuralNetwork {
                     InvokeMethodForNeuralNet(LoggingMethod);
         
 
-                    if(NeuronOutput.Outputs[0].Memory > NeuronOutput.Outputs[0].BestCase && NeuronOutput.Outputs[0].BestCase != 0)
+                    if(NeuronOutput.Memory[0] > NeuronOutput.Best[0] && NeuronOutput.Best[0] != 0)
                         continue;
 
 
                     // same for Activation function neuron if needed
                     if (AdditionalNeuron) {
-                        for (int j = 0; j < 7; j++)
-                            Params.ActFunction.Neuron.Outputs[j].Weight = Params.ActFunction.Neuron.Outputs[j].Memory;
+                        Params.ActFunction.Neuron.MemoryToWeights();
                     }
 
      		
@@ -243,13 +245,13 @@ namespace MathLib.NeuralNetwork {
                         {
                             for (int j = 0; j < Params.Dimensions; j++)
                             {
-                                double aBest = NeuronsInput[j].Outputs[i].Memory;
-                                double bBest = NeuronsHidden[i].Outputs[0].Memory;
+                                double aBest = NeuronsInput[j].Memory[i];
+                                double bBest = NeuronsHidden[i].Memory[0];
                                 if (aBest != 0 && Math.Abs(aBest * bBest) < TEN_POW_MIN_PRUNING)
                                     NeuronsInput[j].Outputs[i].Prune = true;
                             }
 
-                            if (NeuronConstant.Outputs[i].Memory != 0 && Math.Abs(NeuronConstant.Outputs[i].Memory * NeuronsHidden[i].Outputs[0].Memory) < TEN_POW_MIN_PRUNING)
+                            if (NeuronConstant.Memory[i] != 0 && Math.Abs(NeuronConstant.Memory[i] * NeuronsHidden[i].Memory[0]) < TEN_POW_MIN_PRUNING)
                                 NeuronConstant.Outputs[i].Prune = true;
                         }
                 }
@@ -276,8 +278,7 @@ namespace MathLib.NeuralNetwork {
                 // same for Activation function neuron if needed
                 if (AdditionalNeuron) {
                     Params.ActFunction.Neuron.MemoryToBest();
-                    foreach (Synapse synapse in Params.ActFunction.Neuron.Outputs)
-                        synapse.Weight = synapse.BestCase;
+                    Params.ActFunction.Neuron.BestToWeights();
                 }
 
                 successCount++;
@@ -330,6 +331,11 @@ namespace MathLib.NeuralNetwork {
                 NeuronsInput[i] = neuron;
             }
 
+            // init constant neuron
+            NeuronConstant = new BiasNeuron(Params.Neurons, Params.Nudge);
+            for (int i = 0; i < Params.Neurons; i++)
+                NeuronConstant.Outputs[i] = new Synapse();
+
             // init hidden layer
             NeuronsHidden = new HiddenNeuron[Params.Neurons];
             for (int i = 0; i < Params.Neurons; i++)
@@ -342,14 +348,9 @@ namespace MathLib.NeuralNetwork {
             NeuronBias = new BiasNeuron(1, Params.Nudge);
             NeuronBias.Outputs[0] = new Synapse();
 
-
             // init output layer
             NeuronOutput = new OutputNeuron(Params.Neurons, Params.Nudge);
             NeuronOutput.Outputs[0] = new Synapse();
-
-            NeuronConstant = new BiasNeuron(Params.Neurons, Params.Nudge);
-            for (int i = 0; i < Params.Neurons; i++)
-                NeuronConstant.Outputs[i] = new Synapse();
 
 
             //Connect input and hidden layer neurons
@@ -361,6 +362,12 @@ namespace MathLib.NeuralNetwork {
                     NeuronsHidden[j].Inputs[i] = synapse;
                 }
 
+            //Connect constant and hidden neurons bias inputs
+            Synapse constantSynapse = new Synapse();
+            NeuronConstant.Outputs[0] = constantSynapse;
+            for (int i = 0; i < Params.Neurons; i++)
+                NeuronsHidden[i].BiasInput = constantSynapse;
+
             //Connect hidden and output layer neurons
             for (int i = 0; i < Params.Neurons; i++)
             {
@@ -368,6 +375,11 @@ namespace MathLib.NeuralNetwork {
                 NeuronsHidden[i].Outputs[0] = synapse;
                 NeuronOutput.Inputs[i] = synapse;
             }
+
+            //Connect constant and hidden neurons bias inputs
+            Synapse biasSynapse = new Synapse();
+            NeuronBias.Outputs[0] = biasSynapse;
+            NeuronOutput.BiasInput = biasSynapse;
         }
     }
 }
