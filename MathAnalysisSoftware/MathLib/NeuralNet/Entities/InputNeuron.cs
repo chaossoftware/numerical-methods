@@ -1,4 +1,6 @@
 ﻿
+using System;
+
 namespace MathLib.NeuralNet.Entities
 {
     public class InputNeuron : Neuron
@@ -21,6 +23,12 @@ namespace MathLib.NeuralNet.Entities
             Best = new double[outputsCount];
             Nudge = nudge;
             Input = 0;
+        }
+
+        public override void ProcessInputs()
+        {
+            foreach (Synapse synapse in Outputs)
+                synapse.Signal = Input * synapse.Weight;
         }
     }
 }

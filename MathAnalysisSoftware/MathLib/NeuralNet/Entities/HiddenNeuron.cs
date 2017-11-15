@@ -1,8 +1,11 @@
 ﻿
+using MathLib.NeuralNetwork;
+
 namespace MathLib.NeuralNet.Entities
 {
     public class HiddenNeuron : Neuron
     {
+        public static ActivationFunction Function;
         public Synapse[] Inputs;
         public Synapse BiasInput;
 
@@ -24,5 +27,15 @@ namespace MathLib.NeuralNet.Entities
             Nudge = nudge;
         }
 
+        public override void ProcessInputs()
+        {
+            double arg = BiasInput.Weight;// + Inputs.Select(;
+            foreach (Synapse synapse in Inputs)
+                arg += synapse.Signal;
+
+
+            foreach (Synapse synapse in Outputs)
+                synapse.Signal = synapse.Weight * Function.Phi(arg);
+        }
     }
 }

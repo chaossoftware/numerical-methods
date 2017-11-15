@@ -4,15 +4,13 @@ namespace MathLib.NeuralNet.Entities
     public class Synapse
     {
         public double Weight;
-        //public double Memory;
-        //public double BestCase;
+        public double Signal;
         public bool Prune;
 
         public Synapse()
         {
             Weight = 0;
-            //Memory = 0;
-            //BestCase = 0;
+            Signal = 0;
             Prune = false;
         }
     }

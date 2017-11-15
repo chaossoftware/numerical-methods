@@ -23,5 +23,14 @@ namespace MathLib.NeuralNet.Entities
             Inputs = new Synapse[inputsCount];
             Nudge = nudge;
         }
+
+        public override void ProcessInputs()
+        {
+            double arg = BiasInput.Weight;
+            foreach (Synapse synapse in Inputs)
+                arg += synapse.Signal;
+
+            Outputs[0].Signal = arg;
+        }
     }
 }

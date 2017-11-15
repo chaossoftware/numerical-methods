@@ -26,6 +26,7 @@ namespace MathLib.NeuralNet.Entities
                 Outputs[index].Weight += pertrubation * (Gauss2() - Nudge * Math.Sign(Memory[index]));
         }
 
+        public abstract void ProcessInputs();
 
         public void BestToMemory()
         {

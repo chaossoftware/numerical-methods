@@ -1,4 +1,6 @@
 ﻿
+using System;
+
 namespace MathLib.NeuralNet.Entities
 {
     public class BiasNeuron : Neuron
@@ -17,6 +19,11 @@ namespace MathLib.NeuralNet.Entities
             Memory = new double[outputsCount];
             Best = new double[outputsCount];
             Nudge = nudge;
+        }
+
+        public override void ProcessInputs()
+        {
+            throw new Exception("Bias neuron has no inputs, so not able to process something");
         }
     }
 }
