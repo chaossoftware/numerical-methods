@@ -19,6 +19,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EbPanelTemperature", "EbPan
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NeuralNetwork", "NeuralNetwork\NeuralNetwork.csproj", "{CA380EF7-0E34-4141-B31C-14AE4187A213}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NeuralNumbers", "NeuralNumbers\NeuralNumbers.csproj", "{B03D4346-4AA1-4AF2-A500-A117EDDEFF99}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -60,6 +62,14 @@ Global
 		{CA380EF7-0E34-4141-B31C-14AE4187A213}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CA380EF7-0E34-4141-B31C-14AE4187A213}.Release|Any CPU.Build.0 = Release|Any CPU
 		{CA380EF7-0E34-4141-B31C-14AE4187A213}.Release|x86.ActiveCfg = Release|Any CPU
+		{B03D4346-4AA1-4AF2-A500-A117EDDEFF99}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B03D4346-4AA1-4AF2-A500-A117EDDEFF99}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B03D4346-4AA1-4AF2-A500-A117EDDEFF99}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{B03D4346-4AA1-4AF2-A500-A117EDDEFF99}.Debug|x86.Build.0 = Debug|Any CPU
+		{B03D4346-4AA1-4AF2-A500-A117EDDEFF99}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B03D4346-4AA1-4AF2-A500-A117EDDEFF99}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B03D4346-4AA1-4AF2-A500-A117EDDEFF99}.Release|x86.ActiveCfg = Release|Any CPU
+		{B03D4346-4AA1-4AF2-A500-A117EDDEFF99}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
