@@ -78,7 +78,7 @@ namespace MathLib.MathMethods.Lyapunov {
             double epsilon;
             int i,j,l;
 
-            rescaleData();
+            LleHelper.RescaleData(timeSeries, out min, out max);
 
             if (eps0set)
                 Epsmin /= max;
@@ -110,7 +110,7 @@ namespace MathLib.MathMethods.Lyapunov {
                 Array.Clear(count, 0, count.Length);
                 Array.Clear(lyap, 0, lyap.Length);
 
-                PutInBoxes(epsilon);
+                LleHelper.PutInBoxes(timeSeries, box, liste, epsilon, Blength, Tau);
 
                 for (i = 0; i < reference; i++) {
                     LfindNeighbors(i, epsilon);
@@ -136,20 +136,7 @@ namespace MathLib.MathMethods.Lyapunov {
         }
 
 
-        private void PutInBoxes(double eps) {
-            int i, j, k;
 
-            for (i = 0; i < BOX; i++)
-                for (j = 0; j < BOX; j++)
-                    box[i, j]= -1;
-
-            for (i = 0; i < Blength; i++) {
-                j = (int)(timeSeries[i] / eps) & ibox;
-                k = (int)(timeSeries[i + Tau] / eps) & ibox;
-                liste[i] = box[j, k];
-                box[j, k] = i;
-            }
-        }
 
 
         private void LfindNeighbors(long act, double eps) {
@@ -235,23 +222,6 @@ namespace MathLib.MathMethods.Lyapunov {
   
         }
 
-
-        private void rescaleData() {
-            max = Ext.countMax(timeSeries);
-            min = Ext.countMin(timeSeries);
-
-            max -= min;
-
-            if (max != 0.0) {
-                for (int i = 0; i < timeSeries.Length; i++)
-                    timeSeries[i] = (timeSeries[i] - min) / max;
-            }
-            else {
-                throw new Exception(string.Format(
-                    "rescale data: data ranges from {0} to {1}. It makes\n\t\tno sense to continue. Exiting",
-                    min, min + (max)));
-            }
-        }
 
 
         public override string GetInfoShort() {

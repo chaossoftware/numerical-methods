@@ -14,15 +14,16 @@ namespace MathLib.MathMethods.Lyapunov
 
         private const int NMAX = 256;
         private int nmax = NMAX - 1;
-        private double eps, epsinv;
+        private double eps;
         private double min, max;
 
         private bool epsset = false;
 
         private double[] lyap;
         private long[] found;
-        private long[,] box = new long[NMAX, NMAX];
-        private long[] list;
+        private int[,] box = new int[NMAX, NMAX];
+        private int[] list;
+        int Blength;
 
         public RosensteinMethod(double[] timeSeries, int dim, int tau, int steps, int minDist, double scaleMin)
             :base(timeSeries) {
@@ -39,6 +40,8 @@ namespace MathLib.MathMethods.Lyapunov
             else {
                 this.Eps0 = 1e-3;
             }
+
+            Blength = timeSeries.Length - (Dim - 1) * Tau - Steps;
         }
 
 
@@ -48,12 +51,12 @@ namespace MathLib.MathMethods.Lyapunov
             long n;
             long maxlength;
 
-            rescaleData();
+            LleHelper.RescaleData(timeSeries, out min, out max);
 
             if (epsset)
                 Eps0 /= max;
 
-            list = new long[timeSeries.Length];
+            list = new int[timeSeries.Length];
             lyap = new double[Steps + 1];
             found = new long[Steps + 1];
             done = new bool[timeSeries.Length];
@@ -65,8 +68,9 @@ namespace MathLib.MathMethods.Lyapunov
             alldone = false;
 
             for (eps = Eps0; !alldone; eps *= 1.1) {
-                epsinv = 1.0 / eps;
-                putInBoxes();
+                
+                LleHelper.PutInBoxes(timeSeries, box, list, eps, Blength, Tau * (Dim - 1));
+
                 alldone = true;
                 for (n = 0; n <= maxlength; n++) {
                     if (!done[n])
@@ -85,21 +89,7 @@ namespace MathLib.MathMethods.Lyapunov
         }
 
 
-        private void putInBoxes() {
-            int x, y, del;
 
-            for (int i = 0; i < NMAX; i++)
-                for (int j = 0; j < NMAX; j++)
-                    box[i, j] = -1;
-
-            del = Tau * (Dim - 1);
-            for (int i = 0; i < timeSeries.Length - del - Steps; i++) {
-                x = (int)(timeSeries[i] * epsinv) & nmax;
-                y = (int)(timeSeries[i + del] * epsinv) & nmax;
-                list[i] = box[x, y];
-                box[x, y] = i;
-            }
-        }
 
 
         private bool iterate(long act) {
@@ -108,8 +98,8 @@ namespace MathLib.MathMethods.Lyapunov
             long element, minelement = -1;
             double dx, mindx = 1.0;
 
-            x = (int)(timeSeries[act] * epsinv) & nmax;
-            y = (int)(timeSeries[act + Tau * (Dim - 1)] * epsinv) & nmax;
+            x = (int)(timeSeries[act] / eps) & nmax;
+            y = (int)(timeSeries[act + Tau * (Dim - 1)] / eps) & nmax;
             
             for (int i = x - 1; i <= x + 1; i++) {
                 i1 = i & nmax;
@@ -167,22 +157,6 @@ namespace MathLib.MathMethods.Lyapunov
             return ok;
         }
 
-
-        private void rescaleData() {
-            max = Ext.countMax(timeSeries);
-            min = Ext.countMin(timeSeries);
-
-            max -= min;
-
-            if (max != 0.0) {
-                for (int i = 0; i < timeSeries.Length; i++)
-                    timeSeries[i] = (timeSeries[i] - min) / max;
-            } else {
-                throw new Exception(string.Format(
-                    "rescale data: data ranges from {0} to {1}. It makes\n\t\tno sense to continue. Exiting", 
-                    min, min + (max)));
-            }
-        }
 
 
         public override string GetInfoShort() {
