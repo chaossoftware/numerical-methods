@@ -155,7 +155,7 @@ namespace MathLib.MathMethods.Lyapunov {
         private void LfindNeighbors(long act, double eps) {
             int k, k1;
             int i, j, i1, i2, j1, element;
-            double dx, eps2 = Math.Sqrt(eps);
+            double dx, eps2 = Math.Pow(eps, 2);
 
             Array.Clear(found, 0, found.Length);
 
@@ -171,13 +171,13 @@ namespace MathLib.MathMethods.Lyapunov {
                     while (element != -1) {
 	
                         if ((element < (act- Window)) || (element > (act+ Window))) {
-	                        dx = Math.Sqrt(timeSeries[act] - timeSeries[element]);
+	                        dx = Math.Pow(timeSeries[act] - timeSeries[element], 2);
 	                        
                             if (dx <= eps2) {
 	    
                                 for (k = 1; k < DimMax; k++) {
 	                                k1 = k * Tau;
-	                                dx += Math.Sqrt(timeSeries[act + k1] - timeSeries[element + k1]);
+	                                dx += Math.Pow(timeSeries[act + k1] - timeSeries[element + k1], 2);
 	      
                                     if (dx <= eps2) {
 		                                k1 = k - 1;
@@ -209,13 +209,13 @@ namespace MathLib.MathMethods.Lyapunov {
                     element = lfound[j, k];
             
                     for (i = 0; i <= MaxIterations; i++)
-                        dx[i] = Math.Sqrt(timeSeries[act + i] - timeSeries[element + i]);
+                        dx[i] = Math.Pow(timeSeries[act + i] - timeSeries[element + i], 2);
             
                     for (l = 1; l < j + 2; l++) {
                         l1 = l * Tau;
             
                         for (i = 0; i <= MaxIterations; i++)
-                            dx[i] += Math.Sqrt(timeSeries[act + i + l1] - timeSeries[element + l1 + i]);
+                            dx[i] += Math.Pow(timeSeries[act + i + l1] - timeSeries[element + l1 + i], 2);
                     }
             
                     for (i = 0; i <= MaxIterations; i++)

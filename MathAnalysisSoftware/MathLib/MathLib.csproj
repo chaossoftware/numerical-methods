@@ -61,8 +61,6 @@
     <Compile Include="IO\DataWriter.cs" />
     <Compile Include="IO\SourceData.cs" />
     <Compile Include="MathMethods\Lyapunov\BenettinMethod.cs" />
-    <Compile Include="MathMethods\Lyapunov\KantzMethodNew.cs" />
-    <Compile Include="MathMethods\Lyapunov\KantzMethod2.cs" />
     <Compile Include="MathMethods\Lyapunov\KantzMethod.cs" />
     <Compile Include="MathMethods\Lyapunov\LyapunovMethod.cs" />
     <Compile Include="MathMethods\Lyapunov\RosensteinMethod.cs" />
