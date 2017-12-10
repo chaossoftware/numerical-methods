@@ -7,14 +7,13 @@ using System.Text;
 namespace MathLib.MathMethods.Lyapunov {
     public class KantzMethod : LyapunovMethod {
 
-        private int DimMin { get; set; }
         private int DimMax { get; set; }
         private int Tau { get; set; }
         private int MaxIterations { get; set; }
         private int Window { get; set; }        //'theiler window' (0)
         private int Epscount { get; set; }      //number of length scales to use (5)
-        private double Epsmin = 1e-3;//{ get; set; }     
-        private double Epsmax = 1e-2;//{ get; set; }     
+        private double Epsmin = 1e-3;    
+        private double Epsmax = 1e-2;    
 
         private const int BOX = 128;
         private const ushort ibox = BOX - 1;
@@ -25,26 +24,20 @@ namespace MathLib.MathMethods.Lyapunov {
         long reference = long.MaxValue;
         private int Blength;
 
-        double[,] lyap;
+        double[] lyap;
         int[,] box = new int[BOX, BOX];
-        int[] liste, found;
-        int[,] lfound, count;
+        int[] liste;
+        int[] lfound, count;
+        int found;
 
         public Dictionary<string, DataSeries> SlopesList;
 
-        public KantzMethod(double[] timeSeries, int dimMin, int dimMax, int tau, int maxIterations, int window, double scaleMin, double scaleMax, int epscount)
+        public KantzMethod(double[] timeSeries, int dimMax, int tau, int maxIterations, int window, double scaleMin, double scaleMax, int epscount)
             :base(timeSeries) {
-
-            DimMin = dimMin;
-            if (DimMin < 2)
-                throw new ArgumentException("DimMin < 2");
 
             DimMax = dimMax;
             if (DimMax < 2)
                 throw new ArgumentException("DimMax < 2");
-
-            if (DimMin > DimMax)
-                throw new ArgumentException("DimMin > DimMax");
 
             Tau = tau;
             MaxIterations = maxIterations;
@@ -76,7 +69,7 @@ namespace MathLib.MathMethods.Lyapunov {
         public override void Calculate() {
             double eps_fak;
             double epsilon;
-            int i,j,l;
+            int j,l;
 
             LleHelper.RescaleData(timeSeries, out min, out max);
 
@@ -85,19 +78,17 @@ namespace MathLib.MathMethods.Lyapunov {
   
             if (eps1set)
                 Epsmax /= max;
-
-
   
-            reference = Math.Min(reference, timeSeries.Length - MaxIterations - (DimMax - 1) * Tau);
+            reference = Math.Min(reference, Blength);
             if ((MaxIterations + (DimMax - 1) * Tau) >= timeSeries.Length) {
                 throw new ArgumentException("Too few points to handle these parameters!");
             }
   
             liste = new int[timeSeries.Length];
-            found = new int[DimMax - 1];
-            lfound = new int[DimMax - 1, timeSeries.Length];
-            count = new int[DimMax - 1, MaxIterations + 1];
-            lyap = new double[DimMax - 1, MaxIterations + 1];
+            found = 0;
+            lfound = new int[timeSeries.Length];
+            count = new int[MaxIterations + 1];
+            lyap = new double[MaxIterations + 1];
 
             if (Epscount == 1)
                 eps_fak = 1d;
@@ -112,31 +103,26 @@ namespace MathLib.MathMethods.Lyapunov {
 
                 LleHelper.PutInBoxes(timeSeries, box, liste, epsilon, Blength, Tau);
 
-                for (i = 0; i < reference; i++) {
+                for (int i = 0; i < reference; i++) {
                     LfindNeighbors(i, epsilon);
                     Iterate(i);
                 }
 
                 Log.AppendFormat(CultureInfo.InvariantCulture, "epsilon= {0:F5}\n", epsilon * max);
 
-                for (i = DimMin - 2; i < DimMax - 1; i++) {
-                    Log.AppendFormat(CultureInfo.InvariantCulture, "#epsilon= {0:F5}  dim= {1}\n", epsilon * max, i + 2);
-                    DataSeries dict = new DataSeries();
+                DataSeries dict = new DataSeries();
 
-                    for (j = 0; j <= MaxIterations; j++)
-                        if (count[i, j] != 0) {
-                            Log.AppendFormat(CultureInfo.InvariantCulture, "{0}\t{1:F5}\t{2}\n", j, lyap[i, j] / count[i, j], count[i, j]);
-                            dict.AddDataPoint(j, lyap[i, j] / count[i, j]);
-                        }
-                    Log.Append("\n");
-                    if (dict.Length > 1)
-                        SlopesList.Add(string.Format("d={0} eps={1:F5}", (i + 2), epsilon * max), dict);
-                }
+                for (j = 0; j <= MaxIterations; j++)
+                    if (count[j] != 0) {
+                        Log.AppendFormat(CultureInfo.InvariantCulture, "{0}\t{1:F5}\t{2}\n", j, lyap[j] / count[j], count[j]);
+                        dict.AddDataPoint(j, lyap[j] / count[j]);
+                    }
+                Log.Append("\n");
+
+                if (dict.Length > 1)
+                    SlopesList.Add(string.Format("eps = {0:F5}", epsilon * max), dict);
             }
         }
-
-
-
 
 
         private void LfindNeighbors(long act, double eps) {
@@ -144,7 +130,7 @@ namespace MathLib.MathMethods.Lyapunov {
             int i, j, i1, i2, j1, element;
             double dx, eps2 = Math.Pow(eps, 2);
 
-            Array.Clear(found, 0, found.Length);
+            found = 0;
 
             i = (int)(timeSeries[act] / eps) & ibox;
             j = (int)(timeSeries[act + Tau] / eps) & ibox;
@@ -162,18 +148,17 @@ namespace MathLib.MathMethods.Lyapunov {
 	                        
                             if (dx <= eps2) {
 	    
-                                for (k = 1; k < DimMax; k++) {
-	                                k1 = k * Tau;
-	                                dx += Math.Pow(timeSeries[act + k1] - timeSeries[element + k1], 2);
+                                k = DimMax - 1;
+	                            k1 = k * Tau;
+	                            dx += Math.Pow(timeSeries[act + k1] - timeSeries[element + k1], 2);
 	      
-                                    if (dx <= eps2) {
-		                                k1 = k - 1;
-		                                lfound[k1, found[k1]] = element;
-		                                found[k1]++;
-	                                }
-	                                else
-		                                break;
+                                if (dx <= eps2) {
+		                            k1 = k - 1;
+		                            lfound[found] = element;
+		                            found++;
 	                            }
+	                            else
+		                            break;
 	                        }
 	                    }
 	
@@ -185,43 +170,38 @@ namespace MathLib.MathMethods.Lyapunov {
 
 
         private void Iterate(long act) {
-            double[,] lfactor = new double[DimMax - 1, MaxIterations + 1];
+            double[] lfactor = new double[MaxIterations + 1];
             double[] dx = new double[MaxIterations + 1];
             int i, j ,l, l1;
             long k, element;
-            long[,] lcount = new long[DimMax - 1, MaxIterations + 1];
+            long[] lcount = new long[MaxIterations + 1];
               
-            for (j = DimMin - 2; j < DimMax - 1; j++) {
-                for (k = 0; k < found[j]; k++) {
-                    element = lfound[j, k];
+            for (k = 0; k < found; k++) {
+                element = lfound[k];
+            
+                for (i = 0; i <= MaxIterations; i++)
+                    dx[i] = Math.Pow(timeSeries[act + i] - timeSeries[element + i], 2);
+            
+                for (l = 1; l < DimMax; l++) {
+                    l1 = l * Tau;
             
                     for (i = 0; i <= MaxIterations; i++)
-                        dx[i] = Math.Pow(timeSeries[act + i] - timeSeries[element + i], 2);
-            
-                    for (l = 1; l < j + 2; l++) {
-                        l1 = l * Tau;
-            
-                        for (i = 0; i <= MaxIterations; i++)
-                            dx[i] += Math.Pow(timeSeries[act + i + l1] - timeSeries[element + l1 + i], 2);
-                    }
-            
-                    for (i = 0; i <= MaxIterations; i++)
-                        if (dx[i] > 0.0) {
-                            lcount[j, i]++;
-                            lfactor[j, i] += dx[i];
-                        }
+                        dx[i] += Math.Pow(timeSeries[act + i + l1] - timeSeries[element + l1 + i], 2);
                 }
+            
+                for (i = 0; i <= MaxIterations; i++)
+                    if (dx[i] > 0.0) {
+                        lcount[i]++;
+                        lfactor[i] += dx[i];
+                    }
             }
   
-            for (i = DimMin - 2; i < DimMax - 1; i++)
-                for (j = 0; j <= MaxIterations; j++)
-                    if (lcount[i, j] != 0) {
-	                    count[i, j]++;
-	                    lyap[i, j] += Math.Log(lfactor[i, j] / lcount[i, j]) / 2.0;
-                    }
-  
+            for (j = 0; j <= MaxIterations; j++)
+                if (lcount[j] != 0) {
+	                count[j]++;
+	                lyap[j] += Math.Log(lfactor[j] / lcount[j]) / 2.0;
+                }
         }
-
 
 
         public override string GetInfoShort() {
@@ -232,7 +212,7 @@ namespace MathLib.MathMethods.Lyapunov {
         public override string GetInfoFull() {
             StringBuilder fullInfo = new StringBuilder();
 
-            fullInfo.AppendFormat("Min Embedding dimension: {0}\n", DimMin)
+            fullInfo
                 .AppendFormat("Max Embedding dimension: {0}\n", DimMax)
                 .AppendFormat("Delay: {0}\n", Tau)
                 .AppendFormat("Max Iterations: {0}\n", MaxIterations)
