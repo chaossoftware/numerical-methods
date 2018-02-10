@@ -53,9 +53,24 @@ namespace MathLib.DrawEngine.Charts {
         protected abstract void DrawGrid();
 
 
-        protected string GetAxisValue(double value, int decPlaces = 5)
+        protected string GetAxisValue(double value)
         {
-            return string.Format("{0:F" + decPlaces + "}", value).TrimEnd('0').TrimEnd('.');
+            int decimalPlaces;
+            var absValue = Math.Abs(value);
+
+            if (absValue < 10)
+            {
+                decimalPlaces = 5;
+            }
+            else if (absValue < 100)
+            {
+                decimalPlaces = 3;
+            }
+            else
+            {
+                decimalPlaces = 1;
+            }
+            return string.Format("{0:F" + decimalPlaces + "}", value).TrimEnd('0').TrimEnd('.');
         }
 
 

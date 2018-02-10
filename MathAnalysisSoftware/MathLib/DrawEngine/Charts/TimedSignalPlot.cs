@@ -101,8 +101,8 @@ namespace MathLib.DrawEngine.Charts
 
         protected override void DrawGrid() {
             SetAxisValues(
-                GetAxisValue(TsPointMin.X, 4),
-                GetAxisValue(TsPointMax.X, 4),
+                GetAxisValue(TsPointMin.X),
+                GetAxisValue(TsPointMax.X),
                 GetAxisValue(TsPointMin.Y),
                 GetAxisValue(TsPointMax.Y)
             );

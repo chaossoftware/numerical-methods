@@ -48,8 +48,8 @@ namespace MathLib.DrawEngine.Charts
 
         protected override void DrawGrid() {
             SetAxisValues(
-                GetAxisValue(TimeSeries.PointMin.X, 4), 
-                GetAxisValue(TimeSeries.PointMax.X, 4), 
+                GetAxisValue(TimeSeries.PointMin.X), 
+                GetAxisValue(TimeSeries.PointMax.X), 
                 GetAxisValue(TimeSeries.PointMin.Y), 
                 GetAxisValue(TimeSeries.PointMax.Y)
             );
