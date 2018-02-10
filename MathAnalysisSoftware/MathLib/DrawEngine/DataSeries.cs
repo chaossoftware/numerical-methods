@@ -5,119 +5,123 @@ namespace MathLib.DrawEngine
 {
     public class DataSeries
     {
-        public string Name;
-
-        public List<DataPoint> ListDataPoints;
-
-
-        private DataPoint _PointMax = null;
-        public DataPoint PointMax
-        {
-            get
-            {
-                if (_PointMax == null)
-                    _PointMax = new DataPoint(Ext.countMax(ValX), Ext.countMax(ValY));
-
-                return _PointMax;
-            }
-        }
-
-
-        private DataPoint _PointMin = null;
-        public DataPoint PointMin
-        {
-            get
-            {
-                if (_PointMin == null)
-                    _PointMin = new DataPoint(Ext.countMin(_ValX), Ext.countMin(_ValY));
-
-                return _PointMin;
-            }
-        }
-
-
-        private DataPoint _Amplitude = null;
-        public DataPoint Amplitude
-        {
-            get
-            {
-                if (_Amplitude == null)
-                    _Amplitude = new DataPoint(PointMax.X - PointMin.X, PointMax.Y - PointMin.Y);
-
-                return _Amplitude;
-            }
-        }
-
-
-        public int Length
-        {
-            get
-            {
-                return ListDataPoints.Count;
-            }
-        }
-
-
-        private double[] _ValX = null;
-        private double[] ValX
-        {
-            get
-            {
-                if (_ValX == null || _ValX.Length != ListDataPoints.Count)
-                {
-                    int ind = 0;
-                    _ValX = new double[ListDataPoints.Count];
-                    foreach (DataPoint dp in ListDataPoints)
-                        _ValX[ind++] = dp.X;
-                }
-                return _ValX;
-            }
-        }
-
-        private double[] _ValY = null;
-        public double[] ValY
-        {
-            get
-            {
-                if (_ValY == null || _ValY.Length != ListDataPoints.Count)
-                {
-                    int ind = 0;
-                    _ValY = new double[ListDataPoints.Count];
-                    foreach (DataPoint dp in ListDataPoints)
-                        _ValY[ind++] = dp.Y;
-                }
-                return _ValY;
-            }
-        }
+        private List<DataPoint> listDataPoints;
+        private DataPoint pointMax = null;
+        private DataPoint pointMin = null;
+        private DataPoint amplitude = null;
+        private double[] valX = null;
+        private double[] valY = null;
 
         public DataSeries()
         {
-            ListDataPoints = new List<DataPoint>();
+            this.listDataPoints = new List<DataPoint>();
         }
 
         public DataSeries(double[] timeSeries)
         {
-            ListDataPoints = new List<DataPoint>();
+            this.listDataPoints = new List<DataPoint>();
             foreach (double val in timeSeries)
                 AddDataPoint(val);
         }
 
+        public string Name { get; set; }
+
+        public List<DataPoint> ListDataPoints => this.listDataPoints;
+
+        public DataPoint PointMax
+        {
+            get
+            {
+                if (pointMax == null)
+                {
+                    pointMax = new DataPoint(Ext.countMax(ValX), Ext.countMax(ValY));
+                }
+
+                return pointMax;
+            }
+        }
+
+        public DataPoint PointMin
+        {
+            get
+            {
+                if (pointMin == null)
+                {
+                    pointMin = new DataPoint(Ext.countMin(valX), Ext.countMin(valY));
+                }
+
+                return pointMin;
+            }
+        }
+        
+        public DataPoint Amplitude
+        {
+            get
+            {
+                if (amplitude == null)
+                {
+                    amplitude = new DataPoint(PointMax.X - PointMin.X, PointMax.Y - PointMin.Y);
+                }
+
+                return amplitude;
+            }
+        }
+
+        public int Length => this.listDataPoints.Count;
+        
+        private double[] ValX
+        {
+            get
+            {
+                if (valX == null || valX.Length != this.listDataPoints.Count)
+                {
+                    int ind = 0;
+                    valX = new double[this.listDataPoints.Count];
+                    foreach (DataPoint dp in this.listDataPoints)
+                    {
+                        valX[ind++] = dp.X;
+                    }
+                }
+                return valX;
+            }
+        }
+        
+        public double[] ValY
+        {
+            get
+            {
+                if (valY == null || valY.Length != this.listDataPoints.Count)
+                {
+                    int ind = 0;
+                    valY = new double[this.listDataPoints.Count];
+                    foreach (DataPoint dp in this.listDataPoints)
+                    {
+                        valY[ind++] = dp.Y;
+                    }
+                }
+                return valY;
+            }
+        }
+
         public void AddDataPoint(double x, double y)
         {
-            ListDataPoints.Add(new DataPoint(x, y));
+            this.listDataPoints.Add(new DataPoint(x, y));
         }
 
         public void AddDataPoint(double y)
         {
-            ListDataPoints.Add(new DataPoint(ListDataPoints.Count + 1, y));
+            this.listDataPoints.Add(new DataPoint(this.listDataPoints.Count + 1, y));
         }
 
         public override string ToString()
         {
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
 
-            foreach (DataPoint dp in ListDataPoints)
+            foreach (DataPoint dp in this.listDataPoints)
+            {
                 sb.AppendFormat("{0:F5}\t{1:F5}\n", dp.X, dp.Y);
+            }
+                
             return sb.ToString();
         }
     }

@@ -8,17 +8,12 @@ namespace MathLib.DrawEngine
 {
     public class Animation
     {
-        [System.Runtime.InteropServices.DllImport("gdi32.dll")]
-        public static extern bool DeleteObject(IntPtr hObject);
-
-        private GifBitmapEncoder GifEncoder;
-
+        private GifBitmapEncoder gifEncoder;
 
         public Animation()
         {
-            GifEncoder = new GifBitmapEncoder();
+            this.gifEncoder = new GifBitmapEncoder();
         }
-
 
         public void AddFrame(Bitmap frame)
         {
@@ -30,19 +25,20 @@ namespace MathLib.DrawEngine
                 System.Windows.Int32Rect.Empty,
                 BitmapSizeOptions.FromEmptyOptions());
 
-            GifEncoder.Frames.Add(BitmapFrame.Create(bitmap));
+            this.gifEncoder.Frames.Add(BitmapFrame.Create(bitmap));
 
             DeleteObject(hBitmap);
         }
-
-
 
         public void SaveAnimation(string fileName)
         {
             using (FileStream fs = new FileStream(fileName, FileMode.Create))
             {
-                GifEncoder.Save(fs);
+                this.gifEncoder.Save(fs);
             }
         }
+
+        [System.Runtime.InteropServices.DllImport("gdi32.dll")]
+        private static extern bool DeleteObject(IntPtr hObject);
     }
 }

@@ -4,48 +4,47 @@ namespace MathLib.DrawEngine
 {
     public class DataPoint : IComparable
     {
-
         public DataPoint(double x, double y)
         {
-            X = x;
-            Y = y;
+            this.X = x;
+            this.Y = y;
         }
 
-        public double X;
-        public double Y;
+        public double X { get; set; }
 
-        public int Xint
-        {
-            get
-            {
-                return (int)X;
-            }
-        }
+        public double Y { get; set; }
 
-        public int Yint
-        {
-            get
-            {
-                return (int)Y;
-            }
-        }
+        public int Xint => (int)this.X;
+
+        public int Yint => (int)this.Y;
 
         public int CompareTo(object obj)
         {
             DataPoint dp = obj as DataPoint;
 
-            if (X == dp.X && Y == dp.Y)
+            if (this.X == dp.X && this.Y == dp.Y)
+            {
                 return 0;
+            }
 
-            if (X == dp.X && Y > dp.Y)
+            if (this.X == dp.X && this.Y > dp.Y)
+            {
                 return 1;
-            if (X == dp.X && Y < dp.Y)
+            }
+                
+            if (this.X == dp.X && this.Y < dp.Y)
+            {
                 return -1;
+            }
 
-            if (X > dp.X)
+            if (this.X > dp.X)
+            {
                 return 1;
+            }
             else
+            {
                 return -1;
+            }
         }
     }
 }

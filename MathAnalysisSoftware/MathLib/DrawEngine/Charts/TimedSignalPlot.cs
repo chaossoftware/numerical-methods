@@ -51,7 +51,7 @@ namespace MathLib.DrawEngine.Charts
             if (HistoricalData.Count < 1 || HistoricalData[0].data.Length < 1)
                 return null;
 
-            plotBitmap = new Bitmap(BitmapSize.Width, BitmapSize.Height);
+            plotBitmap = new Bitmap(this.Size.Width, this.Size.Height);
             g = Graphics.FromImage(plotBitmap);
 
             DrawGrid();
@@ -68,7 +68,7 @@ namespace MathLib.DrawEngine.Charts
 
             currentStep++;
 
-            g.FillRectangle(new SolidBrush(Color.White), (int)(BitmapSize.Height * 0.1), 0, BitmapSize.Width - (int)(BitmapSize.Height * 0.1), (int)(BitmapSize.Height * 0.9));
+            g.FillRectangle(new SolidBrush(Color.White), (int)(this.Size.Height * 0.1), 0, this.Size.Width - (int)(this.Size.Height * 0.1), (int)(this.Size.Height * 0.9));
 
             double xPl, yPl;
 
@@ -90,7 +90,7 @@ namespace MathLib.DrawEngine.Charts
             FormatT.LineAlignment = StringAlignment.Center;
             FormatT.Alignment = StringAlignment.Far;
 
-            g.DrawString(GetAxisValue(da.t), gridFont, br, PicPtMax.Xint, BitmapSize.Height - 4 * axisTitleFont.Size, FormatT);
+            g.DrawString(GetAxisValue(da.t), gridFont, br, PicPtMax.Xint, this.Size.Height - 4 * axisTitleFont.Size, FormatT);
 
             gp.Dispose();
             g.Dispose();

@@ -8,7 +8,6 @@ namespace MathLib.DrawEngine.Charts {
     /// </summary>
     public abstract class PlotObject {
         
-        public Size BitmapSize; 
         protected Bitmap plotBitmap;                // bitmap to draw plot
         protected Graphics g;
 
@@ -18,9 +17,6 @@ namespace MathLib.DrawEngine.Charts {
         protected Font axisTitleFont;               // Font for axis titles
         protected SolidBrush br;                    // Brush for grid text
 
-        public string LabelX = "x";                       // Label for X axis
-        public string LabelY = "y";                       // Label for Y axis
-
         protected DataPoint PicPtMin;
         protected DataPoint PicPtMax;
         protected DataPoint PicPtCoeff;
@@ -28,11 +24,14 @@ namespace MathLib.DrawEngine.Charts {
         /// <summary>
         /// Base constructor for plot object. initializes necessary objects to create plot
         /// </summary>
-        /// <param name="timeSeries">time series to plot</param>
         /// <param name="pBox">Picture box control to display plot</param>
         /// <param name="thickness">thickness of plot lines</param>
-        public PlotObject(Size bitmapSize, float thickness) {
-            BitmapSize = bitmapSize;
+        public PlotObject(Size bitmapSize, float thickness)
+        {
+            this.Size = bitmapSize;
+
+            this.LabelX = "x";
+            this.LabelY = "y";
 
             plotPen = new Pen(Color.SteelBlue, thickness);
             gridPen = new Pen(Color.Black, 2);
@@ -41,6 +40,11 @@ namespace MathLib.DrawEngine.Charts {
             br = new SolidBrush(Color.Black);
         }
 
+        public Size Size { get; set; }
+
+        public string LabelX { get; set; }
+
+        public string LabelY { get; set; }
 
         /// <summary>
         /// Plot chart
@@ -51,7 +55,6 @@ namespace MathLib.DrawEngine.Charts {
         /// Draw chart grid
         /// </summary>
         protected abstract void DrawGrid();
-
 
         protected string GetAxisValue(double value)
         {
@@ -73,13 +76,12 @@ namespace MathLib.DrawEngine.Charts {
             return string.Format("{0:F" + decimalPlaces + "}", value).TrimEnd('0').TrimEnd('.');
         }
 
-
         protected void SetDefaultAreaSize(DataPoint amplitude)
         {
             //set plot default area size
-            double axisOffset = Math.Max(BitmapSize.Height * 0.1, 25);
-            PicPtMin = new DataPoint(axisOffset, BitmapSize.Height - axisOffset);
-            PicPtMax = new DataPoint(BitmapSize.Width, 0);
+            double axisOffset = Math.Max(this.Size.Height * 0.1, 25);
+            PicPtMin = new DataPoint(axisOffset, this.Size.Height - axisOffset);
+            PicPtMax = new DataPoint(this.Size.Width, 0);
             PicPtCoeff = new DataPoint((PicPtMax.X - PicPtMin.X) / amplitude.X, (PicPtMin.Y - PicPtMax.Y) / amplitude.Y);
         }
 
@@ -91,7 +93,7 @@ namespace MathLib.DrawEngine.Charts {
             g.DrawLine(gridPen, PicPtMin.Xint, PicPtMin.Yint, PicPtMax.Xint, PicPtMin.Yint);
             
             // x axis text
-            float xAxisY = BitmapSize.Height - axisTitleFont.Size;
+            float xAxisY = this.Size.Height - axisTitleFont.Size;
 
             StringFormat FormatX = new StringFormat();
             FormatX.LineAlignment = StringAlignment.Center;

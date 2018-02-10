@@ -1,7 +1,5 @@
 ﻿using MathLib.DrawEngine.Charts.ColorMaps;
-using System;
 using System.Drawing;
-using System.Drawing.Drawing2D;
 
 namespace MathLib.DrawEngine.Charts
 {
@@ -31,7 +29,7 @@ namespace MathLib.DrawEngine.Charts
 
             SetDefaultAreaSize(new DataPoint(timeSeries.GetLength(0), timeSeries.GetLength(1)));
 
-            plotBitmap = new Bitmap(BitmapSize.Width, BitmapSize.Height);
+            plotBitmap = new Bitmap(this.Size.Width, this.Size.Height);
             g = Graphics.FromImage(plotBitmap);
 
             Bitmap mapBitmap = new Bitmap(timeSeries.GetLength(0), timeSeries.GetLength(1));
@@ -41,7 +39,7 @@ namespace MathLib.DrawEngine.Charts
             if (timeSeries.Length < 1)
                 return null;
 
-            g.FillRectangle(new SolidBrush(Color.White), 0, 0, BitmapSize.Width, BitmapSize.Height);
+            g.FillRectangle(new SolidBrush(Color.White), 0, 0, this.Size.Width, this.Size.Height);
 
             for (int i = 0; i < timeSeries.GetLength(0); i++)
                 for (int j = 0; j < timeSeries.GetLength(1); j++) {
@@ -54,7 +52,7 @@ namespace MathLib.DrawEngine.Charts
             int crossX = (int)(PicPtMin.X + gridPen.Width / 2);
             int crossY = (int)(PicPtMin.Y);
 
-            g.DrawImage(mapBitmap, new Rectangle(crossX, 0, BitmapSize.Width - crossX, PicPtMin.Yint));
+            g.DrawImage(mapBitmap, new Rectangle(crossX, 0, this.Size.Width - crossX, PicPtMin.Yint));
 
             g.Dispose();
 

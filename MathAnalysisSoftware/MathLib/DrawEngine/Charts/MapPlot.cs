@@ -20,14 +20,14 @@ namespace MathLib.DrawEngine.Charts
         public override Bitmap Plot() {
             SetDefaultAreaSize(TimeSeries.Amplitude);
 
-            plotBitmap = new Bitmap(BitmapSize.Width, BitmapSize.Height);
+            plotBitmap = new Bitmap(this.Size.Width, this.Size.Height);
             g = Graphics.FromImage(plotBitmap);
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
             if (TimeSeries.Length < 1)
                 return null;
 
-            g.FillRectangle(new SolidBrush(Color.White), 0, 0, BitmapSize.Width, BitmapSize.Height);
+            g.FillRectangle(new SolidBrush(Color.White), 0, 0, this.Size.Width, this.Size.Height);
 
             double xPl, yPl;
 

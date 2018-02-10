@@ -42,7 +42,7 @@ namespace MathLib.DrawEngine.Charts {
 
         public override Bitmap Plot() {
 
-            plotBitmap = new Bitmap(BitmapSize.Width, BitmapSize.Height);
+            plotBitmap = new Bitmap(this.Size.Width, this.Size.Height);
             g = Graphics.FromImage(plotBitmap);
 
             int xPl, yPl;
@@ -56,8 +56,8 @@ namespace MathLib.DrawEngine.Charts {
             Point[] points = new Point[timeSeries.Length];
 
             for (int i = 0; i < timeSeries.Length; i++) {
-                xPl = (int)(i * xCoeff + BitmapSize.Height * 0.1);
-                yPl = BitmapSize.Height - (int)(BitmapSize.Height * 0.1) - (int)((timeSeries[i] - minVal) * yCoeff);
+                xPl = (int)(i * xCoeff + this.Size.Height * 0.1);
+                yPl = this.Size.Height - (int)(this.Size.Height * 0.1) - (int)((timeSeries[i] - minVal) * yCoeff);
                 points[i] = new Point(xPl, yPl);
             }
 
@@ -74,9 +74,9 @@ namespace MathLib.DrawEngine.Charts {
 
 
         protected override void DrawGrid() {
-            int crossX = (int)(BitmapSize.Height * 0.1);
-            int crossY = (int)(BitmapSize.Height * 0.9);
-            int xRight = BitmapSize.Width;
+            int crossX = (int)(this.Size.Height * 0.1);
+            int crossY = (int)(this.Size.Height * 0.9);
+            int xRight = this.Size.Width;
             int yUp = 0;
 
             string timeStart, timeEnd;
@@ -97,7 +97,7 @@ namespace MathLib.DrawEngine.Charts {
 
             g.DrawString(timeStart, gridFont, br, (float)crossX, (float)crossY + 3);
             g.DrawString(timeEnd, gridFont, br, (float)xRight, (float)crossY + 3, new StringFormat());
-            g.DrawString(LabelX, axisTitleFont, br, (float)xRight / 2, BitmapSize.Height - gridFont.Height);
+            g.DrawString(LabelX, axisTitleFont, br, (float)xRight / 2, this.Size.Height - gridFont.Height);
 
             g.DrawString(String.Format("{0:F4}", maxVal).TrimEnd('0').TrimEnd('.'), gridFont, br, (float)crossX - gridFont.Height, (float)yUp, new StringFormat());
             g.DrawString(String.Format("{0:F4}", minVal).TrimEnd('0').TrimEnd('.'), gridFont, br, (float)crossX - gridFont.Height, (float)crossY, new StringFormat());
@@ -106,12 +106,12 @@ namespace MathLib.DrawEngine.Charts {
 
 
         protected double GetXCoefficient(double maxVal) {
-            return (BitmapSize.Width - BitmapSize.Height * 0.1) / maxVal;
+            return (this.Size.Width - this.Size.Height * 0.1) / maxVal;
         }
 
         protected double GetYCoefficient(double maxVal)
         {
-            return (BitmapSize.Width - BitmapSize.Height * 0.1) / maxVal;
+            return (this.Size.Width - this.Size.Height * 0.1) / maxVal;
         }
 
     }
