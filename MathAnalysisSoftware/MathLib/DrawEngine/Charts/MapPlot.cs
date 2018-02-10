@@ -22,6 +22,7 @@ namespace MathLib.DrawEngine.Charts
 
             plotBitmap = new Bitmap(BitmapSize.Width, BitmapSize.Height);
             g = Graphics.FromImage(plotBitmap);
+            g.SmoothingMode = SmoothingMode.AntiAlias;
 
             if (TimeSeries.Length < 1)
                 return null;
