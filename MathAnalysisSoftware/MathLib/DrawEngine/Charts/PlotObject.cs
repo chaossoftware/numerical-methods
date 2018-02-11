@@ -7,7 +7,7 @@ namespace MathLib.DrawEngine.Charts {
     /// Base class for plot object 
     /// </summary>
     public abstract class PlotObject {
-        
+
         protected Bitmap plotBitmap;                // bitmap to draw plot
         protected Graphics g;
 
@@ -33,10 +33,19 @@ namespace MathLib.DrawEngine.Charts {
             this.LabelX = "x";
             this.LabelY = "y";
 
+            float gridFontSize = 10, titleFontSize = 11, gridThickness = 2;
+
+            if (this.HasSmallSize)
+            {
+                gridFontSize = 8;
+                titleFontSize = 9;
+                gridThickness = 1;
+            }
+
             plotPen = new Pen(Color.SteelBlue, thickness);
-            gridPen = new Pen(Color.Black, 2);
-            gridFont = new Font(new FontFamily("Cambria Math"), 10f);
-            axisTitleFont = new Font(new FontFamily("Cambria Math"), 11f, FontStyle.Bold);
+            gridPen = new Pen(Color.Black, gridThickness);
+            gridFont = new Font(new FontFamily("Cambria Math"), gridFontSize);
+            axisTitleFont = new Font(new FontFamily("Cambria Math"), titleFontSize, FontStyle.Bold);
             br = new SolidBrush(Color.Black);
         }
 
@@ -45,6 +54,8 @@ namespace MathLib.DrawEngine.Charts {
         public string LabelX { get; set; }
 
         public string LabelY { get; set; }
+
+        protected bool HasSmallSize => this.Size.Width < 216 || this.Size.Height < 161;
 
         /// <summary>
         /// Plot chart
@@ -73,13 +84,21 @@ namespace MathLib.DrawEngine.Charts {
             {
                 decimalPlaces = 1;
             }
+
+            if (this.HasSmallSize)
+            {
+                decimalPlaces = 1;
+            }
+
             return string.Format("{0:F" + decimalPlaces + "}", value).TrimEnd('0').TrimEnd('.');
         }
 
         protected void SetDefaultAreaSize(DataPoint amplitude)
         {
+            double minOffset = this.HasSmallSize ? 18 : 25;
+
             //set plot default area size
-            double axisOffset = Math.Max(this.Size.Height * 0.1, 25);
+            double axisOffset = Math.Max(this.Size.Height * 0.1, minOffset);
             PicPtMin = new DataPoint(axisOffset, this.Size.Height - axisOffset);
             PicPtMax = new DataPoint(this.Size.Width, 0);
             PicPtCoeff = new DataPoint((PicPtMax.X - PicPtMin.X) / amplitude.X, (PicPtMin.Y - PicPtMax.Y) / amplitude.Y);
