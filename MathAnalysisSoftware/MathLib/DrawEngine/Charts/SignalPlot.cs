@@ -11,13 +11,12 @@ namespace MathLib.DrawEngine.Charts
         
         protected DataSeries TimeSeries;
 
-        public SignalPlot(DataSeries timeSeries, Size bitmapSize, float thickness)
-            : base(bitmapSize, thickness) {
+        public SignalPlot(DataSeries timeSeries, Size bitmapSize, float thickness) : base(bitmapSize, thickness)
+        {
             TimeSeries = timeSeries;
             LabelX = "t";
             LabelY = "w(t)";
         }
-
 
         public override Bitmap Plot() {
             SetDefaultAreaSize(TimeSeries.Amplitude);
