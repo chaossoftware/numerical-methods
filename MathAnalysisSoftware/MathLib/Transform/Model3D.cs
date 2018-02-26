@@ -13,7 +13,7 @@ namespace MathLib.Transform
         /// <param name="xt">array of points X coordinates</param>
         /// <param name="yt">array of points Y coordinates</param>
         /// <param name="zt">array of points Z coordinates</param>
-        public static void Create3dModelFile(string filePath, double[] xt, double[] yt, double[] zt) {
+        public static void Create3dPlyModelFile(string filePath, double[] xt, double[] yt, double[] zt) {
 
             long pts = xt.Length;
 
@@ -27,7 +27,28 @@ namespace MathLib.Transform
             model3D.AppendLine("end_header");
 
             for (int t = 0; t < pts; t++)
-                model3D.AppendFormat(CultureInfo.InvariantCulture, "{0:F10} {1:F10} {2:F10}\n", xt[t], yt[t], zt[t]);
+                model3D.AppendFormat(CultureInfo.InvariantCulture, "{0:G14} {1:G14} {2:G14}\n", xt[t], yt[t], zt[t]);
+
+            DataWriter.CreateDataFile(filePath, model3D.ToString());
+        }
+
+        /// <summary>
+        /// Create file with 3D model in 3DA format
+        /// </summary>
+        /// <param name="filePath">output 3d model file name</param>
+        /// <param name="xt">array of points X coordinates</param>
+        /// <param name="yt">array of points Y coordinates</param>
+        /// <param name="zt">array of points Z coordinates</param>
+        public static void Create3daModelFile(string filePath, double[] xt, double[] yt, double[] zt)
+        {
+
+            long pts = xt.Length;
+            StringBuilder model3D = new StringBuilder();
+
+            for (int t = 0; t < pts; t++)
+            {
+                model3D.AppendFormat(CultureInfo.InvariantCulture, "{0:G14} {1:G14} {2:G14}\n", xt[t], yt[t], zt[t]);
+            }
 
             DataWriter.CreateDataFile(filePath, model3D.ToString());
         }
