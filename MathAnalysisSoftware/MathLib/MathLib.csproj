@@ -53,10 +53,9 @@
     <Compile Include="DrawEngine\Charts\PlotObject.cs" />
     <Compile Include="DrawEngine\Charts\MapPlot.cs" />
     <Compile Include="DrawEngine\Charts\SignalPlot.cs" />
-    <Compile Include="Data\DataSeries.cs" />
+    <Compile Include="Data\Timeseries.cs" />
     <Compile Include="Data\DataPoint.cs" />
     <Compile Include="Ext.cs" />
-    <Compile Include="IO\DataReader.cs" />
     <Compile Include="IO\DataWriter.cs" />
     <Compile Include="Data\SourceData.cs" />
     <Compile Include="MathMethods\Lyapunov\BenettinMethod.cs" />

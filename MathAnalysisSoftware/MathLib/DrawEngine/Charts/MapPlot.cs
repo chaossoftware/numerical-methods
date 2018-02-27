@@ -9,10 +9,10 @@ namespace MathLib.DrawEngine.Charts
     /// </summary>
     public class MapPlot : PlotObject {
 
-        DataSeries TimeSeries;
+        Timeseries TimeSeries;
         
 
-        public MapPlot(DataSeries timeSeries, Size pictureboxSize, float thickness)
+        public MapPlot(Timeseries timeSeries, Size pictureboxSize, float thickness)
             : base(pictureboxSize, thickness) {
             TimeSeries = timeSeries;
         }

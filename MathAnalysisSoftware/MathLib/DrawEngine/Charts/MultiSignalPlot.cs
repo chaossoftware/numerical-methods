@@ -17,7 +17,7 @@ namespace MathLib.DrawEngine.Charts {
         private DataPoint tsPointMin;
         private DataPoint tsAmplitude;
 
-        protected List<DataSeries> TimeSeriesList;
+        protected List<Timeseries> TimeSeriesList;
         protected List<Pen> PlotPens;
 
         public MultiSignalPlot(Size bitmapSize, float thickness) : base(bitmapSize, thickness)
@@ -26,7 +26,7 @@ namespace MathLib.DrawEngine.Charts {
             LabelX = "t";
             LabelY = "w(t)";
 
-            this.TimeSeriesList = new List<DataSeries>();
+            this.TimeSeriesList = new List<Timeseries>();
             this.PlotPens = new List<Pen>();
             this.tsAmplitude = new DataPoint(0, 0);
             this.tsPointMax = new DataPoint(double.MinValue, double.MinValue);
@@ -34,7 +34,7 @@ namespace MathLib.DrawEngine.Charts {
 
         }
 
-        public void AddDataSeries(DataSeries dataSeries, Color color)
+        public void AddDataSeries(Timeseries dataSeries, Color color)
         {
             this.TimeSeriesList.Add(dataSeries);
             this.PlotPens.Add(new Pen(color, this.thickness));
@@ -88,7 +88,7 @@ namespace MathLib.DrawEngine.Charts {
             );
         }
 
-        private void DrawDataSeries(DataSeries ds, Pen pen)
+        private void DrawDataSeries(Timeseries ds, Pen pen)
         {
             double xPl, yPl;
 

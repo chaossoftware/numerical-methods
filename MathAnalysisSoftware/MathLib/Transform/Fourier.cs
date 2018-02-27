@@ -5,7 +5,7 @@ namespace MathLib.Transform
 {
     public class Fourier
     {
-        public static DataSeries GetFourier(double[] timeSeries, double startFreq, double endFreq, double dt, int logScale)
+        public static Timeseries GetFourier(double[] timeSeries, double startFreq, double endFreq, double dt, int logScale)
         {
             MatlabEngine.MatlabEngine signalAnalysis = new MatlabEngine.MatlabEngine();
             MWArray result = null;
@@ -14,7 +14,7 @@ namespace MathLib.Transform
             MWNumericArray mw_na_result = (MWNumericArray)result;
             double[,] fourierData = (double[,])mw_na_result.ToArray(MWArrayComponent.Real);
 
-            DataSeries fourier = new DataSeries();
+            Timeseries fourier = new Timeseries();
             for (int i = 0; i < fourierData.GetLength(0); i++)
             {
                 double x = fourierData[i, 0];

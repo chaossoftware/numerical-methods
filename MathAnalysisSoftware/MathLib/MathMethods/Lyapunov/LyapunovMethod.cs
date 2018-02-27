@@ -8,12 +8,12 @@ namespace MathLib.MathMethods.Lyapunov {
 
         protected double[] timeSeries;
         //public Dictionary<int, double> slope;
-        public DataSeries slope;
+        public Timeseries slope;
 
         public LyapunovMethod(double[] timeSeries) {
             this.timeSeries = timeSeries;
             //slope = new Dictionary<int, double>();
-            slope = new DataSeries();
+            slope = new Timeseries();
             Log = new StringBuilder();
         }
 

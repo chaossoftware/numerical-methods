@@ -11,7 +11,7 @@ namespace MathLib.Transform
 
         double omega;
         double saveFrom;
-        public DataSeries PoincareOut;
+        public Timeseries PoincareOut;
 
         public PoincareMap(double omega, double saveFrom) {
             this.omega = omega;
@@ -21,7 +21,7 @@ namespace MathLib.Transform
             maxt = Max = -1000;
             w2 = 0;
 
-            PoincareOut = new DataSeries();
+            PoincareOut = new Timeseries();
         }
 
         public void nextStep(double t, double val) {

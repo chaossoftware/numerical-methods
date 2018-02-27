@@ -10,9 +10,9 @@ namespace MathLib.DrawEngine.Charts
     /// </summary>
     public class SignalPlot : PlotObject {
         
-        protected DataSeries TimeSeries;
+        protected Timeseries TimeSeries;
 
-        public SignalPlot(DataSeries timeSeries, Size bitmapSize, float thickness) : base(bitmapSize, thickness)
+        public SignalPlot(Timeseries timeSeries, Size bitmapSize, float thickness) : base(bitmapSize, thickness)
         {
             TimeSeries = timeSeries;
             LabelX = "t";

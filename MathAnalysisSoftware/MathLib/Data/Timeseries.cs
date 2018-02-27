@@ -4,7 +4,7 @@ using System.Text;
 
 namespace MathLib.Data
 {
-    public class DataSeries
+    public class Timeseries
     {
         private List<DataPoint> dataPoints;
         private DataPoint max;
@@ -14,13 +14,13 @@ namespace MathLib.Data
         private double[] yValues;
         private bool outdated;
 
-        public DataSeries()
+        public Timeseries()
         {
             this.dataPoints = new List<DataPoint>();
             this.outdated = true;
         }
 
-        public DataSeries(double[] timeSeries)
+        public Timeseries(double[] timeSeries)
         {
             this.dataPoints = new List<DataPoint>();
             this.outdated = true;

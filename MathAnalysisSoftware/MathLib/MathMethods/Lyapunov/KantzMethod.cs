@@ -30,7 +30,7 @@ namespace MathLib.MathMethods.Lyapunov {
         int[] lfound, count;
         int found;
 
-        public Dictionary<string, DataSeries> SlopesList;
+        public Dictionary<string, Timeseries> SlopesList;
 
         public KantzMethod(double[] timeSeries, int dimMax, int tau, int maxIterations, int window, double scaleMin, double scaleMax, int epscount)
             :base(timeSeries) {
@@ -61,7 +61,7 @@ namespace MathLib.MathMethods.Lyapunov {
             else
                 Epscount = epscount;
 
-            SlopesList = new Dictionary<string, DataSeries>();
+            SlopesList = new Dictionary<string, Timeseries>();
             Blength = timeSeries.Length - (DimMax - 1) * Tau - MaxIterations;
         }
 
@@ -110,7 +110,7 @@ namespace MathLib.MathMethods.Lyapunov {
 
                 Log.AppendFormat(CultureInfo.InvariantCulture, "epsilon= {0:F5}\n", epsilon * max);
 
-                DataSeries dict = new DataSeries();
+                Timeseries dict = new Timeseries();
 
                 for (j = 0; j <= MaxIterations; j++)
                     if (count[j] != 0) {

@@ -48,8 +48,8 @@ namespace MathLib
         }
 
 
-        public static DataSeries GeneratePseudoPoincareMapData(double[] timeSeries) {
-            DataSeries ppDataSeries = new DataSeries();
+        public static Timeseries GeneratePseudoPoincareMapData(double[] timeSeries) {
+            Timeseries ppDataSeries = new Timeseries();
 
             for (int i = 0; i < timeSeries.Length - 1; i++)
                 ppDataSeries.AddDataPoint(timeSeries[i], timeSeries[i + 1]);

@@ -11,14 +11,14 @@ namespace MathLib.DrawEngine.Charts
     /// </summary>
     public class TimedSignalPlot : PlotObject {
         
-        protected List<DataSeries> HistoricalData;
+        protected List<Timeseries> HistoricalData;
         private DataPoint TsPointMax;
         private DataPoint TsPointMin;
         private DataPoint TsAmplitude;
 
         int currentStep = 0;
 
-        public TimedSignalPlot(List<DataSeries> historicalData, Size bitmapSize, float thickness)
+        public TimedSignalPlot(List<Timeseries> historicalData, Size bitmapSize, float thickness)
             : base(bitmapSize, thickness) {
             HistoricalData = historicalData;
             init();
@@ -32,7 +32,7 @@ namespace MathLib.DrawEngine.Charts
             TsPointMin = new DataPoint(double.MaxValue, double.MaxValue);
             TsAmplitude = new DataPoint(0, 0);
 
-            foreach (DataSeries da in HistoricalData)
+            foreach (Timeseries da in HistoricalData)
             {
                 TsPointMax.X = Math.Max(TsPointMax.X, da.Max.X);
                 TsPointMax.Y = Math.Max(TsPointMax.Y, da.Max.Y);
@@ -65,7 +65,7 @@ namespace MathLib.DrawEngine.Charts
         public Bitmap PlotNextStep()
         {
             g = Graphics.FromImage(plotBitmap);
-            DataSeries da = HistoricalData[currentStep];
+            Timeseries da = HistoricalData[currentStep];
 
             currentStep++;
 
