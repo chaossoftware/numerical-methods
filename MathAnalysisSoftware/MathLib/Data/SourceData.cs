@@ -1,14 +1,14 @@
 ﻿using System.IO;
 using System.Text;
 using System.Globalization;
-using MathLib.DrawEngine;
 
-namespace MathLib.IO
+namespace MathLib.Data
 {
     /// <summary>
     /// Class representing source data object
     /// </summary>
-    public class SourceData {
+    public class SourceData
+    {
         public int timeSeriesLength;        // number of points in 
         public int columnsCount;            // number of columns in file
         public string fileName;       // name of source file
@@ -52,21 +52,20 @@ namespace MathLib.IO
             else
                 for (int i = 0; i < max; i++)
                     TimeSeries.AddDataPoint(dataColumns[startPoint + i * pts, colIndex]);
-            Step = TimeSeries.ListDataPoints[1].X - TimeSeries.ListDataPoints[0].X;
+            Step = TimeSeries.DataPoints[1].X - TimeSeries.DataPoints[0].X;
         }
 
 
-        public string GetInfo() {
-            return "File: " + fileName.ToUpper() +
-                "\nLines: " + timeSeriesLength +
-                "\nColumns: " + columnsCount;
+        public override string ToString()
+        {
+            return $"File: {this.fileName}\nLines: {timeSeriesLength}\nColumns: {columnsCount}";
         }
 
 
         public string GetTimeSeriesString(bool withTime) {
             StringBuilder timeSeriesOut = new StringBuilder();
 
-            foreach (double value in TimeSeries.ValY)
+            foreach (double value in TimeSeries.YValues)
                 timeSeriesOut.AppendFormat(CultureInfo.InvariantCulture, "{0:F14}\n", value);
 
             return timeSeriesOut.ToString();

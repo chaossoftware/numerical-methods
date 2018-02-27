@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MathLib.Data;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -10,14 +11,14 @@ namespace MathLib.DrawEngine.Charts
     /// </summary>
     public class TimedSignalPlot : PlotObject {
         
-        protected List<DDArray> HistoricalData;
+        protected List<DataSeries> HistoricalData;
         private DataPoint TsPointMax;
         private DataPoint TsPointMin;
         private DataPoint TsAmplitude;
 
         int currentStep = 0;
 
-        public TimedSignalPlot(List<DDArray> historicalData, Size bitmapSize, float thickness)
+        public TimedSignalPlot(List<DataSeries> historicalData, Size bitmapSize, float thickness)
             : base(bitmapSize, thickness) {
             HistoricalData = historicalData;
             init();
@@ -31,12 +32,12 @@ namespace MathLib.DrawEngine.Charts
             TsPointMin = new DataPoint(double.MaxValue, double.MaxValue);
             TsAmplitude = new DataPoint(0, 0);
 
-            foreach (DDArray da in HistoricalData)
+            foreach (DataSeries da in HistoricalData)
             {
-                TsPointMax.X = Math.Max(TsPointMax.X, da.data.PointMax.X);
-                TsPointMax.Y = Math.Max(TsPointMax.Y, da.data.PointMax.Y);
-                TsPointMin.X = Math.Min(TsPointMin.X, da.data.PointMin.X);
-                TsPointMin.Y = Math.Min(TsPointMin.Y, da.data.PointMin.Y);
+                TsPointMax.X = Math.Max(TsPointMax.X, da.Max.X);
+                TsPointMax.Y = Math.Max(TsPointMax.Y, da.Max.Y);
+                TsPointMin.X = Math.Min(TsPointMin.X, da.Min.X);
+                TsPointMin.Y = Math.Min(TsPointMin.Y, da.Min.Y);
             }
 
             TsAmplitude.X = TsPointMax.X - TsPointMin.X;
@@ -48,7 +49,7 @@ namespace MathLib.DrawEngine.Charts
 
         public override Bitmap Plot() {
 
-            if (HistoricalData.Count < 1 || HistoricalData[0].data.Length < 1)
+            if (HistoricalData.Count < 1 || HistoricalData[0].Length < 1)
                 return null;
 
             plotBitmap = new Bitmap(this.Size.Width, this.Size.Height);
@@ -64,7 +65,7 @@ namespace MathLib.DrawEngine.Charts
         public Bitmap PlotNextStep()
         {
             g = Graphics.FromImage(plotBitmap);
-            DDArray da = HistoricalData[currentStep];
+            DataSeries da = HistoricalData[currentStep];
 
             currentStep++;
 
@@ -74,7 +75,7 @@ namespace MathLib.DrawEngine.Charts
 
             List<Point> points = new List<Point>();
 
-            foreach (DataPoint dp in da.data.ListDataPoints)
+            foreach (DataPoint dp in da.DataPoints)
             {
                 xPl = PicPtMin.X + (dp.X - TsPointMin.X) * PicPtCoeff.X;
                 yPl = PicPtMin.Y - (dp.Y - TsPointMin.Y) * PicPtCoeff.Y;
@@ -90,7 +91,7 @@ namespace MathLib.DrawEngine.Charts
             FormatT.LineAlignment = StringAlignment.Center;
             FormatT.Alignment = StringAlignment.Far;
 
-            g.DrawString(GetAxisValue(da.t), gridFont, br, PicPtMax.Xint, this.Size.Height - 4 * axisTitleFont.Size, FormatT);
+            g.DrawString(GetAxisValue(double.Parse(da.Name)), gridFont, br, PicPtMax.Xint, this.Size.Height - 4 * axisTitleFont.Size, FormatT);
 
             gp.Dispose();
             g.Dispose();

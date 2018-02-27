@@ -1,4 +1,5 @@
-﻿using MathLib.DrawEngine.Charts.ColorMaps;
+﻿using MathLib.Data;
+using MathLib.DrawEngine.Charts.ColorMaps;
 using System.Drawing;
 
 namespace MathLib.DrawEngine.Charts

@@ -1,4 +1,5 @@
-﻿using MathLib.DrawEngine;
+﻿using MathLib.Data;
+using MathLib.DrawEngine;
 using System;
 
 namespace MathLib

@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using MathLib.Data;
+using System.Drawing;
 using System.Drawing.Drawing2D;
 
 namespace MathLib.DrawEngine.Charts
@@ -31,10 +32,10 @@ namespace MathLib.DrawEngine.Charts
 
             double xPl, yPl;
 
-            foreach (DataPoint dp in TimeSeries.ListDataPoints)
+            foreach (DataPoint dp in TimeSeries.DataPoints)
             {
-                xPl = PicPtMin.X + (dp.X - TimeSeries.PointMin.X) * PicPtCoeff.X;
-                yPl = PicPtMin.Y - (dp.Y - TimeSeries.PointMin.Y) * PicPtCoeff.Y;
+                xPl = PicPtMin.X + (dp.X - TimeSeries.Min.X) * PicPtCoeff.X;
+                yPl = PicPtMin.Y - (dp.Y - TimeSeries.Min.Y) * PicPtCoeff.Y;
                 
                 g.DrawEllipse(plotPen, (int)xPl, (int)yPl, 1, 1);
             }
@@ -48,10 +49,10 @@ namespace MathLib.DrawEngine.Charts
 
         protected override void DrawGrid() {
             SetAxisValues(
-                GetAxisValue(TimeSeries.PointMin.X), 
-                GetAxisValue(TimeSeries.PointMax.X), 
-                GetAxisValue(TimeSeries.PointMin.Y), 
-                GetAxisValue(TimeSeries.PointMax.Y)
+                GetAxisValue(TimeSeries.Min.X), 
+                GetAxisValue(TimeSeries.Max.X), 
+                GetAxisValue(TimeSeries.Min.Y), 
+                GetAxisValue(TimeSeries.Max.Y)
             );
         }
     }

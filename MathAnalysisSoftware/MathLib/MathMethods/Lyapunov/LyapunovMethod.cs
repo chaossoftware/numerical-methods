@@ -1,5 +1,4 @@
-﻿using MathLib.DrawEngine;
-using System.Collections.Generic;
+﻿using MathLib.Data;
 using System.Text;
 
 namespace MathLib.MathMethods.Lyapunov {

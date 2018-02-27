@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MathLib.Data;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -40,10 +41,10 @@ namespace MathLib.DrawEngine.Charts {
 
             foreach (var ds in this.TimeSeriesList)
             {
-                this.tsPointMax.X = Math.Max(this.tsPointMax.X, ds.PointMax.X);
-                this.tsPointMax.Y = Math.Max(this.tsPointMax.Y, ds.PointMax.Y);
-                this.tsPointMin.X = Math.Min(this.tsPointMin.X, ds.PointMin.X);
-                this.tsPointMin.Y = Math.Min(this.tsPointMin.Y, ds.PointMin.Y);
+                this.tsPointMax.X = Math.Max(this.tsPointMax.X, ds.Max.X);
+                this.tsPointMax.Y = Math.Max(this.tsPointMax.Y, ds.Max.Y);
+                this.tsPointMin.X = Math.Min(this.tsPointMin.X, ds.Min.X);
+                this.tsPointMin.Y = Math.Min(this.tsPointMin.Y, ds.Min.Y);
             }
 
             this.tsAmplitude.X = this.tsPointMax.X - this.tsPointMin.X;
@@ -93,7 +94,7 @@ namespace MathLib.DrawEngine.Charts {
 
             List<Point> points = new List<Point>();
 
-            foreach (DataPoint dp in ds.ListDataPoints)
+            foreach (DataPoint dp in ds.DataPoints)
             {
                 xPl = PicPtMin.X + (dp.X - this.tsPointMin.X) * PicPtCoeff.X;
                 yPl = PicPtMin.Y - (dp.Y - this.tsPointMin.Y) * PicPtCoeff.Y;

@@ -1,10 +1,5 @@
-﻿using MathLib.DrawEngine;
+﻿using MathLib.Data;
 using MathWorks.MATLAB.NET.Arrays;
-using MatlabEngine;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace MathLib.Transform
 {
