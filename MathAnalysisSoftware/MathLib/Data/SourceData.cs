@@ -83,7 +83,7 @@ namespace MathLib.Data
 
         private void ReadFromFile(string file)
         {
-            var sourceData = File.ReadAllLines(fileName);
+            var sourceData = File.ReadAllLines(file);
             var timeSeriesWidth = Regex.Split(sourceData[0].ToString().Trim(), "\\s+").Length;
 
             this.dataColumns = new double[sourceData.Length, timeSeriesWidth];

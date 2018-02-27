@@ -16,14 +16,12 @@ namespace MathLib.Data
 
         public Timeseries()
         {
-            this.dataPoints = new List<DataPoint>();
-            this.outdated = true;
+            this.Init();
         }
 
         public Timeseries(double[] timeSeries)
         {
-            this.dataPoints = new List<DataPoint>();
-            this.outdated = true;
+            this.Init();
 
             foreach (double val in timeSeries)
             {
@@ -126,10 +124,22 @@ namespace MathLib.Data
 
         private void UpdateProperties()
         {
-            this.min = new DataPoint(this.xValues.Min(), this.yValues.Min());
-            this.max = new DataPoint(this.xValues.Max(), this.yValues.Max());
-            this.amplitude = new DataPoint(this.max.X - this.min.X, this.max.Y - this.min.Y);
+            this.min.X = this.XValues.Min();
+            this.min.Y = this.YValues.Min();
+            this.max.X = this.XValues.Max();
+            this.max.Y = this.YValues.Max();
+            this.amplitude.X = this.max.X - this.min.X;
+            this.amplitude.Y = this.max.Y - this.min.Y;
             this.outdated = false;
+        }
+
+        private void Init()
+        {
+            this.dataPoints = new List<DataPoint>();
+            this.min = new DataPoint(0, 0);
+            this.max = new DataPoint(0, 0);
+            this.amplitude = new DataPoint(0, 0);
+            this.outdated = true;
         }
     }
 }
