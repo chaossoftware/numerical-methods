@@ -176,10 +176,7 @@ namespace MathLib.MathMethods.Lyapunov {
         ///<returns>j-th component of i-th reconstructed attractor point</returns>
         private double GetAttractorPoint(int i, int j) {
             int point = i + j * Tau;
-            if (point < tsLen)
-                return timeSeries[point];
-            else
-                return 0;
+            return point < tsLen ? timeSeries[point] : 0;
         }
 
 

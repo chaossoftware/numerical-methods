@@ -9,36 +9,30 @@ namespace MathLib.Data
     public class SourceData
     {
         private double[,] dataColumns;
-        private int length;
-        private double step;
-        private int columnsCount;
-        private string fileName;
-        private string folder;
-        private Timeseries timeSeries;
 
         public SourceData(string filePath)
         {
             ReadFromFile(filePath);
 
-            this.fileName = filePath.Substring(filePath.LastIndexOf("\\") + 1);
-            this.folder = Path.GetDirectoryName(filePath);
-            this.length = dataColumns.GetLength(0);
-            this.columnsCount = dataColumns.GetLength(1);
+            this.FileName = filePath.Substring(filePath.LastIndexOf("\\") + 1);
+            this.Folder = Path.GetDirectoryName(filePath);
+            this.Length = dataColumns.GetLength(0);
+            this.ColumnsCount = dataColumns.GetLength(1);
 
-            SetTimeSeries(0, 0, length, 1, false);
+            SetTimeSeries(0, 0, Length, 1, false);
         }
 
-        public Timeseries TimeSeries => this.timeSeries;
+        public Timeseries TimeSeries { get; protected set; }
 
-        public int Length => this.length;
+        public int Length { get; protected set; }
 
-        public double Step => this.step;
+        public double Step { get; protected set; }
 
-        public int ColumnsCount => this.columnsCount;
+        public int ColumnsCount { get; protected set; }
 
-        public string FileName => this.fileName;
+        public string FileName { get; protected set; }
 
-        public string Folder => this.folder;
+        public string Folder { get; protected set; }
 
         /// <summary>
         /// Set current time series from column and data range
@@ -51,17 +45,17 @@ namespace MathLib.Data
         {
             int max = (endPoint - startPoint) / pts;
 
-            this.timeSeries = new Timeseries();
+            this.TimeSeries = new Timeseries();
 
             if (timeInFirstColumn)
                 for (int i = 0; i < max; i++) {
                     int row = startPoint + i * pts;
-                    this.timeSeries.AddDataPoint(dataColumns[row, 0], dataColumns[row, colIndex]);
+                    this.TimeSeries.AddDataPoint(dataColumns[row, 0], dataColumns[row, colIndex]);
                 }
             else
                 for (int i = 0; i < max; i++)
-                    this.timeSeries.AddDataPoint(dataColumns[startPoint + i * pts, colIndex]);
-            this.step = this.timeSeries.DataPoints[1].X - this.timeSeries.DataPoints[0].X;
+                    this.TimeSeries.AddDataPoint(dataColumns[startPoint + i * pts, colIndex]);
+            this.Step = this.TimeSeries.DataPoints[1].X - this.TimeSeries.DataPoints[0].X;
         }
 
         public string GetTimeSeriesString(bool withTime)
@@ -78,7 +72,7 @@ namespace MathLib.Data
 
         public override string ToString()
         {
-            return $"File: {this.fileName}\nLines: {this.length}\nColumns: {this.columnsCount}";
+            return $"File: {this.FileName}\nLines: {this.Length}\nColumns: {this.ColumnsCount}";
         }
 
         private void ReadFromFile(string file)

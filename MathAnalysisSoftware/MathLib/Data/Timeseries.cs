@@ -6,7 +6,6 @@ namespace MathLib.Data
 {
     public class Timeseries
     {
-        private List<DataPoint> dataPoints;
         private DataPoint max;
         private DataPoint min;
         private DataPoint amplitude;
@@ -31,7 +30,7 @@ namespace MathLib.Data
 
         public string Name { get; set; }
 
-        public List<DataPoint> DataPoints => this.dataPoints;
+        public List<DataPoint> DataPoints { get; protected set; }
 
         public DataPoint Max
         {
@@ -72,7 +71,7 @@ namespace MathLib.Data
             }
         }
 
-        public int Length => this.dataPoints.Count;
+        public int Length => this.DataPoints.Count;
         
         private double[] XValues
         {
@@ -100,13 +99,13 @@ namespace MathLib.Data
 
         public void AddDataPoint(double x, double y)
         {
-            this.dataPoints.Add(new DataPoint(x, y));
+            this.DataPoints.Add(new DataPoint(x, y));
             this.outdated = true;
         }
 
         public void AddDataPoint(double y)
         {
-            this.dataPoints.Add(new DataPoint(this.dataPoints.Count + 1, y));
+            this.DataPoints.Add(new DataPoint(this.DataPoints.Count + 1, y));
             this.outdated = true;
         }
 
@@ -114,7 +113,7 @@ namespace MathLib.Data
         {
             var sb = new StringBuilder();
 
-            foreach (DataPoint dp in this.dataPoints)
+            foreach (DataPoint dp in this.DataPoints)
             {
                 sb.AppendFormat("{0:G14}\t{1:G14}\n", dp.X, dp.Y);
             }
@@ -135,7 +134,7 @@ namespace MathLib.Data
 
         private void Init()
         {
-            this.dataPoints = new List<DataPoint>();
+            this.DataPoints = new List<DataPoint>();
             this.min = new DataPoint(0, 0);
             this.max = new DataPoint(0, 0);
             this.amplitude = new DataPoint(0, 0);
