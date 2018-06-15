@@ -1,80 +1,93 @@
 ﻿using System;
 
-namespace MathLib.MathMethods.Solvers {
-
+namespace MathLib.MathMethods.Solvers
+{
     /// <summary>
     /// 4th ordered Runge-Kutta
     /// </summary>
-    public class RK4 : Solver {
-
-        private int N;
-        private int NN;
-        private double stepSize;                //step size
+    public class RK4 : EquationsSolver
+    {
+        private int n;
+        private int nn;
+        private double stepSize;
         private double stepDiv2;
         private double stepDiv6;
 
-        private double[,] x, dxdt, A, B, C, D;  //arrays for solving
+        private double[,] x, dxdt, a, b, c, d;  //arrays for solving
 
         /// <summary>
         /// Solvers
         /// </summary>
         /// <param name="numberOfEquations">Number of equations</param>
         /// <param name="stepSize">Step size</param>
-        public RK4(SystemEquations equations, double stepSize)
-            : base(equations) {
-            
-            N = equations.N;
-            NN = equations.NN;
+        public RK4(SystemEquations equations, double stepSize) : base(equations)
+        {
+            n = equations.EquationsCount;
+            nn = equations.TotalEquationsCount;
             this.stepSize = stepSize;
 
-            x = new double[NN, N];
-            dxdt = new double[NN, N];
-            A = new double[NN, N];
-            B = new double[NN, N];
-            C = new double[NN, N];
-            D = new double[NN, N];
+            x = new double[nn, n];
+            dxdt = new double[nn, n];
+            a = new double[nn, n];
+            b = new double[nn, n];
+            c = new double[nn, n];
+            d = new double[nn, n];
             stepDiv2 = stepSize / 2.0;
             stepDiv6 = stepSize / 6.0;
         }
-        
 
-        public override void NexStep() {
+        public override void NexStep()
+        {
+            base.equations.Derivatives(base.Solution, dxdt);
 
-            Equations.Derivs(Solution, dxdt);
+            Array.Copy(dxdt, a, a.Length);
 
-            Array.Copy(dxdt, A, A.Length);
+            for (int i = 0; i < nn; i++)
+            {
+                for (int j = 0; j < n; j++)
+                {
+                    x[i, j] = base.Solution[i, j] + stepDiv2 * a[i, j];
+                }
+            }
 
-            for (int i = 0; i < NN; i++)
-                for (int j = 0; j < N; j++)
-                    x[i, j] = Solution[i, j] + stepDiv2 * A[i, j];
+            base.equations.Derivatives(x, dxdt);
 
-            Equations.Derivs(x, dxdt);
+            Array.Copy(dxdt, b, b.Length);
 
-            Array.Copy(dxdt, B, B.Length); ;
+            for (int i = 0; i < nn; i++)
+            {
+                for (int j = 0; j < n; j++)
+                {
+                    x[i, j] = base.Solution[i, j] + stepDiv2 * b[i, j];
+                }
+            }
 
-            for (int i = 0; i < NN; i++)
-                for (int j = 0; j < N; j++)
-                    x[i, j] = Solution[i, j] + stepDiv2 * B[i, j];
+            base.equations.Derivatives(x, dxdt);
 
-            Equations.Derivs(x, dxdt);
+            Array.Copy(dxdt, c, c.Length);
 
-            Array.Copy(dxdt, C, C.Length);
+            for (int i = 0; i < nn; i++)
+            {
+                for (int j = 0; j < n; j++)
+                {
+                    x[i, j] = base.Solution[i, j] + stepSize * c[i, j];
+                }
+            }
 
-            for (int i = 0; i < NN; i++)
-                for (int j = 0; j < N; j++)
-                    x[i, j] = Solution[i, j] + stepSize * C[i, j];
+            base.equations.Derivatives(x, dxdt);
 
-            Equations.Derivs(x, dxdt);
+            Array.Copy(dxdt, d, d.Length);
 
-            Array.Copy(dxdt, D, D.Length);
+            for (int i = 0; i < nn; i++)
+            {
+                for (int j = 0; j < n; j++)
+                {
+                    base.Solution[i, j] += stepDiv6 *
+                        (a[i, j] + d[i, j] + 2.0 * (b[i, j] + c[i, j]));
+                }
+            }
 
-            for (int i = 0; i < NN; i++)
-                for (int j = 0; j < N; j++)
-                    Solution[i, j] += stepDiv6 *
-                        (A[i, j] + D[i, j] + 2.0 * (B[i, j] + C[i, j]));
-
-            Time += Step;
+            base.Time += Step;
         }
-
     }
 }

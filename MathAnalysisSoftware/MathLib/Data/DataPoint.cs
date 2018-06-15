@@ -12,10 +12,6 @@
 
         public double Y { get; set; }
 
-        public int Xint => (int)this.X;
-
-        public int Yint => (int)this.Y;
-
         public override string ToString()
         {
             return string.Format("{{{0:G5}, {1:G5}}}", this.X, this.Y);

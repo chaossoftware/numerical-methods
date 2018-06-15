@@ -91,7 +91,7 @@ namespace MathLib.DrawEngine.Charts
             FormatT.LineAlignment = StringAlignment.Center;
             FormatT.Alignment = StringAlignment.Far;
 
-            g.DrawString(GetAxisValue(double.Parse(da.Name)), gridFont, br, PicPtMax.Xint, this.Size.Height - 4 * axisTitleFont.Size, FormatT);
+            g.DrawString(GetAxisValue(double.Parse(da.Name)), gridFont, br, (int)PicPtMax.X, this.Size.Height - 4 * axisTitleFont.Size, FormatT);
 
             gp.Dispose();
             g.Dispose();

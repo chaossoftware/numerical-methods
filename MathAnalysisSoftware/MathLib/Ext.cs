@@ -1,10 +1,10 @@
 ﻿using MathLib.Data;
-using MathLib.DrawEngine;
 using System;
 
 namespace MathLib
 {
-    public static class Ext {
+    public static class Ext
+    {
 
         /// <summary>
         /// get maximum absolute value from signal

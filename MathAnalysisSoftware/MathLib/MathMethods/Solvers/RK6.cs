@@ -5,7 +5,7 @@ namespace MathLib.MathMethods.Solvers {
     /// <summary>
     /// 4th ordered Runge-Kutta
     /// </summary>
-    public class RK6 : Solver {
+    public class RK6 : EquationsSolver {
 
         private int N;
         private int NN;
@@ -23,8 +23,8 @@ namespace MathLib.MathMethods.Solvers {
         public RK6(SystemEquations equations, double stepSize)
             : base(equations) {
             
-            N = equations.N;
-            NN = equations.NN;
+            N = equations.EquationsCount;
+            NN = equations.TotalEquationsCount;
             this.stepSize = stepSize;
 
             x = new double[NN, N];
@@ -40,7 +40,7 @@ namespace MathLib.MathMethods.Solvers {
 
         public override void NexStep() {
 
-            Equations.Derivs(Solution, dxdt);
+            equations.Derivatives(Solution, dxdt);
 
             Array.Copy(dxdt, A, A.Length);
 
@@ -48,7 +48,7 @@ namespace MathLib.MathMethods.Solvers {
                 for (int j = 0; j < N; j++)
                     x[i, j] = Solution[i, j] + stepDiv2 * A[i, j];
 
-            Equations.Derivs(x, dxdt);
+            equations.Derivatives(x, dxdt);
 
             Array.Copy(dxdt, B, B.Length); ;
 
@@ -56,7 +56,7 @@ namespace MathLib.MathMethods.Solvers {
                 for (int j = 0; j < N; j++)
                     x[i, j] = Solution[i, j] + stepDiv2 * B[i, j];
 
-            Equations.Derivs(x, dxdt);
+            equations.Derivatives(x, dxdt);
 
             Array.Copy(dxdt, C, C.Length);
 
@@ -64,7 +64,7 @@ namespace MathLib.MathMethods.Solvers {
                 for (int j = 0; j < N; j++)
                     x[i, j] = Solution[i, j] + stepSize * C[i, j];
 
-            Equations.Derivs(x, dxdt);
+            equations.Derivatives(x, dxdt);
 
             Array.Copy(dxdt, D, D.Length);
 

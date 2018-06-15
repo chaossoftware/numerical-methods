@@ -73,13 +73,13 @@
     <Compile Include="Threading\ThreadedRun.cs" />
     <Compile Include="NeuralNet\ActivationFunction\ActivationFunction.cs" />
     <Compile Include="NeuralNet\ActivationFunction\Functions.cs" />
-    <Compile Include="MathMethods\Orthogonalization\CGS.cs" />
-    <Compile Include="MathMethods\Orthogonalization\HH.cs" />
-    <Compile Include="MathMethods\Orthogonalization\MGS.cs" />
+    <Compile Include="MathMethods\Orthogonalization\ClassicGrammSchmidt.cs" />
+    <Compile Include="MathMethods\Orthogonalization\HouseholderTransformation.cs" />
+    <Compile Include="MathMethods\Orthogonalization\ModifiedGrammSchmidt.cs" />
     <Compile Include="MathMethods\Orthogonalization\Orthogonalization.cs" />
     <Compile Include="MathMethods\Solvers\RK4.cs" />
     <Compile Include="MathMethods\Solvers\SimpleSolver.cs" />
-    <Compile Include="MathMethods\Solvers\Solver.cs" />
+    <Compile Include="MathMethods\Solvers\EquationsSolver.cs" />
     <Compile Include="MathMethods\Solvers\SystemEquations.cs" />
     <Compile Include="MathMethods\Lyapunov\WolfMethod.cs" />
     <Compile Include="NeuralNet\NeuralNet.cs" />

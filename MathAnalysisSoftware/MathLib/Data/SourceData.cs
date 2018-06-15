@@ -26,9 +26,9 @@ namespace MathLib.Data
 
         public int Length { get; protected set; }
 
-        public double Step { get; protected set; }
-
         public int ColumnsCount { get; protected set; }
+
+        public double Step { get; protected set; }
 
         public string FileName { get; protected set; }
 
@@ -44,17 +44,16 @@ namespace MathLib.Data
         public void SetTimeSeries(int colIndex, int startPoint, int endPoint, int pts, bool timeInFirstColumn)
         {
             int max = (endPoint - startPoint) / pts;
-
             this.TimeSeries = new Timeseries();
 
-            if (timeInFirstColumn)
-                for (int i = 0; i < max; i++) {
-                    int row = startPoint + i * pts;
-                    this.TimeSeries.AddDataPoint(dataColumns[row, 0], dataColumns[row, colIndex]);
-                }
-            else
-                for (int i = 0; i < max; i++)
-                    this.TimeSeries.AddDataPoint(dataColumns[startPoint + i * pts, colIndex]);
+            for (int i = 0; i < max; i++)
+            {
+                int row = startPoint + i * pts;
+                var x = timeInFirstColumn ? dataColumns[row, 0] : i + 1;
+                var y = dataColumns[row, colIndex];
+                this.TimeSeries.AddDataPoint(x, y);
+            }
+                    
             this.Step = this.TimeSeries.DataPoints[1].X - this.TimeSeries.DataPoints[0].X;
         }
 

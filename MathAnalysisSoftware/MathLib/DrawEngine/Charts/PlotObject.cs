@@ -109,8 +109,8 @@ namespace MathLib.DrawEngine.Charts {
         {
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
 
-            g.DrawLine(gridPen, PicPtMin.Xint, PicPtMin.Yint, PicPtMin.Xint, PicPtMax.Yint);
-            g.DrawLine(gridPen, PicPtMin.Xint, PicPtMin.Yint, PicPtMax.Xint, PicPtMin.Yint);
+            g.DrawLine(gridPen, (float)PicPtMin.X, (float)PicPtMin.Y, (float)PicPtMin.X, (float)PicPtMax.Y);
+            g.DrawLine(gridPen, (float)PicPtMin.X, (float)PicPtMin.Y, (float)PicPtMax.X, (float)PicPtMin.Y);
             
             // x axis text
             float xAxisY = this.Size.Height - axisTitleFont.Size;
@@ -119,21 +119,21 @@ namespace MathLib.DrawEngine.Charts {
             FormatX.LineAlignment = StringAlignment.Center;
 
             FormatX.Alignment = StringAlignment.Near;
-            g.DrawString(xMin, gridFont, br, PicPtMin.Xint, xAxisY, FormatX);
+            g.DrawString(xMin, gridFont, br, (float)PicPtMin.X, xAxisY, FormatX);
 
             FormatX.Alignment = StringAlignment.Far;
-            g.DrawString(xMax, gridFont, br, PicPtMax.Xint, xAxisY, FormatX);
+            g.DrawString(xMax, gridFont, br, (float)PicPtMax.X, xAxisY, FormatX);
 
             FormatX.Alignment = StringAlignment.Center;
-            g.DrawString(LabelX, axisTitleFont, br, PicPtMax.Xint / 2 + PicPtMin.Xint, xAxisY, FormatX);
+            g.DrawString(LabelX, axisTitleFont, br, (float)PicPtMax.X / 2 + (float)PicPtMin.X, xAxisY, FormatX);
 
 
             //y axis text
 
             g.RotateTransform(180, MatrixOrder.Append);
-            g.TranslateTransform(PicPtMin.Xint, PicPtMin.Yint, MatrixOrder.Append);
+            g.TranslateTransform((float)PicPtMin.X, (float)PicPtMin.Y, MatrixOrder.Append);
 
-            float yAxisX = PicPtMin.Xint - axisTitleFont.Size;
+            float yAxisX = (float)PicPtMin.X - axisTitleFont.Size;
 
             StringFormat FormatY = new StringFormat();
             FormatY.LineAlignment = StringAlignment.Center;
@@ -141,17 +141,17 @@ namespace MathLib.DrawEngine.Charts {
 
             //min value at max as text rotated
             FormatY.Alignment = StringAlignment.Near;
-            g.DrawString(yMin, gridFont, br, yAxisX, PicPtMax.Yint, FormatY);
+            g.DrawString(yMin, gridFont, br, yAxisX, (float)PicPtMax.Y, FormatY);
 
             //max value at min as text rotated
             FormatY.Alignment = StringAlignment.Far;
-            g.DrawString(yMax, gridFont, br, yAxisX, PicPtMin.Yint, FormatY);
+            g.DrawString(yMax, gridFont, br, yAxisX, (float)PicPtMin.Y, FormatY);
 
             FormatY.Alignment = StringAlignment.Center;
-            g.DrawString(LabelY, axisTitleFont, br, yAxisX, PicPtMin.Yint / 2, FormatY);
+            g.DrawString(LabelY, axisTitleFont, br, yAxisX, (float)PicPtMin.Y / 2, FormatY);
 
             g.RotateTransform(-180, MatrixOrder.Append);
-            g.TranslateTransform(PicPtMin.Xint, PicPtMin.Yint, MatrixOrder.Append);
+            g.TranslateTransform((float)PicPtMin.X, (float)PicPtMin.Y, MatrixOrder.Append);
         }
     }
 }

@@ -53,7 +53,7 @@ namespace MathLib.DrawEngine.Charts
             int crossX = (int)(PicPtMin.X + gridPen.Width / 2);
             int crossY = (int)(PicPtMin.Y);
 
-            g.DrawImage(mapBitmap, new Rectangle(crossX, 0, this.Size.Width - crossX, PicPtMin.Yint));
+            g.DrawImage(mapBitmap, new Rectangle(crossX, 0, this.Size.Width - crossX, (int)PicPtMin.Y));
 
             g.Dispose();
 
