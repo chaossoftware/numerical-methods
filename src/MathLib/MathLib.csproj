@@ -64,15 +64,7 @@
     <Compile Include="MathMethods\Lyapunov\LyapunovMethod.cs" />
     <Compile Include="MathMethods\Lyapunov\RosensteinMethod.cs" />
     <Compile Include="MathMethods\Solvers\RK6.cs" />
-    <Compile Include="NeuralNet\Entities\BiasNeuron.cs" />
-    <Compile Include="NeuralNet\Entities\Neuron.cs" />
-    <Compile Include="NeuralNet\Entities\HiddenNeuron.cs" />
-    <Compile Include="NeuralNet\Entities\InputNeuron.cs" />
-    <Compile Include="NeuralNet\Entities\OutputNeuron.cs" />
-    <Compile Include="NeuralNet\Entities\Synapse.cs" />
     <Compile Include="Threading\ThreadedRun.cs" />
-    <Compile Include="NeuralNet\ActivationFunction\ActivationFunction.cs" />
-    <Compile Include="NeuralNet\ActivationFunction\Functions.cs" />
     <Compile Include="MathMethods\Orthogonalization\ClassicGrammSchmidt.cs" />
     <Compile Include="MathMethods\Orthogonalization\HouseholderTransformation.cs" />
     <Compile Include="MathMethods\Orthogonalization\ModifiedGrammSchmidt.cs" />
@@ -82,9 +74,6 @@
     <Compile Include="MathMethods\Solvers\EquationsSolver.cs" />
     <Compile Include="MathMethods\Solvers\SystemEquations.cs" />
     <Compile Include="MathMethods\Lyapunov\WolfMethod.cs" />
-    <Compile Include="NeuralNet\NeuralNet.cs" />
-    <Compile Include="NeuralNet\NeuralNetEquations.cs" />
-    <Compile Include="NeuralNet\NeuralNetParams.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Transform\Fourier.cs" />
     <Compile Include="Transform\Model3D.cs" />
