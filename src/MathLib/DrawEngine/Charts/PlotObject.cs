@@ -27,7 +27,7 @@ namespace MathLib.DrawEngine.Charts {
         /// </summary>
         /// <param name="pBox">Picture box control to display plot</param>
         /// <param name="thickness">thickness of plot lines</param>
-        public PlotObject(Size bitmapSize, float thickness)
+        protected PlotObject(Size bitmapSize, float thickness)
         {
             this.Size = bitmapSize;
 

@@ -12,6 +12,11 @@ namespace MathLib.DrawEngine.Charts
         
         protected Timeseries TimeSeries;
 
+        public SignalPlot(Timeseries timeSeries, Size bitmapSize) : this(timeSeries, bitmapSize, 1f)
+        {
+
+        }
+
         public SignalPlot(Timeseries timeSeries, Size bitmapSize, float thickness) : base(bitmapSize, thickness)
         {
             TimeSeries = timeSeries;
@@ -19,7 +24,8 @@ namespace MathLib.DrawEngine.Charts
             LabelY = "w(t)";
         }
 
-        public override Bitmap Plot() {
+        public override Bitmap Plot()
+        {
             SetDefaultAreaSize(TimeSeries.Amplitude);
 
             plotBitmap = new Bitmap(this.Size.Width, this.Size.Height);
@@ -27,7 +33,9 @@ namespace MathLib.DrawEngine.Charts
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
             if (TimeSeries.Length < 1)
+            {
                 return null;
+            }
 
             g.FillRectangle(new SolidBrush(Color.White), 0, 0, this.Size.Width, this.Size.Height);
 
@@ -42,7 +50,7 @@ namespace MathLib.DrawEngine.Charts
                 points.Add(new Point((int)xPl, (int)yPl));
             }
 
-            GraphicsPath gp = new GraphicsPath();
+            var gp = new GraphicsPath();
             gp.AddLines(points.ToArray());
             g.DrawPath(plotPen, gp);
             DrawGrid();
@@ -53,8 +61,8 @@ namespace MathLib.DrawEngine.Charts
             return plotBitmap;
         }
 
-
-        protected override void DrawGrid() {
+        protected override void DrawGrid()
+        {
             SetAxisValues(
                 GetAxisValue(TimeSeries.Min.X),
                 GetAxisValue(TimeSeries.Max.X),

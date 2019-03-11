@@ -7,18 +7,23 @@ namespace MathLib.DrawEngine.Charts
     /// <summary>
     /// Class for Poincare map
     /// </summary>
-    public class MapPlot : PlotObject {
-
+    public class MapPlot : PlotObject
+    {
         Timeseries TimeSeries;
-        
 
         public MapPlot(Timeseries timeSeries, Size pictureboxSize, float thickness)
-            : base(pictureboxSize, thickness) {
+            : base(pictureboxSize, thickness)
+        {
             TimeSeries = timeSeries;
         }
 
+        public MapPlot(Timeseries timeSeries, Size pictureboxSize) : this(timeSeries, pictureboxSize, 1f)
+        {
 
-        public override Bitmap Plot() {
+        }
+
+        public override Bitmap Plot()
+        {
             SetDefaultAreaSize(TimeSeries.Amplitude);
 
             plotBitmap = new Bitmap(this.Size.Width, this.Size.Height);
@@ -26,7 +31,9 @@ namespace MathLib.DrawEngine.Charts
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
             if (TimeSeries.Length < 1)
+            {
                 return null;
+            }
 
             g.FillRectangle(new SolidBrush(Color.White), 0, 0, this.Size.Width, this.Size.Height);
 
@@ -46,8 +53,8 @@ namespace MathLib.DrawEngine.Charts
             return plotBitmap;
         }
 
-
-        protected override void DrawGrid() {
+        protected override void DrawGrid()
+        {
             SetAxisValues(
                 GetAxisValue(TimeSeries.Min.X), 
                 GetAxisValue(TimeSeries.Max.X), 
