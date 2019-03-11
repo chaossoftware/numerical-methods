@@ -9,9 +9,9 @@ namespace MathLib.DrawEngine.Charts {
     /// <summary>
     /// Class for Multi Signal plot
     /// </summary>
-    public class MultiSignalPlot : PlotObject {
-
-        private float thickness;
+    public class MultiSignalPlot : PlotObject
+    {
+        private readonly float thickness;
 
         private DataPoint tsPointMax;
         private DataPoint tsPointMin;
