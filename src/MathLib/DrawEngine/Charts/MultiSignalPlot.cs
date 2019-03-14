@@ -5,39 +5,34 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
 
-namespace MathLib.DrawEngine.Charts {
+namespace MathLib.DrawEngine.Charts
+{
     /// <summary>
     /// Class for Multi Signal plot
     /// </summary>
     public class MultiSignalPlot : PlotObject
     {
-        private readonly float thickness;
-
         private DataPoint tsPointMax;
         private DataPoint tsPointMin;
         private DataPoint tsAmplitude;
 
-        protected List<Timeseries> TimeSeriesList;
-        protected List<Pen> PlotPens;
-
-        public MultiSignalPlot(Size bitmapSize, float thickness) : base(bitmapSize, thickness)
+        public MultiSignalPlot(Size bitmapSize) : base(bitmapSize, 1f)
         {
-            this.thickness = thickness;
-            LabelX = "t";
-            LabelY = "w(t)";
-
             this.TimeSeriesList = new List<Timeseries>();
             this.PlotPens = new List<Pen>();
             this.tsAmplitude = new DataPoint(0, 0);
             this.tsPointMax = new DataPoint(double.MinValue, double.MinValue);
             this.tsPointMin = new DataPoint(double.MaxValue, double.MaxValue);
-
         }
 
-        public void AddDataSeries(Timeseries dataSeries, Color color)
+        protected List<Timeseries> TimeSeriesList { get; set; }
+
+        protected List<Pen> PlotPens { get; set; }
+
+        public void AddDataSeries(Timeseries dataSeries, Color color, float thickness)
         {
             this.TimeSeriesList.Add(dataSeries);
-            this.PlotPens.Add(new Pen(color, this.thickness));
+            this.PlotPens.Add(new Pen(color, thickness));
 
             foreach (var ds in this.TimeSeriesList)
             {
@@ -51,31 +46,32 @@ namespace MathLib.DrawEngine.Charts {
             this.tsAmplitude.Y = this.tsPointMax.Y - this.tsPointMin.Y;
         }
 
+        public void AddDataSeries(Timeseries dataSeries, Color color) =>
+            AddDataSeries(dataSeries, color, 1f);
+
         public override Bitmap Plot()
         {
-            SetDefaultAreaSize(this.tsAmplitude);
-
-            plotBitmap = new Bitmap(this.Size.Width, this.Size.Height);
-            g = Graphics.FromImage(plotBitmap);
-            g.SmoothingMode = SmoothingMode.AntiAlias;
+            PrepareChartArea();
 
             if (this.TimeSeriesList.All(ts => ts.Length < 1))
             {
-                return null;
+                NoDataToPlot();
             }
-
-            g.FillRectangle(new SolidBrush(Color.White), 0, 0, this.Size.Width, this.Size.Height);
-
-            for (int i = 0; i < this.TimeSeriesList.Count; i++)
+            else
             {
-                DrawDataSeries(this.TimeSeriesList[i], this.PlotPens[i]);
-            }
+                CalculateChartAreaSize(this.tsAmplitude);
 
-            DrawGrid();
+                for (int i = 0; i < this.TimeSeriesList.Count; i++)
+                {
+                    DrawDataSeries(this.TimeSeriesList[i], this.PlotPens[i]);
+                }
+
+                DrawGrid();
+            }
 
             g.Dispose();
 
-            return plotBitmap;
+            return PlotBitmap;
         }
 
         protected override void DrawGrid()
@@ -91,17 +87,16 @@ namespace MathLib.DrawEngine.Charts {
         private void DrawDataSeries(Timeseries ds, Pen pen)
         {
             double xPl, yPl;
+            var points = new List<PointF>();
 
-            List<Point> points = new List<Point>();
-
-            foreach (DataPoint dp in ds.DataPoints)
+            foreach (var p in ds.DataPoints)
             {
-                xPl = PicPtMin.X + (dp.X - this.tsPointMin.X) * PicPtCoeff.X;
-                yPl = PicPtMin.Y - (dp.Y - this.tsPointMin.Y) * PicPtCoeff.Y;
-                points.Add(new Point((int)xPl, (int)yPl));
+                xPl = PicPtMin.X + (p.X - this.tsPointMin.X) * PicPtCoeff.X;
+                yPl = PicPtMin.Y - (p.Y - this.tsPointMin.Y) * PicPtCoeff.Y;
+                points.Add(new PointF((float)xPl, (float)yPl));
             }
 
-            GraphicsPath gp = new GraphicsPath();
+            var gp = new GraphicsPath();
             gp.AddLines(points.ToArray());
             g.DrawPath(pen, gp);
             gp.Dispose();

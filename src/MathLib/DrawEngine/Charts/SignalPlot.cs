@@ -8,10 +8,8 @@ namespace MathLib.DrawEngine.Charts
     /// <summary>
     /// Class for Signal plot
     /// </summary>
-    public class SignalPlot : PlotObject {
-        
-        protected Timeseries TimeSeries;
-
+    public class SignalPlot : PlotObject
+    {
         public SignalPlot(Timeseries timeSeries, Size bitmapSize) : this(timeSeries, bitmapSize, 1f)
         {
 
@@ -24,41 +22,42 @@ namespace MathLib.DrawEngine.Charts
             LabelY = "w(t)";
         }
 
+        protected Timeseries TimeSeries { get; set; }
+
         public override Bitmap Plot()
         {
-            SetDefaultAreaSize(TimeSeries.Amplitude);
-
-            plotBitmap = new Bitmap(this.Size.Width, this.Size.Height);
-            g = Graphics.FromImage(plotBitmap);
-            g.SmoothingMode = SmoothingMode.AntiAlias;
+            PrepareChartArea();
 
             if (TimeSeries.Length < 1)
             {
-                return null;
+                NoDataToPlot();
             }
-
-            g.FillRectangle(new SolidBrush(Color.White), 0, 0, this.Size.Width, this.Size.Height);
-
-            double xPl, yPl;
-
-            List<Point> points = new List<Point>();
-
-            foreach (DataPoint dp in TimeSeries.DataPoints)
+            else
             {
-                xPl = PicPtMin.X + (dp.X - TimeSeries.Min.X) * PicPtCoeff.X;
-                yPl = PicPtMin.Y - (dp.Y - TimeSeries.Min.Y) * PicPtCoeff.Y;
-                points.Add(new Point((int)xPl, (int)yPl));
+                CalculateChartAreaSize(TimeSeries.Amplitude);
+
+                double xPl, yPl;
+
+                var points = new List<PointF>();
+
+                foreach (var p in TimeSeries.DataPoints)
+                {
+                    xPl = PicPtMin.X + (p.X - TimeSeries.Min.X) * PicPtCoeff.X;
+                    yPl = PicPtMin.Y - (p.Y - TimeSeries.Min.Y) * PicPtCoeff.Y;
+                    points.Add(new PointF((float)xPl, (float)yPl));
+                }
+
+                var gp = new GraphicsPath();
+                gp.AddLines(points.ToArray());
+                g.DrawPath(plotPen, gp);
+                gp.Dispose();
+
+                DrawGrid();
             }
-
-            var gp = new GraphicsPath();
-            gp.AddLines(points.ToArray());
-            g.DrawPath(plotPen, gp);
-            DrawGrid();
-
-            gp.Dispose();
+            
             g.Dispose();
 
-            return plotBitmap;
+            return PlotBitmap;
         }
 
         protected override void DrawGrid()

@@ -12,8 +12,6 @@ namespace MathLib.DrawEngine.Charts
     /// </summary>
     public class MultiMapPlot : PlotObject
     {
-        private readonly float thickness;
-
         private DataPoint tsPointMax;
         private DataPoint tsPointMin;
         private DataPoint tsAmplitude;
@@ -21,11 +19,9 @@ namespace MathLib.DrawEngine.Charts
         protected List<Timeseries> TimeSeriesList;
         protected List<Pen> PlotPens;
 
-        public MultiMapPlot(Size pictureboxSize, float thickness)
-            : base(pictureboxSize, thickness)
+        public MultiMapPlot(Size pictureboxSize)
+            : base(pictureboxSize, 1f)
         {
-            this.thickness = thickness;
-
             this.TimeSeriesList = new List<Timeseries>();
             this.PlotPens = new List<Pen>();
             this.tsAmplitude = new DataPoint(0, 0);
@@ -33,15 +29,10 @@ namespace MathLib.DrawEngine.Charts
             this.tsPointMin = new DataPoint(double.MaxValue, double.MaxValue);
         }
 
-        public MultiMapPlot(Size pictureboxSize) : this(pictureboxSize, 1f)
-        {
-
-        }
-
-        public void AddDataSeries(Timeseries dataSeries, Color color)
+        public void AddDataSeries(Timeseries dataSeries, Color color, float thickness)
         {
             this.TimeSeriesList.Add(dataSeries);
-            this.PlotPens.Add(new Pen(color, this.thickness));
+            this.PlotPens.Add(new Pen(color, thickness));
 
             foreach (var ds in this.TimeSeriesList)
             {
@@ -55,30 +46,32 @@ namespace MathLib.DrawEngine.Charts
             this.tsAmplitude.Y = this.tsPointMax.Y - this.tsPointMin.Y;
         }
 
+        public void AddDataSeries(Timeseries dataSeries, Color color) =>
+            AddDataSeries(dataSeries, color, 1f);
+
         public override Bitmap Plot()
         {
-            SetDefaultAreaSize(this.tsAmplitude);
-
-            plotBitmap = new Bitmap(this.Size.Width, this.Size.Height);
-            g = Graphics.FromImage(plotBitmap);
-            g.SmoothingMode = SmoothingMode.AntiAlias;
+            PrepareChartArea();
 
             if (this.TimeSeriesList.All(ts => ts.Length < 1))
             {
-                return null;
+                NoDataToPlot();
             }
-
-            g.FillRectangle(new SolidBrush(Color.White), 0, 0, this.Size.Width, this.Size.Height);
-
-            for (int i = 0; i < this.TimeSeriesList.Count; i++)
+            else
             {
-                DrawDataSeries(this.TimeSeriesList[i], this.PlotPens[i]);
-            }
+                CalculateChartAreaSize(this.tsAmplitude);
 
-            DrawGrid();
+                for (int i = 0; i < this.TimeSeriesList.Count; i++)
+                {
+                    DrawDataSeries(this.TimeSeriesList[i], this.PlotPens[i]);
+                }
+
+                DrawGrid();
+            }
+            
             g.Dispose();
 
-            return plotBitmap;
+            return PlotBitmap;
         }
 
         protected override void DrawGrid()
@@ -95,12 +88,12 @@ namespace MathLib.DrawEngine.Charts
         {
             double xPl, yPl;
 
-            foreach (DataPoint dp in ds.DataPoints)
+            foreach (var p in ds.DataPoints)
             {
-                xPl = PicPtMin.X + (dp.X - this.tsPointMin.X) * PicPtCoeff.X;
-                yPl = PicPtMin.Y - (dp.Y - this.tsPointMin.Y) * PicPtCoeff.Y;
+                xPl = PicPtMin.X + (p.X - this.tsPointMin.X) * PicPtCoeff.X;
+                yPl = PicPtMin.Y - (p.Y - this.tsPointMin.Y) * PicPtCoeff.Y;
 
-                g.DrawEllipse(pen, (int)xPl, (int)yPl, 1, 1);
+                g.DrawEllipse(pen, (float)xPl, (float)yPl, 1f, 1f);
             }
         }
     }

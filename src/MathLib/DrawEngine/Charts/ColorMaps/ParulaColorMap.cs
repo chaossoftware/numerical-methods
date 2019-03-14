@@ -4,24 +4,23 @@ namespace MathLib.DrawEngine.Charts.ColorMaps
 {
     public class ParulaColorMap : ColorMap
     {
-        double Step;
-        double Min;
+        private double step;
+        private double min;
 
         public ParulaColorMap(double min, double max)
         {
-            Min = min;
-            Step = (max - min) / 64;
+            this.min = min;
+            step = (max - min) / 64;
         }
-
 
         public Color GetColor(double i)
         {
-            double current = Min;
+            double current = min;
             int counter = -1;
 
             do
             {
-                current += Step;
+                current += step;
                 counter++;
             }
             while (current < i);

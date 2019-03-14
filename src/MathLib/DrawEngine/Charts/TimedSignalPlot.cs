@@ -3,111 +3,115 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Drawing.Text;
 
 namespace MathLib.DrawEngine.Charts
 {
     /// <summary>
     /// Class for Signal plot
     /// </summary>
-    public class TimedSignalPlot : PlotObject {
-        
+    public class TimedSignalPlot : PlotObject
+    {
         protected List<Timeseries> HistoricalData;
-        private DataPoint TsPointMax;
-        private DataPoint TsPointMin;
-        private DataPoint TsAmplitude;
+        private DataPoint tsPointMax;
+        private DataPoint tsPointMin;
+        private DataPoint tsAmplitude;
 
-        int currentStep = 0;
+        private int currentStep = 0;
 
-        public TimedSignalPlot(List<Timeseries> historicalData, Size bitmapSize, float thickness)
-            : base(bitmapSize, thickness) {
-            HistoricalData = historicalData;
-            init();
+        public TimedSignalPlot(List<Timeseries> historicalData, Size bitmapSize) 
+            : this(historicalData, bitmapSize, 1f)
+        {
+
         }
 
+        public TimedSignalPlot(List<Timeseries> historicalData, Size bitmapSize, float thickness)
+            : base(bitmapSize, thickness)
+        {
+            HistoricalData = historicalData;
 
-        protected void init() {
-            LabelX = "t";
-            LabelY = "w(t)";
-            TsPointMax = new DataPoint(double.MinValue, double.MinValue);
-            TsPointMin = new DataPoint(double.MaxValue, double.MaxValue);
-            TsAmplitude = new DataPoint(0, 0);
+            tsPointMax = new DataPoint(double.MinValue, double.MinValue);
+            tsPointMin = new DataPoint(double.MaxValue, double.MaxValue);
+            tsAmplitude = new DataPoint(0, 0);
 
             foreach (Timeseries da in HistoricalData)
             {
-                TsPointMax.X = Math.Max(TsPointMax.X, da.Max.X);
-                TsPointMax.Y = Math.Max(TsPointMax.Y, da.Max.Y);
-                TsPointMin.X = Math.Min(TsPointMin.X, da.Min.X);
-                TsPointMin.Y = Math.Min(TsPointMin.Y, da.Min.Y);
+                tsPointMax.X = Math.Max(tsPointMax.X, da.Max.X);
+                tsPointMax.Y = Math.Max(tsPointMax.Y, da.Max.Y);
+                tsPointMin.X = Math.Min(tsPointMin.X, da.Min.X);
+                tsPointMin.Y = Math.Min(tsPointMin.Y, da.Min.Y);
             }
 
-            TsAmplitude.X = TsPointMax.X - TsPointMin.X;
-            TsAmplitude.Y = TsPointMax.Y - TsPointMin.Y;
-
-            SetDefaultAreaSize(TsAmplitude);
+            tsAmplitude.X = tsPointMax.X - tsPointMin.X;
+            tsAmplitude.Y = tsPointMax.Y - tsPointMin.Y;
         }
 
-
-        public override Bitmap Plot() {
+        public override Bitmap Plot()
+        {
+            PrepareChartArea();
 
             if (HistoricalData.Count < 1 || HistoricalData[0].Length < 1)
-                return null;
-
-            plotBitmap = new Bitmap(this.Size.Width, this.Size.Height);
-            g = Graphics.FromImage(plotBitmap);
-
-            DrawGrid();
+            {
+                NoDataToPlot();
+            }
+            else
+            {
+                CalculateChartAreaSize(tsAmplitude);
+                DrawGrid();
+            }
+            
             g.Dispose();
 
-            return plotBitmap;
+            return PlotBitmap;
         }
-
 
         public Bitmap PlotNextStep()
         {
-            g = Graphics.FromImage(plotBitmap);
-            Timeseries da = HistoricalData[currentStep];
+            g = Graphics.FromImage(PlotBitmap);
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            g.TextRenderingHint = TextRenderingHint.AntiAlias;
+
+            var da = HistoricalData[currentStep];
 
             currentStep++;
 
-            g.FillRectangle(new SolidBrush(Color.White), (int)(this.Size.Height * 0.1), 0, this.Size.Width - (int)(this.Size.Height * 0.1), (int)(this.Size.Height * 0.9));
+            g.FillRectangle(bgBrush, (int)(this.Size.Height * 0.1), 0, this.Size.Width - (int)(this.Size.Height * 0.1), (int)(this.Size.Height * 0.9));
 
             double xPl, yPl;
 
-            List<Point> points = new List<Point>();
+            var points = new List<PointF>();
 
-            foreach (DataPoint dp in da.DataPoints)
+            foreach (var p in da.DataPoints)
             {
-                xPl = PicPtMin.X + (dp.X - TsPointMin.X) * PicPtCoeff.X;
-                yPl = PicPtMin.Y - (dp.Y - TsPointMin.Y) * PicPtCoeff.Y;
-                points.Add(new Point((int)xPl, (int)yPl));
+                xPl = PicPtMin.X + (p.X - tsPointMin.X) * PicPtCoeff.X;
+                yPl = PicPtMin.Y - (p.Y - tsPointMin.Y) * PicPtCoeff.Y;
+                points.Add(new PointF((float)xPl, (float)yPl));
             }
 
-            GraphicsPath gp = new GraphicsPath();
+            var gp = new GraphicsPath();
             gp.AddLines(points.ToArray());
             g.DrawPath(plotPen, gp);
 
+            var formatT = new StringFormat();
+            formatT.LineAlignment = StringAlignment.Center;
+            formatT.Alignment = StringAlignment.Far;
 
-            StringFormat FormatT = new StringFormat();
-            FormatT.LineAlignment = StringAlignment.Center;
-            FormatT.Alignment = StringAlignment.Far;
-
-            g.DrawString(GetAxisValue(double.Parse(da.Name)), gridFont, br, (int)PicPtMax.X, this.Size.Height - 4 * axisTitleFont.Size, FormatT);
+            g.DrawString(GetAxisValue(double.Parse(da.Name)), gridFont, txtBrush, (int)PicPtMax.X, this.Size.Height - 4 * axisTitleFont.Size, formatT);
 
             gp.Dispose();
             g.Dispose();
 
-            return plotBitmap;
+            return PlotBitmap;
         }
-         
 
-        protected override void DrawGrid() {
+        protected override void DrawGrid()
+        {
             SetAxisValues(
-                GetAxisValue(TsPointMin.X),
-                GetAxisValue(TsPointMax.X),
-                GetAxisValue(TsPointMin.Y),
-                GetAxisValue(TsPointMax.Y)
+                GetAxisValue(tsPointMin.X),
+                GetAxisValue(tsPointMax.X),
+                GetAxisValue(tsPointMin.Y),
+                GetAxisValue(tsPointMax.Y)
             );
         }
-
     }
 }

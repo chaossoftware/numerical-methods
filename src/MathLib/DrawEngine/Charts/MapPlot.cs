@@ -1,6 +1,5 @@
 ﻿using MathLib.Data;
 using System.Drawing;
-using System.Drawing.Drawing2D;
 
 namespace MathLib.DrawEngine.Charts
 {
@@ -9,8 +8,6 @@ namespace MathLib.DrawEngine.Charts
     /// </summary>
     public class MapPlot : PlotObject
     {
-        Timeseries TimeSeries;
-
         public MapPlot(Timeseries timeSeries, Size pictureboxSize, float thickness)
             : base(pictureboxSize, thickness)
         {
@@ -22,35 +19,36 @@ namespace MathLib.DrawEngine.Charts
 
         }
 
+        protected Timeseries TimeSeries { get; set; }
+
         public override Bitmap Plot()
         {
-            SetDefaultAreaSize(TimeSeries.Amplitude);
-
-            plotBitmap = new Bitmap(this.Size.Width, this.Size.Height);
-            g = Graphics.FromImage(plotBitmap);
-            g.SmoothingMode = SmoothingMode.AntiAlias;
+            PrepareChartArea();
 
             if (TimeSeries.Length < 1)
             {
-                return null;
+                NoDataToPlot();
             }
-
-            g.FillRectangle(new SolidBrush(Color.White), 0, 0, this.Size.Width, this.Size.Height);
-
-            double xPl, yPl;
-
-            foreach (DataPoint dp in TimeSeries.DataPoints)
+            else
             {
-                xPl = PicPtMin.X + (dp.X - TimeSeries.Min.X) * PicPtCoeff.X;
-                yPl = PicPtMin.Y - (dp.Y - TimeSeries.Min.Y) * PicPtCoeff.Y;
-                
-                g.DrawEllipse(plotPen, (int)xPl, (int)yPl, 1, 1);
-            }
+                CalculateChartAreaSize(TimeSeries.Amplitude);
 
-            DrawGrid();
+                double xPl, yPl;
+
+                foreach (var p in TimeSeries.DataPoints)
+                {
+                    xPl = PicPtMin.X + (p.X - TimeSeries.Min.X) * PicPtCoeff.X;
+                    yPl = PicPtMin.Y - (p.Y - TimeSeries.Min.Y) * PicPtCoeff.Y;
+
+                    g.DrawEllipse(plotPen, (float)xPl, (float)yPl, 1f, 1f);
+                }
+
+                DrawGrid();
+            }
+            
             g.Dispose();
 
-            return plotBitmap;
+            return PlotBitmap;
         }
 
         protected override void DrawGrid()
