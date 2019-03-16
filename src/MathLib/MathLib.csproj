@@ -48,11 +48,10 @@
     <Compile Include="DrawEngine\Charts\ColorMaps\ColorMap.cs" />
     <Compile Include="DrawEngine\Charts\ColorMaps\ParulaColorMap.cs" />
     <Compile Include="DrawEngine\Charts\ColouredMapPlot.cs" />
-    <Compile Include="DrawEngine\Charts\MultiMapPlot.cs" />
+    <Compile Include="DrawEngine\Charts\ScatterPlot.cs" />
     <Compile Include="DrawEngine\Charts\LinePlot.cs" />
     <Compile Include="DrawEngine\Charts\TimedSignalPlot.cs" />
     <Compile Include="DrawEngine\Charts\PlotObject.cs" />
-    <Compile Include="DrawEngine\Charts\MapPlot.cs" />
     <Compile Include="Data\Timeseries.cs" />
     <Compile Include="Data\DataPoint.cs" />
     <Compile Include="Ext.cs" />

@@ -1,6 +1,5 @@
 ﻿using MathLib.Data;
 using System.Drawing;
-using System.Drawing.Drawing2D;
 using System.Collections.Generic;
 using System;
 using System.Linq;
@@ -10,7 +9,7 @@ namespace MathLib.DrawEngine.Charts
     /// <summary>
     /// Class for Poincare map
     /// </summary>
-    public class MultiMapPlot : PlotObject
+    public class ScatterPlot : PlotObject
     {
         private DataPoint tsPointMax;
         private DataPoint tsPointMin;
@@ -19,7 +18,7 @@ namespace MathLib.DrawEngine.Charts
         protected List<Timeseries> TimeSeriesList;
         protected List<Pen> PlotPens;
 
-        public MultiMapPlot(Size pictureboxSize)
+        public ScatterPlot(Size pictureboxSize)
             : base(pictureboxSize, 1f)
         {
             this.TimeSeriesList = new List<Timeseries>();
@@ -29,18 +28,26 @@ namespace MathLib.DrawEngine.Charts
             this.tsPointMin = new DataPoint(double.MaxValue, double.MaxValue);
         }
 
+        public ScatterPlot(Size bitmapSize, Timeseries dataSeries, Color color, float thickness) 
+            : this(bitmapSize)
+        {
+            this.AddDataSeries(dataSeries, color, thickness);
+        }
+
+        public ScatterPlot(Size bitmapSize, Timeseries dataSeries) 
+            : this(bitmapSize, dataSeries, Color.SteelBlue, 1f)
+        {
+        }
+
         public void AddDataSeries(Timeseries dataSeries, Color color, float thickness)
         {
             this.TimeSeriesList.Add(dataSeries);
             this.PlotPens.Add(new Pen(color, thickness));
 
-            foreach (var ds in this.TimeSeriesList)
-            {
-                this.tsPointMax.X = Math.Max(this.tsPointMax.X, ds.Max.X);
-                this.tsPointMax.Y = Math.Max(this.tsPointMax.Y, ds.Max.Y);
-                this.tsPointMin.X = Math.Min(this.tsPointMin.X, ds.Min.X);
-                this.tsPointMin.Y = Math.Min(this.tsPointMin.Y, ds.Min.Y);
-            }
+            this.tsPointMax.X = Math.Max(this.tsPointMax.X, dataSeries.Max.X);
+            this.tsPointMax.Y = Math.Max(this.tsPointMax.Y, dataSeries.Max.Y);
+            this.tsPointMin.X = Math.Min(this.tsPointMin.X, dataSeries.Min.X);
+            this.tsPointMin.Y = Math.Min(this.tsPointMin.Y, dataSeries.Min.Y);
 
             this.tsAmplitude.X = this.tsPointMax.X - this.tsPointMin.X;
             this.tsAmplitude.Y = this.tsPointMax.Y - this.tsPointMin.Y;
@@ -93,7 +100,7 @@ namespace MathLib.DrawEngine.Charts
                 xPl = PicPtMin.X + (p.X - this.tsPointMin.X) * PicPtCoeff.X;
                 yPl = PicPtMin.Y - (p.Y - this.tsPointMin.Y) * PicPtCoeff.Y;
 
-                g.DrawEllipse(pen, (float)xPl, (float)yPl, 1f, 1f);
+                g.DrawEllipse(pen, (float)xPl, (float)yPl, pen.Width, pen.Width);
             }
         }
     }
