@@ -48,6 +48,7 @@
     <Compile Include="DrawEngine\Charts\ColorMaps\ColorMap.cs" />
     <Compile Include="DrawEngine\Charts\ColorMaps\ParulaColorMap.cs" />
     <Compile Include="DrawEngine\Charts\ColouredMapPlot.cs" />
+    <Compile Include="DrawEngine\Charts\DataSeriesPlot.cs" />
     <Compile Include="DrawEngine\Charts\ScatterPlot.cs" />
     <Compile Include="DrawEngine\Charts\LinePlot.cs" />
     <Compile Include="DrawEngine\Charts\TimedSignalPlot.cs" />
