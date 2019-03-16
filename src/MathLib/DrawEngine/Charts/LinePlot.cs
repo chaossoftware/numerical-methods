@@ -1,28 +1,40 @@
-﻿using MathLib.Data;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
+using MathLib.Data;
 
 namespace MathLib.DrawEngine.Charts
 {
     /// <summary>
     /// Class for Multi Signal plot
     /// </summary>
-    public class MultiSignalPlot : PlotObject
+    public class LinePlot : PlotObject
     {
         private DataPoint tsPointMax;
         private DataPoint tsPointMin;
         private DataPoint tsAmplitude;
 
-        public MultiSignalPlot(Size bitmapSize) : base(bitmapSize, 1f)
+        public LinePlot(Size bitmapSize) 
+            : base(bitmapSize, 1f)
         {
             this.TimeSeriesList = new List<Timeseries>();
             this.PlotPens = new List<Pen>();
             this.tsAmplitude = new DataPoint(0, 0);
             this.tsPointMax = new DataPoint(double.MinValue, double.MinValue);
             this.tsPointMin = new DataPoint(double.MaxValue, double.MaxValue);
+        }
+
+        public LinePlot(Size bitmapSize, Timeseries dataSeries, Color color, float thickness) 
+            : this(bitmapSize)
+        {
+            this.AddDataSeries(dataSeries, color, thickness);
+        }
+
+        public LinePlot(Size bitmapSize, Timeseries dataSeries) 
+            : this(bitmapSize, dataSeries, Color.SteelBlue, 1f)
+        {
         }
 
         protected List<Timeseries> TimeSeriesList { get; set; }
@@ -34,13 +46,10 @@ namespace MathLib.DrawEngine.Charts
             this.TimeSeriesList.Add(dataSeries);
             this.PlotPens.Add(new Pen(color, thickness));
 
-            foreach (var ds in this.TimeSeriesList)
-            {
-                this.tsPointMax.X = Math.Max(this.tsPointMax.X, ds.Max.X);
-                this.tsPointMax.Y = Math.Max(this.tsPointMax.Y, ds.Max.Y);
-                this.tsPointMin.X = Math.Min(this.tsPointMin.X, ds.Min.X);
-                this.tsPointMin.Y = Math.Min(this.tsPointMin.Y, ds.Min.Y);
-            }
+            this.tsPointMax.X = Math.Max(this.tsPointMax.X, dataSeries.Max.X);
+            this.tsPointMax.Y = Math.Max(this.tsPointMax.Y, dataSeries.Max.Y);
+            this.tsPointMin.X = Math.Min(this.tsPointMin.X, dataSeries.Min.X);
+            this.tsPointMin.Y = Math.Min(this.tsPointMin.Y, dataSeries.Min.Y);
 
             this.tsAmplitude.X = this.tsPointMax.X - this.tsPointMin.X;
             this.tsAmplitude.Y = this.tsPointMax.Y - this.tsPointMin.Y;
