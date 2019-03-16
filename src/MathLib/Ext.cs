@@ -1,11 +1,9 @@
-﻿using MathLib.Data;
-using System;
+﻿using System;
 
 namespace MathLib
 {
     public static class Ext
     {
-
         /// <summary>
         /// get maximum absolute value from signal
         /// </summary>
@@ -18,7 +16,6 @@ namespace MathLib
 
             return maxVal;
         }
-
 
         /// <summary>
         /// get maximum value from signal
@@ -33,28 +30,20 @@ namespace MathLib
             return maxVal;
         }
 
-
         /// <summary>
         /// get minimum value from signal
         /// </summary>
         /// <returns></returns>
-        public static double countMin(double[] timeSeries) {
+        public static double countMin(double[] timeSeries)
+        {
             double minVal = double.MaxValue;
 
             foreach (double val in timeSeries)
+            {
                 minVal = Math.Min(minVal, val);
+            }
 
             return minVal;
-        }
-
-
-        public static Timeseries GeneratePseudoPoincareMapData(double[] timeSeries) {
-            Timeseries ppDataSeries = new Timeseries();
-
-            for (int i = 0; i < timeSeries.Length - 1; i++)
-                ppDataSeries.AddDataPoint(timeSeries[i], timeSeries[i + 1]);
-
-            return ppDataSeries;
         }
     }
 }

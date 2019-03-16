@@ -62,7 +62,7 @@
     <Compile Include="IO\NumFormat.cs" />
     <Compile Include="MathMethods\Lyapunov\BenettinMethod.cs" />
     <Compile Include="MathMethods\Lyapunov\KantzMethod.cs" />
-    <Compile Include="MathMethods\Lyapunov\LleHelper.cs" />
+    <Compile Include="MathMethods\Lyapunov\LleMethod.cs" />
     <Compile Include="MathMethods\Lyapunov\LyapunovMethod.cs" />
     <Compile Include="MathMethods\Lyapunov\RosensteinMethod.cs" />
     <Compile Include="MathMethods\Solvers\RK6.cs" />
@@ -80,6 +80,7 @@
     <Compile Include="Transform\Fourier.cs" />
     <Compile Include="Transform\Model3D.cs" />
     <Compile Include="Transform\PoincareMap.cs" />
+    <Compile Include="Transform\PseudoPoincareMap.cs" />
     <Compile Include="Transform\Sound.cs" />
   </ItemGroup>
   <ItemGroup />

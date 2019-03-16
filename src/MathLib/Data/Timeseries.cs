@@ -81,6 +81,7 @@ namespace MathLib.Data
                 {
                     this.xValues = (from dp in this.DataPoints select dp.X).ToArray();
                 }
+
                 return xValues;
             }
         }
@@ -93,6 +94,7 @@ namespace MathLib.Data
                 {
                     this.yValues = (from dp in this.DataPoints select dp.Y).ToArray();
                 }
+
                 return yValues;
             }
         }

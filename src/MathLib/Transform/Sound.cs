@@ -4,15 +4,15 @@ using System.Text;
 
 namespace MathLib.Transform
 {
-    public class Sound {
-
+    public class Sound
+    {
         /// <summary>
         /// Create WAV file of signal "sound"
         /// </summary>
         /// <param name="filePath">output sound file name</param>
         /// <param name="yt">Y coordinates of signal</param>
-        public static void CreateWavFile(string filePath, double[] yt) {
-
+        public static void CreateWavFile(string filePath, double[] yt)
+        {
             long pts = yt.Length;
 
             double xtmin = Ext.countMin(yt);
@@ -60,7 +60,9 @@ namespace MathLib.Transform
 
             // as bytes array
             byte[] data = new byte[pts];
-            for (int t = 0; t < pts; t++) {
+
+            for (int t = 0; t < pts; t++)
+            {
                 double _yt = 255 * (yt[t] - xtmin) / (xtmax - xtmin);
                 data[t] = (byte)_yt;
             }

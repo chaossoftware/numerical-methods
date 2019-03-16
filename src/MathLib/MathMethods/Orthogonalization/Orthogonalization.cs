@@ -1,7 +1,7 @@
 ﻿using System;
 
-namespace MathLib.MathMethods.Orthogonalization {
-
+namespace MathLib.MathMethods.Orthogonalization
+{
     /// <summary>
     /// Orthogonalization class
     /// </summary>
@@ -14,7 +14,8 @@ namespace MathLib.MathMethods.Orthogonalization {
         /// Orthogonalization methods
         /// </summary>
         /// <param name="equationsCount">Number of equations</param>
-        public Orthogonalization(int equationsCount) {
+        public Orthogonalization(int equationsCount)
+        {
             this.n = equationsCount;
             this.gsc = new double[n];
         }
