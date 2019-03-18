@@ -31,6 +31,7 @@ namespace MathLib.DrawEngine.Charts {
         protected PlotObject(Size bitmapSize, float thickness)
         {
             this.Size = bitmapSize;
+            this.Thickness = thickness;
 
             this.LabelX = "x";
             this.LabelY = "y";
@@ -59,6 +60,8 @@ namespace MathLib.DrawEngine.Charts {
         public string LabelY { get; set; }
 
         protected Bitmap PlotBitmap { get; set; }
+
+        protected float Thickness { get; set; }
 
         protected bool HasSmallSize => this.Size.Width < 216 || this.Size.Height < 161;
 
@@ -115,7 +118,7 @@ namespace MathLib.DrawEngine.Charts {
             var axisOffset = Math.Max(this.Size.Height * 0.1, minOffset);
             PicPtMin = new DataPoint(axisOffset, this.Size.Height - axisOffset);
             PicPtMax = new DataPoint(this.Size.Width, 0);
-            PicPtCoeff = new DataPoint((PicPtMax.X - PicPtMin.X) / amplitude.X, (PicPtMin.Y - PicPtMax.Y) / amplitude.Y);
+            PicPtCoeff = new DataPoint((PicPtMax.X - PicPtMin.X) / amplitude.X, (PicPtMin.Y - PicPtMax.Y - this.Thickness) / amplitude.Y);
         }
 
         protected void SetAxisValues(string xMin, string xMax, string yMin, string yMax)

@@ -33,7 +33,7 @@ namespace MathLib.DrawEngine.Charts
             foreach (var p in ds.DataPoints)
             {
                 xPl = PicPtMin.X + (p.X - this.tsPointMin.X) * PicPtCoeff.X;
-                yPl = PicPtMin.Y - (p.Y - this.tsPointMin.Y) * PicPtCoeff.Y;
+                yPl = PicPtMin.Y - (p.Y - this.tsPointMin.Y) * PicPtCoeff.Y - this.Thickness / 2d;
                 points.Add(new PointF((float)xPl, (float)yPl));
             }
 
