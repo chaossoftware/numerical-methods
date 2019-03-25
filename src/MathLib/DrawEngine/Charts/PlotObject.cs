@@ -115,7 +115,7 @@ namespace MathLib.DrawEngine.Charts {
             var minOffset = this.HasSmallSize ? 18 : 25;
 
             //set plot default area size
-            var axisOffset = Math.Max(this.Size.Height * 0.1, minOffset);
+            var axisOffset = Math.Max(Math.Min(this.Size.Height, this.Size.Width) * 0.1, minOffset);
             PicPtMin = new DataPoint(axisOffset, this.Size.Height - axisOffset);
             PicPtMax = new DataPoint(this.Size.Width, 0);
             PicPtCoeff = new DataPoint((PicPtMax.X - PicPtMin.X) / amplitude.X, (PicPtMin.Y - PicPtMax.Y - this.Thickness) / amplitude.Y);
