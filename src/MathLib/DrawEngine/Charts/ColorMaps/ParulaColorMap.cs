@@ -2,37 +2,11 @@
 
 namespace MathLib.DrawEngine.Charts.ColorMaps
 {
-    public class ParulaColorMap : ColorMap
+    public class ParulaColorMap : IColorMap
     {
-        private double step;
-        private double min;
-
-        public ParulaColorMap(double min, double max)
+        private static double[,] colorData =
         {
-            this.min = min;
-            step = (max - min) / 64;
-        }
-
-        public Color GetColor(double i)
-        {
-            double current = min;
-            int counter = -1;
-
-            do
-            {
-                current += step;
-                counter++;
-            }
-            while (current < i);
-
-            double r = _parula_data[counter, 0] * 255;
-            double g = _parula_data[counter, 1] * 255;
-            double b = _parula_data[counter, 2] * 255;
-
-            return Color.FromArgb((int)r, (int)g, (int)b);
-        }
-
-        static double[,] _parula_data = {{0.2081, 0.1663, 0.5292},
+            {0.2081, 0.1663, 0.5292},
             {0.2116238095, 0.1897809524, 0.5776761905},
             {0.212252381, 0.2137714286, 0.6269714286},
             {0.2081, 0.2386, 0.6770857143},
@@ -97,5 +71,45 @@ namespace MathLib.DrawEngine.Charts.ColorMaps
             {0.9661, 0.9514428571, 0.0755333333},
             {0.9763, 0.9831, 0.0538}
         };
+
+        private static Color[] colors;
+
+        private readonly double step;
+        private readonly double min;
+
+        static ParulaColorMap()
+        {
+            colors = new Color[colorData.GetLength(0)];
+
+            for (int i = 0; i < colorData.GetLength(0); i++)
+            {
+                double r = colorData[i, 0] * 255;
+                double g = colorData[i, 1] * 255;
+                double b = colorData[i, 2] * 255;
+
+                colors[i] = Color.FromArgb((int)r, (int)g, (int)b);
+            }
+        }
+
+        public ParulaColorMap(double min, double max)
+        {
+            this.min = min;
+            step = (max - min) / 64;
+        }
+
+        public Color GetColor(double value)
+        {
+            double current = min;
+            int counter = -1;
+
+            do
+            {
+                current += step;
+                counter++;
+            }
+            while (current < value);
+
+            return colors[counter];
+        }
     }
 }

@@ -16,9 +16,9 @@ namespace MathLib.DrawEngine.Charts
         public double Ymax;
 
         private double[,] timeSeries;
-        private ColorMap colorCondition;
+        private IColorMap colorCondition;
 
-        public ColouredMapPlot(double[,] timeSeries, Size pictureboxSize, ColorMap colorCondition)
+        public ColouredMapPlot(double[,] timeSeries, Size pictureboxSize, IColorMap colorCondition)
             : base(pictureboxSize, 1) {
 
             this.timeSeries = timeSeries;

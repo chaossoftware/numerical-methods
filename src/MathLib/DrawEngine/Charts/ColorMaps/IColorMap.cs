@@ -2,7 +2,7 @@
 
 namespace MathLib.DrawEngine.Charts.ColorMaps
 {
-    public interface ColorMap
+    public interface IColorMap
     {
         Color GetColor(double value);
     }
