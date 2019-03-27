@@ -1,13 +1,16 @@
 ﻿using System;
 
-namespace MathLib.MathMethods.Orthogonalization {
-
+namespace MathLib.MathMethods.Orthogonalization
+{
     /// <summary>
     /// Modified Gramm-Schmidt orthogonalization
     /// </summary>
-    public class ModifiedGrammSchmidt : Orthogonalization {
+    public class ModifiedGrammSchmidt : Orthogonalization
+    {
+        public ModifiedGrammSchmidt(int equationsCount) : base(equationsCount)
+        {
 
-        public ModifiedGrammSchmidt(int equationsCount) : base(equationsCount) { }
+        }
 
         public override void Perform(double[,] qMatrix, double[] rMatrix)
         {

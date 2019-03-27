@@ -45,34 +45,27 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DrawEngine\Animation.cs" />
-    <Compile Include="DrawEngine\Charts\ColorMaps\ColorMap.cs" />
+    <Compile Include="DrawEngine\Charts\ColorMaps\IColorMap.cs" />
     <Compile Include="DrawEngine\Charts\ColorMaps\ParulaColorMap.cs" />
     <Compile Include="DrawEngine\Charts\ColouredMapPlot.cs" />
-    <Compile Include="DrawEngine\Charts\MultiSignalPlot.cs" />
+    <Compile Include="DrawEngine\Charts\DataSeriesPlot.cs" />
+    <Compile Include="DrawEngine\Charts\ScatterPlot.cs" />
+    <Compile Include="DrawEngine\Charts\LinePlot.cs" />
     <Compile Include="DrawEngine\Charts\TimedSignalPlot.cs" />
     <Compile Include="DrawEngine\Charts\PlotObject.cs" />
-    <Compile Include="DrawEngine\Charts\MapPlot.cs" />
-    <Compile Include="DrawEngine\Charts\SignalPlot.cs" />
     <Compile Include="Data\Timeseries.cs" />
     <Compile Include="Data\DataPoint.cs" />
     <Compile Include="Ext.cs" />
     <Compile Include="IO\DataWriter.cs" />
     <Compile Include="Data\SourceData.cs" />
+    <Compile Include="IO\NumFormat.cs" />
     <Compile Include="MathMethods\Lyapunov\BenettinMethod.cs" />
     <Compile Include="MathMethods\Lyapunov\KantzMethod.cs" />
-    <Compile Include="MathMethods\Lyapunov\LleHelper.cs" />
+    <Compile Include="MathMethods\Lyapunov\LleMethod.cs" />
     <Compile Include="MathMethods\Lyapunov\LyapunovMethod.cs" />
     <Compile Include="MathMethods\Lyapunov\RosensteinMethod.cs" />
     <Compile Include="MathMethods\Solvers\RK6.cs" />
-    <Compile Include="NeuralNet\Entities\BiasNeuron.cs" />
-    <Compile Include="NeuralNet\Entities\Neuron.cs" />
-    <Compile Include="NeuralNet\Entities\HiddenNeuron.cs" />
-    <Compile Include="NeuralNet\Entities\InputNeuron.cs" />
-    <Compile Include="NeuralNet\Entities\OutputNeuron.cs" />
-    <Compile Include="NeuralNet\Entities\Synapse.cs" />
     <Compile Include="Threading\ThreadedRun.cs" />
-    <Compile Include="NeuralNet\ActivationFunction\ActivationFunction.cs" />
-    <Compile Include="NeuralNet\ActivationFunction\Functions.cs" />
     <Compile Include="MathMethods\Orthogonalization\ClassicGrammSchmidt.cs" />
     <Compile Include="MathMethods\Orthogonalization\HouseholderTransformation.cs" />
     <Compile Include="MathMethods\Orthogonalization\ModifiedGrammSchmidt.cs" />
@@ -82,13 +75,11 @@
     <Compile Include="MathMethods\Solvers\EquationsSolver.cs" />
     <Compile Include="MathMethods\Solvers\SystemEquations.cs" />
     <Compile Include="MathMethods\Lyapunov\WolfMethod.cs" />
-    <Compile Include="NeuralNet\NeuralNet.cs" />
-    <Compile Include="NeuralNet\NeuralNetEquations.cs" />
-    <Compile Include="NeuralNet\NeuralNetParams.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Transform\Fourier.cs" />
     <Compile Include="Transform\Model3D.cs" />
     <Compile Include="Transform\PoincareMap.cs" />
+    <Compile Include="Transform\PseudoPoincareMap.cs" />
     <Compile Include="Transform\Sound.cs" />
   </ItemGroup>
   <ItemGroup />

@@ -17,7 +17,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TimeSeriesAnalysis", "TimeS
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EbPanelTemperature", "EbPanelTemperature\EbPanelTemperature.csproj", "{687D9242-3BD8-4254-8019-19C5A01DF501}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NeuralNetwork", "NeuralNetwork\NeuralNetwork.csproj", "{CA380EF7-0E34-4141-B31C-14AE4187A213}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NeuralAnalyser", "NeuralNetwork\NeuralAnalyser.csproj", "{CA380EF7-0E34-4141-B31C-14AE4187A213}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "3dviewer", "3DViewer\3dviewer.csproj", "{871B28F9-A931-4637-BD3C-7622922D8F30}"
 EndProject

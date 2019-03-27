@@ -1,13 +1,16 @@
 ﻿using System;
 
-namespace MathLib.MathMethods.Orthogonalization {
-
+namespace MathLib.MathMethods.Orthogonalization
+{
     /// <summary>
     /// Classic Gramm-Schmidt orthogonalization
     /// </summary>
     public class ClassicGrammSchmidt : Orthogonalization
     {
-        public ClassicGrammSchmidt(int equationsCount) : base(equationsCount) { }
+        public ClassicGrammSchmidt(int equationsCount) : base(equationsCount)
+        {
+
+        }
 
         public override void Perform(double[,] qMatrix, double[] rMatrix)
         {

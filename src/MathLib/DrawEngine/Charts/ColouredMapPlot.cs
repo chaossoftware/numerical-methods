@@ -16,9 +16,9 @@ namespace MathLib.DrawEngine.Charts
         public double Ymax;
 
         private double[,] timeSeries;
-        private ColorMap colorCondition;
+        private IColorMap colorCondition;
 
-        public ColouredMapPlot(double[,] timeSeries, Size pictureboxSize, ColorMap colorCondition)
+        public ColouredMapPlot(double[,] timeSeries, Size pictureboxSize, IColorMap colorCondition)
             : base(pictureboxSize, 1) {
 
             this.timeSeries = timeSeries;
@@ -28,10 +28,10 @@ namespace MathLib.DrawEngine.Charts
 
         public override Bitmap Plot() {
 
-            SetDefaultAreaSize(new DataPoint(timeSeries.GetLength(0), timeSeries.GetLength(1)));
+            CalculateChartAreaSize(new DataPoint(timeSeries.GetLength(0), timeSeries.GetLength(1)));
 
-            plotBitmap = new Bitmap(this.Size.Width, this.Size.Height);
-            g = Graphics.FromImage(plotBitmap);
+            PlotBitmap = new Bitmap(this.Size.Width, this.Size.Height);
+            g = Graphics.FromImage(PlotBitmap);
 
             Bitmap mapBitmap = new Bitmap(timeSeries.GetLength(0), timeSeries.GetLength(1));
 
@@ -57,7 +57,7 @@ namespace MathLib.DrawEngine.Charts
 
             g.Dispose();
 
-            return plotBitmap;
+            return PlotBitmap;
         }
 
 

@@ -2,21 +2,22 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Drawing.Text;
 
 namespace MathLib.DrawEngine.Charts {
     /// <summary>
     /// Base class for plot object 
     /// </summary>
-    public abstract class PlotObject {
-
-        protected Bitmap plotBitmap;                // bitmap to draw plot
+    public abstract class PlotObject
+    {
         protected Graphics g;
 
         protected Pen plotPen;
         protected Pen gridPen;
         protected Font gridFont;                    // Font for grid labels
         protected Font axisTitleFont;               // Font for axis titles
-        protected SolidBrush br;                    // Brush for grid text
+        protected SolidBrush txtBrush;                    // Brush for grid text
+        protected SolidBrush bgBrush;                    // Brush for grid text
 
         protected DataPoint PicPtMin;
         protected DataPoint PicPtMax;
@@ -27,9 +28,10 @@ namespace MathLib.DrawEngine.Charts {
         /// </summary>
         /// <param name="pBox">Picture box control to display plot</param>
         /// <param name="thickness">thickness of plot lines</param>
-        public PlotObject(Size bitmapSize, float thickness)
+        protected PlotObject(Size bitmapSize, float thickness)
         {
             this.Size = bitmapSize;
+            this.Thickness = thickness;
 
             this.LabelX = "x";
             this.LabelY = "y";
@@ -47,7 +49,8 @@ namespace MathLib.DrawEngine.Charts {
             gridPen = new Pen(Color.Black, gridThickness);
             gridFont = new Font(new FontFamily("Cambria Math"), gridFontSize);
             axisTitleFont = new Font(new FontFamily("Cambria Math"), titleFontSize, FontStyle.Bold);
-            br = new SolidBrush(Color.Black);
+            txtBrush = new SolidBrush(Color.Black);
+            bgBrush = new SolidBrush(Color.White);
         }
 
         public Size Size { get; set; }
@@ -55,6 +58,10 @@ namespace MathLib.DrawEngine.Charts {
         public string LabelX { get; set; }
 
         public string LabelY { get; set; }
+
+        protected Bitmap PlotBitmap { get; set; }
+
+        protected float Thickness { get; set; }
 
         protected bool HasSmallSize => this.Size.Width < 216 || this.Size.Height < 161;
 
@@ -67,6 +74,15 @@ namespace MathLib.DrawEngine.Charts {
         /// Draw chart grid
         /// </summary>
         protected abstract void DrawGrid();
+
+        protected void PrepareChartArea()
+        {
+            PlotBitmap = new Bitmap(this.Size.Width, this.Size.Height);
+            g = Graphics.FromImage(PlotBitmap);
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            g.TextRenderingHint = TextRenderingHint.AntiAlias;
+            g.FillRectangle(bgBrush, 0, 0, this.Size.Width, this.Size.Height);
+        }
 
         protected string GetAxisValue(double value)
         {
@@ -94,38 +110,36 @@ namespace MathLib.DrawEngine.Charts {
             return string.Format("{0:F" + decimalPlaces + "}", value).TrimEnd('0').TrimEnd('.');
         }
 
-        protected void SetDefaultAreaSize(DataPoint amplitude)
+        protected void CalculateChartAreaSize(DataPoint amplitude)
         {
-            double minOffset = this.HasSmallSize ? 18 : 25;
+            var minOffset = this.HasSmallSize ? 18 : 25;
 
             //set plot default area size
-            double axisOffset = Math.Max(this.Size.Height * 0.1, minOffset);
+            var axisOffset = Math.Max(Math.Min(this.Size.Height, this.Size.Width) * 0.1, minOffset);
             PicPtMin = new DataPoint(axisOffset, this.Size.Height - axisOffset);
             PicPtMax = new DataPoint(this.Size.Width, 0);
-            PicPtCoeff = new DataPoint((PicPtMax.X - PicPtMin.X) / amplitude.X, (PicPtMin.Y - PicPtMax.Y) / amplitude.Y);
+            PicPtCoeff = new DataPoint((PicPtMax.X - PicPtMin.X) / amplitude.X, (PicPtMin.Y - PicPtMax.Y - this.Thickness) / amplitude.Y);
         }
 
         protected void SetAxisValues(string xMin, string xMax, string yMin, string yMax)
         {
-            g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
-
             g.DrawLine(gridPen, (float)PicPtMin.X, (float)PicPtMin.Y, (float)PicPtMin.X, (float)PicPtMax.Y);
             g.DrawLine(gridPen, (float)PicPtMin.X, (float)PicPtMin.Y, (float)PicPtMax.X, (float)PicPtMin.Y);
             
             // x axis text
             float xAxisY = this.Size.Height - axisTitleFont.Size;
 
-            StringFormat FormatX = new StringFormat();
+            var FormatX = new StringFormat();
             FormatX.LineAlignment = StringAlignment.Center;
 
             FormatX.Alignment = StringAlignment.Near;
-            g.DrawString(xMin, gridFont, br, (float)PicPtMin.X, xAxisY, FormatX);
+            g.DrawString(xMin, gridFont, txtBrush, (float)PicPtMin.X, xAxisY, FormatX);
 
             FormatX.Alignment = StringAlignment.Far;
-            g.DrawString(xMax, gridFont, br, (float)PicPtMax.X, xAxisY, FormatX);
+            g.DrawString(xMax, gridFont, txtBrush, (float)PicPtMax.X, xAxisY, FormatX);
 
             FormatX.Alignment = StringAlignment.Center;
-            g.DrawString(LabelX, axisTitleFont, br, (float)PicPtMax.X / 2 + (float)PicPtMin.X, xAxisY, FormatX);
+            g.DrawString(LabelX, axisTitleFont, txtBrush, (float)PicPtMax.X / 2 + (float)PicPtMin.X, xAxisY, FormatX);
 
 
             //y axis text
@@ -135,23 +149,32 @@ namespace MathLib.DrawEngine.Charts {
 
             float yAxisX = (float)PicPtMin.X - axisTitleFont.Size;
 
-            StringFormat FormatY = new StringFormat();
+            var FormatY = new StringFormat();
             FormatY.LineAlignment = StringAlignment.Center;
             FormatY.FormatFlags = StringFormatFlags.DirectionVertical;
 
             //min value at max as text rotated
             FormatY.Alignment = StringAlignment.Near;
-            g.DrawString(yMin, gridFont, br, yAxisX, (float)PicPtMax.Y, FormatY);
+            g.DrawString(yMin, gridFont, txtBrush, yAxisX, (float)PicPtMax.Y, FormatY);
 
             //max value at min as text rotated
             FormatY.Alignment = StringAlignment.Far;
-            g.DrawString(yMax, gridFont, br, yAxisX, (float)PicPtMin.Y, FormatY);
+            g.DrawString(yMax, gridFont, txtBrush, yAxisX, (float)PicPtMin.Y, FormatY);
 
             FormatY.Alignment = StringAlignment.Center;
-            g.DrawString(LabelY, axisTitleFont, br, yAxisX, (float)PicPtMin.Y / 2, FormatY);
+            g.DrawString(LabelY, axisTitleFont, txtBrush, yAxisX, (float)PicPtMin.Y / 2, FormatY);
 
             g.RotateTransform(-180, MatrixOrder.Append);
             g.TranslateTransform((float)PicPtMin.X, (float)PicPtMin.Y, MatrixOrder.Append);
+        }
+
+        protected void NoDataToPlot()
+        {
+            var format = new StringFormat();
+            format.LineAlignment = StringAlignment.Center;
+            format.Alignment = StringAlignment.Center;
+
+            g.DrawString("No data to plot.", gridFont, txtBrush, this.Size.Width / 2, this.Size.Height / 2);
         }
     }
 }

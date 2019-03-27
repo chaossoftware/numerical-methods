@@ -3,6 +3,7 @@ using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
+using MathLib.IO;
 
 namespace MathLib.Data
 {
@@ -63,7 +64,7 @@ namespace MathLib.Data
 
             foreach (double value in TimeSeries.YValues)
             {
-                timeSeriesOut.AppendFormat(CultureInfo.InvariantCulture, "{0:F14}\n", value);
+                timeSeriesOut.AppendLine(value.ToString(NumFormat.General, CultureInfo.InvariantCulture));
             }
 
             return timeSeriesOut.ToString();
