@@ -47,7 +47,10 @@ namespace MathLib.DrawEngine
         public void AddTimeSeries(string seriesName, Timeseries timeseries, SeriesChartType type) =>
             AddTimeSeries(seriesName, timeseries, type, Color.SteelBlue, 2);
 
-        public void ClearChart() =>
+        public void ClearChart()
+        {
             this.Series.Clear();
+            this.ChartAreas[0].AxisX.Interval = 0;
+        }
     }
 }
