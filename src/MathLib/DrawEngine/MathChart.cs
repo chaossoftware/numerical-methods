@@ -8,43 +8,76 @@ namespace MathLib.DrawEngine
 {
     public partial class MathChart : Chart
     {
+        private readonly Font defaultFont;
+
         public MathChart()
         {
             InitializeComponent();
+
+            defaultFont = new Font("Tahoma", 9f);
+            ChartAreas[0].AxisX.TitleFont = defaultFont;
+            ChartAreas[0].AxisX.IsLabelAutoFit = true;
+            ChartAreas[0].AxisX.LabelAutoFitStyle = LabelAutoFitStyles.DecreaseFont | LabelAutoFitStyles.IncreaseFont;
+            ChartAreas[0].AxisX.IntervalAutoMode = IntervalAutoMode.FixedCount;
+
+            ChartAreas[0].AxisY.TitleFont = defaultFont;
+        }
+
+        public MathChart(Size size, string xTitle, string yTitle) : this()
+        {
+            Size = size;
+            ChartAreas[0].AxisX.Title = xTitle;
+            ChartAreas[0].AxisY.Title = yTitle;
         }
 
         public bool HasData => this.Series.Any(s => s.Points.Any());
 
-        //chart.ChartAreas[0].Axes[0].Title = "t";
-        //        chart.ChartAreas[0].Axes[1].Title = "Slope";
-
-        public void AddTimeSeries(string seriesName, Timeseries timeseries, SeriesChartType type, Color color, int markerSize)
+        public MathChart AddTimeSeries(string seriesName, Timeseries timeseries, SeriesChartType type, Color color, int markerSize)
         {
-            var series = new Series();
-            series.ChartArea = "ChartArea";
-            series.ChartType = type;
-            series.Color = color;
-            series.MarkerColor = color;
-            series.MarkerSize = markerSize;
-            series.Name = seriesName;
+            var series = new Series
+            {
+                ChartArea = "ChartArea",
+                ChartType = type,
+                Color = color,
+                MarkerColor = color,
+                MarkerSize = markerSize,
+                Name = seriesName
+            };
 
             foreach (var dp in timeseries.DataPoints)
             {
                 series.Points.AddXY(dp.X, dp.Y);
             }
 
-            this.Series.Add(series);
+            var xMin = Math.Min(this.ChartAreas[0].AxisX.Minimum, timeseries.Min.X);
+            var xMax = Math.Max(this.ChartAreas[0].AxisX.Maximum, timeseries.Max.X);
+            var amplitude = xMax - xMin;
 
-            var newInterval = Math.Max(this.ChartAreas[0].AxisX.Interval, timeseries.Amplitude.X);
-            this.ChartAreas[0].AxisX.Interval = newInterval;
+            if (amplitude > 100000 || amplitude < 0.1)
+            {
+                this.ChartAreas[0].AxisX.LabelStyle.Format = "0.00e0";
+            }
+            else if (amplitude >= 1000)
+            {
+                this.ChartAreas[0].AxisX.LabelStyle.Format = "#####";
+            } 
+            else if (amplitude >= 10)
+            {
+                this.ChartAreas[0].AxisX.LabelStyle.Format = "###.##";
+            }
+
+            this.Series.Add(series);
+            this.ChartAreas[0].AxisX.Interval = amplitude / 2;
             this.ChartAreas[0].RecalculateAxesScale();
             this.Update();
+
+            return this;
         }
 
-        public void AddTimeSeries(string seriesName, Timeseries timeseries, SeriesChartType type, Color color) =>
+        public MathChart AddTimeSeries(string seriesName, Timeseries timeseries, SeriesChartType type, Color color) =>
             AddTimeSeries(seriesName, timeseries, type, color, 2);
 
-        public void AddTimeSeries(string seriesName, Timeseries timeseries, SeriesChartType type) =>
+        public MathChart AddTimeSeries(string seriesName, Timeseries timeseries, SeriesChartType type) =>
             AddTimeSeries(seriesName, timeseries, type, Color.SteelBlue, 2);
 
         public void ClearChart()
