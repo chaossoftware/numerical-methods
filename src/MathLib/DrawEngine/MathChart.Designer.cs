@@ -1,10 +1,13 @@
-﻿using System.Windows.Forms;
+﻿using System.Drawing;
+using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
 
 namespace MathLib.DrawEngine
 {
     partial class MathChart
     {
+        private Font defaultFont;
+
         /// <summary> 
         /// Required designer variable.
         /// </summary>
@@ -31,25 +34,26 @@ namespace MathLib.DrawEngine
         /// </summary>
         private void InitializeComponent()
         {
+            defaultFont = new Font("Tahoma", 9f);
             components = new System.ComponentModel.Container();
-            //this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 
             var chartArea = new ChartArea();
             chartArea.Name = "ChartArea";
+
+            chartArea.AxisX.TitleFont = defaultFont;
             chartArea.AxisX.MajorGrid.Enabled = false;
             chartArea.AxisX.IsLabelAutoFit = true;
             chartArea.AxisX.LabelStyle.Format = "G5";
             chartArea.AxisX.LabelStyle.TruncatedLabels = true;
-            chartArea.AxisY.MajorGrid.Enabled = false;
-            chartArea.AxisY.IsLabelAutoFit = true;
-            //schartArea.AxisY.IntervalAutoMode = IntervalAutoMode.VariableCount;
-            //chartArea.AxisX.IntervalAutoMode = IntervalAutoMode.VariableCount;
-
-            chartArea.AxisX.LabelAutoFitStyle = 
+            chartArea.AxisX.IntervalAutoMode = IntervalAutoMode.FixedCount;
+            chartArea.AxisX.LabelAutoFitStyle =
                 LabelAutoFitStyles.IncreaseFont |
                 LabelAutoFitStyles.DecreaseFont |
                 LabelAutoFitStyles.StaggeredLabels;
 
+            chartArea.AxisY.TitleFont = defaultFont;
+            chartArea.AxisY.MajorGrid.Enabled = false;
+            chartArea.AxisY.IsLabelAutoFit = true;
             chartArea.AxisY.LabelAutoFitStyle = 
                 LabelAutoFitStyles.IncreaseFont |
                 LabelAutoFitStyles.DecreaseFont |
