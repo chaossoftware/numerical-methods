@@ -79,7 +79,7 @@ namespace MathLib.MathMethods.Lyapunov
 
             for (eps = eps0; !alldone; eps *= 1.1)
             {
-                PutInBoxes(TimeSeries, box, list, eps, 0, bLength, tau * (dim - 1));
+                BoxAssistedAngorithm(TimeSeries, box, list, eps, 0, bLength, tau * (dim - 1));
 
                 alldone = true;
 

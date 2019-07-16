@@ -111,7 +111,7 @@ namespace MathLib.MathMethods.Lyapunov
                 Array.Clear(count, 0, count.Length);
                 Array.Clear(lyap, 0, lyap.Length);
 
-                PutInBoxes(TimeSeries, box, liste, epsilon, 0, blength, tau);
+                BoxAssistedAngorithm(TimeSeries, box, liste, epsilon, 0, blength, tau);
 
                 for (int i = 0; i < reference; i++)
                 {

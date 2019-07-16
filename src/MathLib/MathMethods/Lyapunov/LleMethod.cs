@@ -25,8 +25,22 @@ namespace MathLib.MathMethods.Lyapunov
             }
         }
 
+
+        /// <summary>
+        /// Optimized False Nearest Neighbors (FNN):
+        /// Box-assisted algorithm, consisting of dividing the phase space into a grid of boxes of eps side length. 
+        /// Then, each point falls into one of these boxes. 
+        /// All its neighbors closer than eps have to lie in either the same box or one of the adjacent ones
+        /// </summary>
+        /// <param name="timeSeries"></param>
+        /// <param name="box"></param>
+        /// <param name="liste"></param>
+        /// <param name="eps"></param>
+        /// <param name="bStart"></param>
+        /// <param name="bEnd"></param>
+        /// <param name="shift"></param>
         //shift (Kantz = Tau) (Rosenstein = Tau * (Dim - 1)) (Jakobian = 0)
-        protected void PutInBoxes(double[] timeSeries, int[,] box, int[] liste, double eps, int bStart, int bEnd, int shift)
+        protected void BoxAssistedAngorithm(double[] timeSeries, int[,] box, int[] liste, double eps, int bStart, int bEnd, int shift)
         {
             int boxSize = box.GetLength(0);
             int iBox = boxSize - 1;

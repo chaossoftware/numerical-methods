@@ -315,7 +315,7 @@ namespace MathLib.MathMethods.Lyapunov
                 epsilon *= epsstep;
                 if (epsilon > EPSMAX)
                     epsilon = EPSMAX;
-                PutInBoxes(TimeSeries, box, list, epsilon, (eDim - 1) * tau, length - tau, 0);
+                BoxAssistedAngorithm(TimeSeries, box, list, epsilon, (eDim - 1) * tau, length - tau, 0);
 
                 nfound = FindMultiNeighbors(TimeSeries, box, list, length - tau, BOX,
                             eDim, tau, epsilon, found, (int)act);
