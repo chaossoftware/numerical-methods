@@ -69,6 +69,7 @@
     <Compile Include="Data\SourceData.cs" />
     <Compile Include="IO\NumFormat.cs" />
     <Compile Include="MathMethods\Lyapunov\BenettinMethod.cs" />
+    <Compile Include="MathMethods\Lyapunov\JakobianMethod.cs" />
     <Compile Include="MathMethods\Lyapunov\KantzMethod.cs" />
     <Compile Include="MathMethods\Lyapunov\LleMethod.cs" />
     <Compile Include="MathMethods\Lyapunov\LyapunovMethod.cs" />

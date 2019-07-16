@@ -25,7 +25,7 @@ namespace MathLib.MathMethods.Lyapunov
 
         double max, min;
         long reference = long.MaxValue;
-        private int Blength;
+        private int blength;
 
         double[] lyap;
         int[,] box = new int[Box, Box];
@@ -68,7 +68,7 @@ namespace MathLib.MathMethods.Lyapunov
             this.epscount = epsmin == epsmax ? 1 : epscount;
 
             SlopesList = new Dictionary<string, Timeseries>();
-            Blength = timeSeries.Length - (this.dimMax - 1) * this.tau - this.maxIterations;
+            blength = timeSeries.Length - (this.dimMax - 1) * this.tau - this.maxIterations;
         }
 
         public override void Calculate()
@@ -89,7 +89,7 @@ namespace MathLib.MathMethods.Lyapunov
                 epsmax /= max;
             }
 
-            reference = Math.Min(reference, Blength);
+            reference = Math.Min(reference, blength);
 
             if ((maxIterations + (dimMax - 1) * tau) >= TimeSeries.Length)
             {
@@ -111,7 +111,7 @@ namespace MathLib.MathMethods.Lyapunov
                 Array.Clear(count, 0, count.Length);
                 Array.Clear(lyap, 0, lyap.Length);
 
-                PutInBoxes(TimeSeries, box, liste, epsilon, Blength, tau);
+                PutInBoxes(TimeSeries, box, liste, epsilon, 0, blength, tau);
 
                 for (int i = 0; i < reference; i++)
                 {

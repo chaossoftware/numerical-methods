@@ -14,41 +14,38 @@ namespace MathLib.MathMethods.Lyapunov
             min = Ext.countMin(timeSeries);
             max -= min;
 
-            if (max != 0.0)
+            if (max == 0d)
             {
-                for (int i = 0; i < timeSeries.Length; i++)
-                {
-                    timeSeries[i] = (timeSeries[i] - min) / max;
-                }
+                throw new ArgumentException($"Data ranges from {min} to {min + max}. It makes no sense to continue.");
             }
-            else
+
+            for (int i = 0; i < timeSeries.Length; i++)
             {
-                throw new ArgumentException(
-                    $"Data ranges from {min} to {min + max}. It makes no sense to continue.");
+                timeSeries[i] = (timeSeries[i] - min) / max;
             }
         }
 
-        //shift (Kantz = Tau) (Rosenstein = Tau * (Dim - 1))
-        protected void PutInBoxes(double[] timeSeries, int[,] box, int[] liste, double eps, int blength, int shift)
+        //shift (Kantz = Tau) (Rosenstein = Tau * (Dim - 1)) (Jakobian = 0)
+        protected void PutInBoxes(double[] timeSeries, int[,] box, int[] liste, double eps, int bStart, int bEnd, int shift)
         {
             int boxSize = box.GetLength(0);
             int iBox = boxSize - 1;
-            int i, j, k;
+            int i, x, y;
 
-            for (i = 0; i < boxSize; i++)
+            for (x = 0; x < boxSize; x++)
             {
-                for (j = 0; j < boxSize; j++)
+                for (y = 0; y < boxSize; y++)
                 {
-                    box[i, j] = -1;
+                    box[x, y] = -1;
                 }
             }
 
-            for (i = 0; i < blength; i++)
+            for (i = bStart; i < bEnd; i++)
             {
-                j = (int)(timeSeries[i] / eps) & iBox;
-                k = (int)(timeSeries[i + shift] / eps) & iBox;
-                liste[i] = box[j, k];
-                box[j, k] = i;
+                x = (int)(timeSeries[i] / eps) & iBox;
+                y = (int)(timeSeries[i + shift] / eps) & iBox;
+                liste[i] = box[x, y];
+                box[x, y] = i;
             }
         }
     }
