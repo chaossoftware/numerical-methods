@@ -6,32 +6,47 @@ namespace MathLib.MathMethods.Lyapunov
 {
     public class JakobianMethod : LleMethod
     {
+        private const int OUT = 10;
+        private const int BOX = 512;
+        private const double EPSMAX = 1.0;
+        private const int tau = 1;
+
+        bool epsset = false;
+        bool inverse;
+        int length, iterations, exclude = 0;
+        int eDim = 2/*, DIMENSION = 1,DELAY=1*/, minNeighbors = 30;
+        double epsstep = 1.2;
+
+        double averr;
+        double avneig = 0.0, aveps = 0.0;
+        double[][] mat;
+        double[] vec, abstand;
+        double epsmin;
+        long imax = BOX - 1, count = 0;
+        int[,] box;
+        int[] list;
+        int[] found;
+        int[] indexes;
+
         private Random random;
 
-        public JakobianMethod(double[] timeSeries, int embeddingDimension, int iterations, double scaleMin, double epsstep, int minNeigh, bool inverse)
+        public JakobianMethod(double[] timeSeries, int eDim, int iterations, double scaleMin, double epsstep, int minNeigh, bool inverse)
             : base(timeSeries)
         {
-            random = new Random();
+            this.eDim = eDim;
+            this.iterations = iterations;
+            this.epsmin = scaleMin;
+            this.epsset = true;
+            this.epsstep = epsstep;
+            this.minNeighbors = minNeigh;
+            this.inverse = inverse;
 
-            //DIMENSION = dimension;
-            embed = embeddingDimension;
-            dimset = true;
-
-            ITERATIONS = iterations;
-
-            epsmin = scaleMin;
-            epsset = true;
-
-            EPSSTEP = epsstep;
-            MINNEIGHBORS = minNeigh;
-            INVERSE = inverse;
-
-            LENGTH = TimeSeries.Length;
+            length = TimeSeries.Length;
 
             Slope = new Timeseries();
             Log = new StringBuilder();
+            random = new Random();
         }
-
 
         public override void Calculate()
         {
@@ -40,19 +55,18 @@ namespace MathLib.MathMethods.Lyapunov
             double[] lfactor;
             double[] factor;
             double dim;
-            double[] hseries;
-            double interval, av, var;
-            double maxinterval;
+            double av = 0d;
+            double var = 0d;
+            double maxinterval = 0d;
             long start, i, j;
-            double min = 0;
 
-            if (MINNEIGHBORS > (LENGTH - DELAY * (embed - 1) - 1))
-                throw new Exception("Your time series is not long enough to find " + MINNEIGHBORS + " neighbors!Exiting.\n");
+            double min = 0d;
+            double interval = 0d;
 
-            interval = 0d;
-            av = 0d;
-            var = 0d;
-            maxinterval = 0d;
+            if (minNeighbors > (length - tau * (eDim - 1) - 1))
+            {
+                throw new Exception("Your time series is not long enough to find " + minNeighbors + " neighbors!Exiting.\n");
+            }
 
             averr = 0.0;
 
@@ -63,51 +77,32 @@ namespace MathLib.MathMethods.Lyapunov
                 maxinterval = interval;
             }
 
-            Variance(TimeSeries, LENGTH, out av, out var);
+            Variance(TimeSeries, length, out av, out var);
 
-            if (INVERSE)
+            if (inverse)
             {
-                hseries = new double[LENGTH];
-
-                for (i = 0; i < LENGTH; i++)
-                {
-                    hseries[LENGTH - 1 - i] = TimeSeries[i];
-                }
-
-                for (i = 0; i < LENGTH; i++)
-                {
-                    TimeSeries[i] = hseries[i];
-                }
+                Array.Reverse(TimeSeries);
             }
 
-            if (!epsset)
-            {
-                epsmin = 1d / 1000d;
-            }
-            else
-            {
-                epsmin /= maxinterval;
-            }
+            epsmin = epsset ? epsmin / maxinterval : 0.001d;
 
             box = new int[BOX, BOX];
-            list = new int[LENGTH];
-            found = new long[LENGTH];
+            list = new int[length];
+            found = new int[length];
 
-            dynamics = new double[embed];
+            dynamics = new double[eDim];
+            factor = new double[eDim];
+            lfactor = new double[eDim];
+            delta = new double[eDim, eDim];
+            vec = new double[eDim + 1];
+            mat = new double[eDim + 1][];
 
-            factor = new double[embed];
-            lfactor = new double[embed];
-            delta = new double[embed, embed];
-            vec = new double[embed + 1];
-            //mat = new double[alldim + 1, alldim + 1];
-            mat = new double[embed + 1][];
-
-            for (int ii = 0; ii < embed + 1; ii++)
+            for (int ii = 0; ii < eDim + 1; ii++)
             {
-                mat[ii] = new double[embed + 1];
+                mat[ii] = new double[eDim + 1];
             }
 
-            indexes = MakeMultiIndex(embed, DELAY);
+            indexes = MakeIndex(eDim, tau);
 
             random = new Random(int.MaxValue);
 
@@ -116,39 +111,34 @@ namespace MathLib.MathMethods.Lyapunov
                 random.Next();
             }
 
-            for (i = 0; i < embed; i++)
+            for (i = 0; i < eDim; i++)
             {
-                factor[i] = 0.0;
+                factor[i] = 0d;
 
-                for (j = 0; j < embed; j++)
+                for (j = 0; j < eDim; j++)
                 {
-                    delta[i, j] = (double)random.Next() / (double)long.MaxValue;
+                    delta[i, j] = (double)random.Next() / int.MaxValue;
                 }
             }
 
             GramSchmidt(delta, lfactor);
 
-            start = ITERATIONS;
+            start = Math.Min(iterations, length - tau);
 
-            if (start > (LENGTH - DELAY))
-            {
-                start = LENGTH - DELAY;
-            }
-
-            abstand = new double[LENGTH];
+            abstand = new double[length];
 
             var lastTime = Time(DateTime.Now);
 
-            for (i = (embed - 1) * DELAY; i < start; i++)
+            for (i = (eDim - 1) * tau; i < start; i++)
             {
                 count++;
                 make_dynamics(dynamics, i);
                 MakeIteration(dynamics, delta);
                 GramSchmidt(delta, lfactor);
 
-                for (j = 0; j < embed; j++)
+                for (j = 0; j < eDim; j++)
                 {
-                    factor[j] += Math.Log(lfactor[j]) / (double)DELAY;
+                    factor[j] += Math.Log(lfactor[j]) / tau;
                 }
 
                 if (((Time(DateTime.Now) - lastTime) > OUT) || (i == (start - 1)))
@@ -157,7 +147,7 @@ namespace MathLib.MathMethods.Lyapunov
 
                     Log.Append($"{count} ");
 
-                    for (j = 0; j < embed; j++)
+                    for (j = 0; j < eDim; j++)
                     {
                         Log.Append($"{factor[j] / count} ");
                     }
@@ -167,16 +157,20 @@ namespace MathLib.MathMethods.Lyapunov
             }
 
             dim = 0.0;
-            for (i = 0; i < embed; i++)
+
+            for (i = 0; i < eDim; i++)
             {
                 dim += factor[i];
+
                 if (dim < 0.0)
+                {
                     break;
+                }
             }
-            if (i < embed)
-                dim = i + (dim - factor[i]) / Math.Abs(factor[i]);
-            else
-                dim = embed;
+
+            dim = i < eDim ? 
+                i + (dim - factor[i]) / Math.Abs(factor[i]) : 
+                eDim;
 
             Log.Append("#Average relative forecast error:= ");
             Log.Append($"{Math.Sqrt(averr / count) / var}");
@@ -216,34 +210,10 @@ namespace MathLib.MathMethods.Lyapunov
             //SlopesList.TryGetValue(index, out slope);
         }
 
-
-        private const int OUT = 10;
-        private const int BOX = 512;
-        private const double EPSMAX = 1.0;
-        private const int DELAY = 1;
-
-        bool epsset = false;
-        bool INVERSE;
-        bool dimset = false;
-        int LENGTH, ITERATIONS, exclude = 0;
-        int embed = 2/*, DIMENSION = 1,DELAY=1*/, MINNEIGHBORS = 30;
-        double EPSSTEP = 1.2;
-
-        double averr;
-        double avneig = 0.0, aveps = 0.0;
-        double[][] mat;
-        double[] vec, abstand;
-        double epsmin;
-        long imax = BOX - 1, count = 0;
-        int[,] box;
-        int[] list;
-        long[] found;
-        int[] indexes;
-
         double Sort(long act, long nFound, out long nfound, out bool enough)
         {
             double maxeps = 0.0, dx, dswap, maxdx;
-            long self = 0, i, j, del, hf, iswap;
+            int self = 0, i, j, del, hf, iswap;
             long imax = nFound;
 
             enough = false;
@@ -255,7 +225,7 @@ namespace MathLib.MathMethods.Lyapunov
                 {
                     maxdx = Math.Abs(TimeSeries[act] - TimeSeries[hf]);
 
-                    for (j = 1; j < embed; j++)
+                    for (j = 1; j < eDim; j++)
                     {
                         del = indexes[j];
                         dx = Math.Abs(TimeSeries[act - del] - TimeSeries[hf - del]);
@@ -275,7 +245,7 @@ namespace MathLib.MathMethods.Lyapunov
                 found[self] = found[imax - 1];
             }
 
-            for (i = 0; i < MINNEIGHBORS; i++)
+            for (i = 0; i < minNeighbors; i++)
             {
                 for (j = i + 1; j < imax - 1; j++)
                 {
@@ -291,16 +261,16 @@ namespace MathLib.MathMethods.Lyapunov
                 }
             }
 
-            if (!epsset || (abstand[MINNEIGHBORS - 1] >= epsmin))
+            if (!epsset || (abstand[minNeighbors - 1] >= epsmin))
             {
-                nfound = MINNEIGHBORS;
+                nfound = minNeighbors;
                 enough = true;
-                maxeps = abstand[MINNEIGHBORS - 1];
+                maxeps = abstand[minNeighbors - 1];
 
                 return maxeps;
             }
 
-            for (i = MINNEIGHBORS; i < imax - 2; i++)
+            for (i = minNeighbors; i < imax - 2; i++)
             {
                 for (j = i + 1; j < imax - 1; j++)
                 {
@@ -333,24 +303,24 @@ namespace MathLib.MathMethods.Lyapunov
         {
             long i, hi, j, hj, k, t = act, d;
             long nfound = 0;
-            double[] hser;
             double[,] imat;
             double foundeps = 0.0, epsilon, hv, hv1;
             double new_vec;
             bool got_enough;
 
-            hser = TimeSeries;
+            epsilon = epsmin / epsstep;
 
-            epsilon = epsmin / EPSSTEP;
             do
             {
-                epsilon *= EPSSTEP;
+                epsilon *= epsstep;
                 if (epsilon > EPSMAX)
                     epsilon = EPSMAX;
-                PutInBoxes(TimeSeries, box, list, epsilon, (embed - 1) * DELAY, LENGTH - DELAY, 0);
-                nfound = FindMultiNeighbors(TimeSeries, box, list, hser, LENGTH - DELAY, BOX,
-                            embed, DELAY, epsilon, found);
-                if (nfound > MINNEIGHBORS)
+                PutInBoxes(TimeSeries, box, list, epsilon, (eDim - 1) * tau, length - tau, 0);
+
+                nfound = FindMultiNeighbors(TimeSeries, box, list, length - tau, BOX,
+                            eDim, tau, epsilon, found, (int)act);
+
+                if (nfound > minNeighbors)
                 {
                     foundeps = Sort(act, nfound, out nfound, out got_enough);
                     if (got_enough)
@@ -366,16 +336,16 @@ namespace MathLib.MathMethods.Lyapunov
                 epsmin = aveps / count;
             }
 
-            if (nfound < MINNEIGHBORS)
+            if (nfound < minNeighbors)
             {
                 throw new Exception("#Not enough neighbors found. Exiting\n");
             }
 
-            for (i = 0; i <= embed; i++)
+            for (i = 0; i <= eDim; i++)
             {
                 vec[i] = 0.0;
 
-                for (j = 0; j <= embed; j++)
+                for (j = 0; j <= eDim; j++)
                 {
                     mat[i][j] = 0.0;
                 }
@@ -386,34 +356,34 @@ namespace MathLib.MathMethods.Lyapunov
                 act = found[i];
                 mat[0][0] += 1.0;
 
-                for (j = 0; j < embed; j++)
+                for (j = 0; j < eDim; j++)
                 {
                     mat[0][j + 1] += TimeSeries[act - indexes[j]];
                 }
 
-                for (j = 0; j < embed; j++)
+                for (j = 0; j < eDim; j++)
                 {
                     hv1 = TimeSeries[act - indexes[j]];
                     hj = j + 1;
 
-                    for (k = j; k < embed; k++)
+                    for (k = j; k < eDim; k++)
                     {
                         mat[hj][k + 1] += TimeSeries[act - indexes[k]] * hv1;
                     }
                 }
             }
 
-            for (i = 0; i <= embed; i++)
+            for (i = 0; i <= eDim; i++)
             {
-                for (j = i; j <= embed; j++)
+                for (j = i; j <= eDim; j++)
                 {
                     mat[j][i] = (mat[i][j] /= (double)nfound);
                 }
             }
 
-            imat = InvertMatrix(mat, embed + 1);
+            imat = InvertMatrix(mat, eDim + 1);
 
-            for (i = 0; i <= embed; i++)
+            for (i = 0; i <= eDim; i++)
             {
                 vec[i] = 0.0;
             }
@@ -421,58 +391,58 @@ namespace MathLib.MathMethods.Lyapunov
             for (i = 0; i < nfound; i++)
             {
                 act = found[i];
-                hv = TimeSeries[act + DELAY];
+                hv = TimeSeries[act + tau];
                 vec[0] += hv;
 
-                for (j = 0; j < embed; j++)
+                for (j = 0; j < eDim; j++)
                 {
                     vec[j + 1] += hv * TimeSeries[act - indexes[j]];
 
                 }
             }
 
-            for (i = 0; i <= embed; i++)
+            for (i = 0; i <= eDim; i++)
             {
                 vec[i] /= (double)nfound;
             }
 
             new_vec = 0.0;
 
-            for (i = 0; i <= embed; i++)
+            for (i = 0; i <= eDim; i++)
             {
                 new_vec += imat[0, i] * vec[i];
             }
 
-            for (i = 1; i <= embed; i++)
+            for (i = 1; i <= eDim; i++)
             {
                 hi = i - 1;
                 dynamics[hi] = 0.0;
 
-                for (j = 0; j <= embed; j++)
+                for (j = 0; j <= eDim; j++)
                 {
                     dynamics[hi] += imat[i, j] * vec[j];
                 }
             }
 
-            for (i = 0; i < embed; i++)
+            for (i = 0; i < eDim; i++)
             {
                 new_vec += dynamics[i] * TimeSeries[t - indexes[i]];
             }
 
-            averr += (new_vec - TimeSeries[t + DELAY]) * (new_vec - TimeSeries[t + DELAY]);
+            averr += (new_vec - TimeSeries[t + tau]) * (new_vec - TimeSeries[t + tau]);
 
         }
 
         void GramSchmidt(double[,] delta, double[] stretch)
         {
-            double[,] dnew = new double[embed, embed];
+            double[,] dnew = new double[eDim, eDim];
             double norm;
-            double[] diff = new double[embed];
+            double[] diff = new double[eDim];
             long i, j, k;
 
-            for (i = 0; i < embed; i++)
+            for (i = 0; i < eDim; i++)
             {
-                for (j = 0; j < embed; j++)
+                for (j = 0; j < eDim; j++)
                 {
                     diff[j] = 0.0;
                 }
@@ -481,12 +451,12 @@ namespace MathLib.MathMethods.Lyapunov
                 {
                     norm = 0.0;
 
-                    for (k = 0; k < embed; k++)
+                    for (k = 0; k < eDim; k++)
                     {
                         norm += delta[i, k] * dnew[j, k];
                     }
 
-                    for (k = 0; k < embed; k++)
+                    for (k = 0; k < eDim; k++)
                     {
                         diff[k] -= norm * dnew[j, k];
                     }
@@ -494,22 +464,22 @@ namespace MathLib.MathMethods.Lyapunov
 
                 norm = 0.0;
 
-                for (j = 0; j < embed; j++)
+                for (j = 0; j < eDim; j++)
                 {
                     norm += Math.Pow(delta[i, j] + diff[j], 2);
                 }
 
                 stretch[i] = (norm = Math.Sqrt(norm));
 
-                for (j = 0; j < embed; j++)
+                for (j = 0; j < eDim; j++)
                 {
                     dnew[i, j] = (delta[i, j] + diff[j]) / norm;
                 }
             }
 
-            for (i = 0; i < embed; i++)
+            for (i = 0; i < eDim; i++)
             {
-                for (j = 0; j < embed; j++)
+                for (j = 0; j < eDim; j++)
                 {
                     delta[i, j] = dnew[i, j];
                 }
@@ -521,26 +491,26 @@ namespace MathLib.MathMethods.Lyapunov
             double[,] dnew;
             long i, j, k;
 
-            dnew = new double[embed, embed];
+            dnew = new double[eDim, eDim];
 
-            for (i = 0; i < embed; i++)
+            for (i = 0; i < eDim; i++)
             {
                 dnew[i, 0] = dynamics[0] * delta[i, 0];
 
-                for (k = 1; k < embed; k++)
+                for (k = 1; k < eDim; k++)
                 {
                     dnew[i, 0] += dynamics[k] * delta[i, k];
                 }
 
-                for (j = 1; j < embed; j++)
+                for (j = 1; j < eDim; j++)
                 {
                     dnew[i, j] = delta[i, j - 1];
                 }
             }
 
-            for (i = 0; i < embed; i++)
+            for (i = 0; i < eDim; i++)
             {
-                for (j = 0; j < embed; j++)
+                for (j = 0; j < eDim; j++)
                 {
                     delta[i, j] = dnew[i, j];
                 }
@@ -641,18 +611,18 @@ namespace MathLib.MathMethods.Lyapunov
             }
         }
 
-        long FindMultiNeighbors(double[] s, int[,] box, int[] list, double[] x,
-                         long l, int bs, int emb, int del, double eps,
-                         long[] flist)
+        int FindMultiNeighbors(double[] s, int[,] box, int[] list,
+                         long l, int bs, int emb, int tau, double eps,
+                         int[] flist, int act)
         {
-            long nf = 0;
+            int nf = 0;
             int i, i1, i2, j, j1, k, k1;
             int ib = bs - 1;
-            long element;
+            int element;
             double dx = 0.0;
 
-            i = (int)(x[0] / eps) & ib;
-            j = (int)(x[0] / eps) & ib;
+            i = (int)(s[act] / eps) & ib;
+            j = (int)(s[act] / eps) & ib;
 
             for (i1 = i - 1; i1 <= i + 1; i1++)
             {
@@ -666,9 +636,9 @@ namespace MathLib.MathMethods.Lyapunov
                     {
                         for (k = 0; k < emb; k++)
                         {
-                            k1 = -k * (int)del;
+                            k1 = -k * tau;
 
-                            dx = Math.Abs(x[k1] - s[element + k1]);
+                            dx = Math.Abs(s[k1 + act] - s[element + k1]);
                             if (dx > eps)
                             {
                                 break;
@@ -693,13 +663,13 @@ namespace MathLib.MathMethods.Lyapunov
             return nf;
         }
 
-        private int[] MakeMultiIndex(int emb, int del)
+        private int[] MakeIndex(int eDim, int delay)
         {
-            int[] mmi = new int[emb];
+            int[] mmi = new int[eDim];
 
-            for (long i = 0; i < emb; i++)
+            for (int i = 0; i < eDim; i++)
             {
-                mmi[i] = (int)((i) * del);
+                mmi[i] = i * delay;
             }
 
             return mmi;
