@@ -8,10 +8,10 @@ namespace MathLib.MathMethods.Lyapunov
 {
     public class RosensteinMethod : LleMethod
     {
-        private int dim;
+        private int eDim;
         private int tau;
         private int steps;
-        private int minDist; //window around the reference point which should be omitted
+        private int window; //window around the reference point which should be omitted
         private double eps0; //minimal length scale for the neighborhood search
 
         private double eps;
@@ -21,18 +21,17 @@ namespace MathLib.MathMethods.Lyapunov
 
         private double[] lyap;
         private long[] found;
-        private int[] list;
         private int bLength;
 
         private readonly BoxAssistedFnn fnn;
 
-        public RosensteinMethod(double[] timeSeries, int dim, int tau, int steps, int minDist, double scaleMin)
+        public RosensteinMethod(double[] timeSeries, int eDim, int tau, int steps, int minDist, double scaleMin)
             : base(timeSeries)
         {
-            this.dim = dim;
+            this.eDim = eDim;
             this.tau = tau;
             this.steps = steps;
-            this.minDist = minDist;
+            this.window = minDist;
 
             if (scaleMin != 0)
             {
@@ -44,9 +43,9 @@ namespace MathLib.MathMethods.Lyapunov
                 this.eps0 = 1e-3;
             }
 
-            bLength = timeSeries.Length - (this.dim - 1) * this.tau - this.steps;
+            bLength = timeSeries.Length - (this.eDim - 1) * this.tau - this.steps;
 
-            fnn = new BoxAssistedFnn(256);
+            fnn = new BoxAssistedFnn(256, timeSeries.Length);
         }
 
 
@@ -64,7 +63,6 @@ namespace MathLib.MathMethods.Lyapunov
                 eps0 /= max;
             }
 
-            list = new int[TimeSeries.Length];
             lyap = new double[steps + 1];
             found = new long[steps + 1];
             done = new bool[TimeSeries.Length];
@@ -74,12 +72,12 @@ namespace MathLib.MathMethods.Lyapunov
                 done[i] = false;
             }
 
-            maxlength = TimeSeries.Length - tau * (dim - 1) - steps - 1 - minDist;
+            maxlength = TimeSeries.Length - tau * (eDim - 1) - steps - 1 - window;
             alldone = false;
 
             for (eps = eps0; !alldone; eps *= 1.1)
             {
-                fnn.PutInBoxes(TimeSeries, list, eps, 0, bLength, 0, tau * (dim - 1));
+                fnn.PutInBoxes(TimeSeries, eps, 0, bLength, 0, tau * (eDim - 1));
 
                 alldone = true;
 
@@ -110,10 +108,10 @@ namespace MathLib.MathMethods.Lyapunov
         public override string GetInfoShort() => "Done";
 
         public override string GetInfoFull() => new StringBuilder()
-                .AppendFormat("Embedding dimension: {0}\n", dim)
+                .AppendFormat("Embedding dimension: {0}\n", eDim)
                 .AppendFormat("Delay: {0}\n", tau)
                 .AppendFormat("Steps: {0}\n", steps)
-                .AppendFormat("Window around the reference point which should be omitted: {0}\n", minDist)
+                .AppendFormat("Window around the reference point which should be omitted: {0}\n", window)
                 .Append("Min scale: ").AppendLine(eps0.ToString(NumFormat.Short, CultureInfo.InvariantCulture))
                 .AppendLine().Append(Log.ToString())
                 .ToString();
@@ -121,12 +119,12 @@ namespace MathLib.MathMethods.Lyapunov
         private bool Iterate(long act)
         {
             bool ok = false;
-            int x, y, i1, k, del1 = dim * tau;
+            int x, y, i1, k, del1 = eDim * tau;
             long element, minelement = -1;
-            double dx, mindx = 1.0;
+            double dx, eps2 = Math.Pow(eps, 2), mindx = 1.0;
 
             x = (int)(TimeSeries[act] / eps) & fnn.MaxBoxIndex;
-            y = (int)(TimeSeries[act + tau * (dim - 1)] / eps) & fnn.MaxBoxIndex;
+            y = (int)(TimeSeries[act + tau * (eDim - 1)] / eps) & fnn.MaxBoxIndex;
             
             for (int i = x - 1; i <= x + 1; i++)
             {
@@ -138,16 +136,15 @@ namespace MathLib.MathMethods.Lyapunov
                     
                     while (element != -1)
                     {
-                        if (Math.Abs(act - element) > minDist)
+                        if (Math.Abs(act - element) > window)
                         {
                             dx = 0.0;
                             
                             for (k = 0; k < del1; k += tau)
                             {
-                                dx += (TimeSeries[act + k] - TimeSeries[element + k]) *
-                                  (TimeSeries[act + k] - TimeSeries[element + k]);
+                                dx += Math.Pow(TimeSeries[act + k] - TimeSeries[element + k], 2);
 
-                                if (dx > eps * eps)
+                                if (dx > eps2)
                                 {
                                     break;
                                 }
@@ -168,7 +165,7 @@ namespace MathLib.MathMethods.Lyapunov
                             }
                         }
 
-                        element = list[element];
+                        element = fnn.List[element];
                     }
                 }
             }

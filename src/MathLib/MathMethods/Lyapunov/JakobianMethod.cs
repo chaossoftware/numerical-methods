@@ -23,8 +23,6 @@ namespace MathLib.MathMethods.Lyapunov
         double[] vec, abstand;
         double epsmin;
         long count = 0;
-        int[] list;
-        int[] found;
         int[] indexes;
 
         private Random random;
@@ -46,7 +44,7 @@ namespace MathLib.MathMethods.Lyapunov
             Slope = new Timeseries();
             Log = new StringBuilder();
             random = new Random();
-            fnn = new BoxAssistedFnn(512);
+            fnn = new BoxAssistedFnn(512, length);
         }
 
         public override void Calculate()
@@ -86,9 +84,6 @@ namespace MathLib.MathMethods.Lyapunov
             }
 
             epsmin = epsset ? epsmin / maxinterval : 0.001d;
-
-            list = new int[length];
-            found = new int[length];
 
             dynamics = new double[eDim];
             factor = new double[eDim];
@@ -220,7 +215,7 @@ namespace MathLib.MathMethods.Lyapunov
 
             for (i = 0; i < imax; i++)
             {
-                hf = found[i];
+                hf = fnn.Found[i];
                 if (hf != act)
                 {
                     maxdx = Math.Abs(TimeSeries[act] - TimeSeries[hf]);
@@ -242,7 +237,7 @@ namespace MathLib.MathMethods.Lyapunov
             if (self != (imax - 1))
             {
                 abstand[self] = abstand[imax - 1];
-                found[self] = found[imax - 1];
+                fnn.Found[self] = fnn.Found[imax - 1];
             }
 
             for (i = 0; i < minNeighbors; i++)
@@ -254,9 +249,9 @@ namespace MathLib.MathMethods.Lyapunov
                         dswap = abstand[i];
                         abstand[i] = abstand[j];
                         abstand[j] = dswap;
-                        iswap = found[i];
-                        found[i] = found[j];
-                        found[j] = iswap;
+                        iswap = fnn.Found[i];
+                        fnn.Found[i] = fnn.Found[j];
+                        fnn.Found[j] = iswap;
                     }
                 }
             }
@@ -279,9 +274,9 @@ namespace MathLib.MathMethods.Lyapunov
                         dswap = abstand[i];
                         abstand[i] = abstand[j];
                         abstand[j] = dswap;
-                        iswap = found[i];
-                        found[i] = found[j];
-                        found[j] = iswap;
+                        iswap = fnn.Found[i];
+                        fnn.Found[i] = fnn.Found[j];
+                        fnn.Found[j] = iswap;
                     }
                 }
                 if (abstand[i] > epsmin)
@@ -319,10 +314,9 @@ namespace MathLib.MathMethods.Lyapunov
                     epsilon = EPSMAX;
                 }
 
-                fnn.PutInBoxes(TimeSeries, list, epsilon, (eDim - 1) * tau, length - tau, 0, 0);
+                fnn.PutInBoxes(TimeSeries, epsilon, (eDim - 1) * tau, length - tau, 0, 0);
 
-                nfound = FindMultiNeighbors(TimeSeries, fnn.Boxes, list, length - tau, 512,
-                            eDim, tau, epsilon, found, (int)act);
+                nfound = FindNeighbors(TimeSeries, tau, epsilon, (int)act);
 
                 if (nfound > minNeighbors)
                 {
@@ -357,7 +351,7 @@ namespace MathLib.MathMethods.Lyapunov
 
             for (i = 0; i < nfound; i++)
             {
-                act = found[i];
+                act = fnn.Found[i];
                 mat[0][0] += 1.0;
 
                 for (j = 0; j < eDim; j++)
@@ -394,7 +388,7 @@ namespace MathLib.MathMethods.Lyapunov
 
             for (i = 0; i < nfound; i++)
             {
-                act = found[i];
+                act = fnn.Found[i];
                 hv = TimeSeries[act + tau];
                 vec[0] += hv;
 
@@ -615,38 +609,31 @@ namespace MathLib.MathMethods.Lyapunov
             }
         }
 
-        int FindMultiNeighbors(double[] s, int[,] box, int[] list,
-                         long l, int bs, int emb, int tau, double eps,
-                         int[] flist, int act)
+        int FindNeighbors(double[] timeSeries, int tau, double eps, int act)
         {
             int nf = 0;
-            int i, i1, i2, j, j1, k, k1;
-            int ib = bs - 1;
+            int x, i, i1, y, j, k, k1;
             int element;
             double dx = 0.0;
 
-            i = (int)(s[act] / eps) & ib;
-            j = (int)(s[act] / eps) & ib;
+            x = (int)(timeSeries[act] / eps) & fnn.MaxBoxIndex;
+            y = (int)(timeSeries[act] / eps) & fnn.MaxBoxIndex;
 
-            for (i1 = i - 1; i1 <= i + 1; i1++)
+            for (i = x - 1; i <= x + 1; i++)
             {
-                i2 = i1 & ib;
+                i1 = i & fnn.MaxBoxIndex;
 
-                for (j1 = j - 1; j1 <= j + 1; j1++)
+                for (j = y - 1; j <= y + 1; j++)
                 {
-                    element = box[i2, j1 & ib];
+                    element = fnn.Boxes[i1, j & fnn.MaxBoxIndex];
 
                     while (element != -1)
                     {
-                        for (k = 0; k < emb; k++)
+                        for (k = 0; k < eDim; k++)
                         {
                             k1 = -k * tau;
 
-                            dx = Math.Abs(s[k1 + act] - s[element + k1]);
-                            if (dx > eps)
-                            {
-                                break;
-                            }
+                            dx = Math.Abs(timeSeries[k1 + act] - timeSeries[element + k1]);
 
                             if (dx > eps)
                             {
@@ -656,10 +643,10 @@ namespace MathLib.MathMethods.Lyapunov
 
                         if (dx <= eps)
                         {
-                            flist[nf++] = element;
+                            fnn.Found[nf++] = element;
                         }
 
-                        element = list[element];
+                        element = fnn.List[element];
                     }
                 }
             }
