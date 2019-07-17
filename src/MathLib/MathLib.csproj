@@ -68,6 +68,7 @@
     <Compile Include="IO\DataWriter.cs" />
     <Compile Include="Data\SourceData.cs" />
     <Compile Include="IO\NumFormat.cs" />
+    <Compile Include="MathMethods\EmbeddingDimension\BoxAssistedFfn.cs" />
     <Compile Include="MathMethods\Lyapunov\BenettinMethod.cs" />
     <Compile Include="MathMethods\Lyapunov\JakobianMethod.cs" />
     <Compile Include="MathMethods\Lyapunov\KantzMethod.cs" />

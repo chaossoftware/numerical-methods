@@ -2,21 +2,18 @@
 using System.Globalization;
 using System.Text;
 using MathLib.IO;
+using MathLib.MathMethods.EmbeddingDimension;
 
 namespace MathLib.MathMethods.Lyapunov
 {
     public class RosensteinMethod : LleMethod
     {
-        private const int NMax = 256;
-
         private int dim;
         private int tau;
         private int steps;
         private int minDist; //window around the reference point which should be omitted
         private double eps0; //minimal length scale for the neighborhood search
 
-        
-        private int nmax = NMax - 1;
         private double eps;
         private double min, max;
 
@@ -24,9 +21,10 @@ namespace MathLib.MathMethods.Lyapunov
 
         private double[] lyap;
         private long[] found;
-        private int[,] box = new int[NMax, NMax];
         private int[] list;
         private int bLength;
+
+        private readonly BoxAssistedFnn fnn;
 
         public RosensteinMethod(double[] timeSeries, int dim, int tau, int steps, int minDist, double scaleMin)
             : base(timeSeries)
@@ -47,6 +45,8 @@ namespace MathLib.MathMethods.Lyapunov
             }
 
             bLength = timeSeries.Length - (this.dim - 1) * this.tau - this.steps;
+
+            fnn = new BoxAssistedFnn(256);
         }
 
 
@@ -79,7 +79,7 @@ namespace MathLib.MathMethods.Lyapunov
 
             for (eps = eps0; !alldone; eps *= 1.1)
             {
-                BoxAssistedAngorithm(TimeSeries, box, list, eps, 0, bLength, tau * (dim - 1));
+                fnn.PutInBoxes(TimeSeries, list, eps, 0, bLength, 0, tau * (dim - 1));
 
                 alldone = true;
 
@@ -125,16 +125,16 @@ namespace MathLib.MathMethods.Lyapunov
             long element, minelement = -1;
             double dx, mindx = 1.0;
 
-            x = (int)(TimeSeries[act] / eps) & nmax;
-            y = (int)(TimeSeries[act + tau * (dim - 1)] / eps) & nmax;
+            x = (int)(TimeSeries[act] / eps) & fnn.MaxBoxIndex;
+            y = (int)(TimeSeries[act + tau * (dim - 1)] / eps) & fnn.MaxBoxIndex;
             
             for (int i = x - 1; i <= x + 1; i++)
             {
-                i1 = i & nmax;
+                i1 = i & fnn.MaxBoxIndex;
                 
                 for (int j = y - 1; j <= y + 1; j++)
                 {
-                    element = box[i1, j & nmax];
+                    element = fnn.Boxes[i1, j & fnn.MaxBoxIndex];
                     
                     while (element != -1)
                     {

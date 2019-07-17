@@ -4,14 +4,12 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 using MathLib.IO;
+using MathLib.MathMethods.EmbeddingDimension;
 
 namespace MathLib.MathMethods.Lyapunov
 {
     public class KantzMethod : LleMethod
     {
-        private const int Box = 128;
-        private const ushort IBox = Box - 1;
-
         private int dimMax;
         private int tau;
         private int maxIterations;
@@ -28,10 +26,11 @@ namespace MathLib.MathMethods.Lyapunov
         private int blength;
 
         double[] lyap;
-        int[,] box = new int[Box, Box];
         int[] liste;
         int[] lfound, count;
         int found;
+
+        private readonly BoxAssistedFnn fnn;
 
         public Dictionary<string, Timeseries> SlopesList;
 
@@ -69,6 +68,8 @@ namespace MathLib.MathMethods.Lyapunov
 
             SlopesList = new Dictionary<string, Timeseries>();
             blength = timeSeries.Length - (this.dimMax - 1) * this.tau - this.maxIterations;
+
+            fnn = new BoxAssistedFnn(128);
         }
 
         public override void Calculate()
@@ -111,7 +112,7 @@ namespace MathLib.MathMethods.Lyapunov
                 Array.Clear(count, 0, count.Length);
                 Array.Clear(lyap, 0, lyap.Length);
 
-                BoxAssistedAngorithm(TimeSeries, box, liste, epsilon, 0, blength, tau);
+                fnn.PutInBoxes(TimeSeries, liste, epsilon, 0, blength, 0, tau);
 
                 for (int i = 0; i < reference; i++)
                 {
@@ -170,16 +171,16 @@ namespace MathLib.MathMethods.Lyapunov
 
             found = 0;
 
-            i = (int)(TimeSeries[act] / eps) & IBox;
-            j = (int)(TimeSeries[act + tau] / eps) & IBox;
+            i = (int)(TimeSeries[act] / eps) & fnn.MaxBoxIndex;
+            j = (int)(TimeSeries[act + tau] / eps) & fnn.MaxBoxIndex;
   
             for (i1 = i - 1; i1 <= i + 1; i1++)
             {
-                i2 = i1 & IBox;
+                i2 = i1 & fnn.MaxBoxIndex;
     
                 for (j1 = j - 1; j1 <= j + 1; j1++)
                 {
-                    element = box[i2, j1 & IBox];
+                    element = fnn.Boxes[i2, j1 & fnn.MaxBoxIndex];
       
                     while (element != -1)
                     {

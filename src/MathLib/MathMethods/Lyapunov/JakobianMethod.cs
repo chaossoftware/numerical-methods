@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Text;
 using MathLib.Data;
+using MathLib.MathMethods.EmbeddingDimension;
 
 namespace MathLib.MathMethods.Lyapunov
 {
     public class JakobianMethod : LleMethod
     {
         private const int OUT = 10;
-        private const int BOX = 512;
         private const double EPSMAX = 1.0;
         private const int tau = 1;
 
@@ -22,13 +22,13 @@ namespace MathLib.MathMethods.Lyapunov
         double[][] mat;
         double[] vec, abstand;
         double epsmin;
-        long imax = BOX - 1, count = 0;
-        int[,] box;
+        long count = 0;
         int[] list;
         int[] found;
         int[] indexes;
 
         private Random random;
+        private readonly BoxAssistedFnn fnn;
 
         public JakobianMethod(double[] timeSeries, int eDim, int iterations, double scaleMin, double epsstep, int minNeigh, bool inverse)
             : base(timeSeries)
@@ -46,6 +46,7 @@ namespace MathLib.MathMethods.Lyapunov
             Slope = new Timeseries();
             Log = new StringBuilder();
             random = new Random();
+            fnn = new BoxAssistedFnn(512);
         }
 
         public override void Calculate()
@@ -86,7 +87,6 @@ namespace MathLib.MathMethods.Lyapunov
 
             epsmin = epsset ? epsmin / maxinterval : 0.001d;
 
-            box = new int[BOX, BOX];
             list = new int[length];
             found = new int[length];
 
@@ -313,11 +313,15 @@ namespace MathLib.MathMethods.Lyapunov
             do
             {
                 epsilon *= epsstep;
-                if (epsilon > EPSMAX)
-                    epsilon = EPSMAX;
-                BoxAssistedAngorithm(TimeSeries, box, list, epsilon, (eDim - 1) * tau, length - tau, 0);
 
-                nfound = FindMultiNeighbors(TimeSeries, box, list, length - tau, BOX,
+                if (epsilon > EPSMAX)
+                {
+                    epsilon = EPSMAX;
+                }
+
+                fnn.PutInBoxes(TimeSeries, list, epsilon, (eDim - 1) * tau, length - tau, 0, 0);
+
+                nfound = FindMultiNeighbors(TimeSeries, fnn.Boxes, list, length - tau, 512,
                             eDim, tau, epsilon, found, (int)act);
 
                 if (nfound > minNeighbors)
