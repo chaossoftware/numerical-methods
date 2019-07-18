@@ -50,6 +50,28 @@ namespace MathLib.MathMethods.Lyapunov
 
         public Dictionary<string, Timeseries> SlopesList { get; set; }
 
+        public override string GetInfo() =>
+            new StringBuilder()
+            .AppendLine($"m = {eDim}")
+            .AppendLine($"τ = {tau}")
+            .AppendLine($"iterations = {iterations}")
+            .AppendLine($"theiler window = {window}")
+            .AppendLine($"min ε = {epsmin.ToString(NumFormat.Short, CultureInfo.InvariantCulture)}")
+            .AppendLine($"max ε = {epsmax.ToString(NumFormat.Short, CultureInfo.InvariantCulture)}")
+            .ToString();
+
+        public override string GetInfoFull() =>
+            new StringBuilder()
+            .AppendLine($"Embedding dimension: {eDim}")
+            .AppendLine($"Delay: {tau}")
+            .AppendLine($"Max Iterations: {iterations}")
+            .AppendLine($"Window around the reference point which should be omitted: {window}")
+            .AppendLine($"Min scale: {epsmin.ToString(NumFormat.Short, CultureInfo.InvariantCulture)}")
+            .AppendLine($"Max scale: {epsmax.ToString(NumFormat.Short, CultureInfo.InvariantCulture)}")
+            .ToString();
+
+        public override string GetResult() => "Successful";
+
         public override void Calculate()
         {
             double eps_fak;
@@ -105,7 +127,7 @@ namespace MathLib.MathMethods.Lyapunov
                     }
                 }
                     
-                Log.Append("\n");
+                Log.AppendLine();
 
                 if (dict.Length > 1)
                 {
@@ -113,19 +135,6 @@ namespace MathLib.MathMethods.Lyapunov
                 }
             }
         }
-
-        public override string GetResult() => "Done";
-
-        public override string GetInfo() =>
-            new StringBuilder()
-            .AppendLine($"Embedding dimension: {eDim}")
-            .AppendLine($"Delay: {tau}")
-            .AppendLine($"Max Iterations: {iterations}")
-            .AppendLine($"Window around the reference point which should be omitted: {window}")
-            .AppendLine($"Min scale: {epsmin.ToString(NumFormat.Short, CultureInfo.InvariantCulture)}")
-            .AppendLine($"Max scale: {epsmax.ToString(NumFormat.Short, CultureInfo.InvariantCulture)}")
-            .AppendLine().Append(Log.ToString())
-            .ToString();
 
         public void SetSlope(string index)
         {

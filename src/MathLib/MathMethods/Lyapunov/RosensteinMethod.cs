@@ -40,32 +40,25 @@ namespace MathLib.MathMethods.Lyapunov
             this.fnn = new BoxAssistedFnn(256, length);
         }
 
-        public override string GetResult() => "Done";
-
-        public override string GetResultFull()
-        {
-            throw new NotImplementedException();
-        }
-
         public override string GetInfo() =>
             new StringBuilder()
             .AppendLine($"m = {eDim}")
             .AppendLine($"τ = {tau}")
-            .AppendLine($"itereations = {iterations}")
+            .AppendLine($"iterations = {iterations}")
             .AppendLine($"theiler window = {window}")
             .AppendLine($"min ε = {epsilon.ToString(NumFormat.Short, CultureInfo.InvariantCulture)}")
-            .AppendLine().Append(Log.ToString())
             .ToString();
 
         public override string GetInfoFull() =>
             new StringBuilder()
             .AppendLine($"Embedding dimension: {eDim}")
             .AppendLine($"Delay: {tau}")
-            .AppendLine($"Steps: {iterations}")
+            .AppendLine($"Iterations: {iterations}")
             .AppendLine($"Window around the reference point which should be omitted: {window}")
             .AppendLine($"Min scale: {epsilon.ToString(NumFormat.Short, CultureInfo.InvariantCulture)}")
-            .AppendLine().Append(Log.ToString())
             .ToString();
+
+        public override string GetResult() => "Successful";
 
         public override void Calculate()
         {

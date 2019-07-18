@@ -51,6 +51,31 @@ namespace MathLib.MathMethods.Lyapunov
             fnn = new BoxAssistedFnn(512, length);
         }
 
+        public override string GetInfo()
+        {
+            StringBuilder fullInfo = new StringBuilder();
+
+            //fullInfo.AppendFormat("Min Embedding dimension: {0}\n", DimMin)
+            //    .AppendFormat("Max Embedding dimension: {0}\n", DimMax)
+            //    .AppendFormat("Delay: {0}\n", Tau)
+            //    .AppendFormat("Max Iterations: {0}\n", MaxIterations)
+            //    .AppendFormat("Window around the reference point which should be omitted: {0}\n", Window)
+            //    .AppendFormat(CultureInfo.InvariantCulture, "Min scale: {0:F5}\n", Epsmin)
+            //    .AppendFormat(CultureInfo.InvariantCulture, "Max scale: {0:F5}\n\n", Epsmax)
+            //    .Append(Log.ToString());
+            return fullInfo.ToString();
+        }
+
+        public override string GetInfoFull()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override string GetResult()
+        {
+            return Log.ToString();
+        }
+
         public override void Calculate()
         {
             double[,] delta;
@@ -176,26 +201,6 @@ namespace MathLib.MathMethods.Lyapunov
             Log.AppendLine($"#Average Neighborhood Size= {aveps * maxinterval / count}");
             Log.AppendLine($"#Average num. of neighbors= {avneig / count}");
             Log.AppendLine($"#estimated KY-Dimension= {dim}");
-        }
-
-        public override string GetResult()
-        {
-            return Log.ToString();
-        }
-
-        public override string GetInfo()
-        {
-            StringBuilder fullInfo = new StringBuilder();
-
-            //fullInfo.AppendFormat("Min Embedding dimension: {0}\n", DimMin)
-            //    .AppendFormat("Max Embedding dimension: {0}\n", DimMax)
-            //    .AppendFormat("Delay: {0}\n", Tau)
-            //    .AppendFormat("Max Iterations: {0}\n", MaxIterations)
-            //    .AppendFormat("Window around the reference point which should be omitted: {0}\n", Window)
-            //    .AppendFormat(CultureInfo.InvariantCulture, "Min scale: {0:F5}\n", Epsmin)
-            //    .AppendFormat(CultureInfo.InvariantCulture, "Max scale: {0:F5}\n\n", Epsmax)
-            //    .Append(Log.ToString());
-            return fullInfo.ToString();
         }
 
         private double Sort(long act, long nFound, out long nfound, out bool enough)

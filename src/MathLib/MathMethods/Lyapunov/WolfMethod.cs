@@ -22,7 +22,7 @@ namespace MathLib.MathMethods.Lyapunov
         private double[] pt2; 
 
         private double zlyap;
-        public double rezult;
+        private double rezult;
 
         private int step;
 
@@ -42,6 +42,28 @@ namespace MathLib.MathMethods.Lyapunov
             evMulStMulLog2 = (double)this.evolv * this.stepSize * Math.Log(2d);
             tsLen = timeSeries.Length;
         }
+
+        public override string GetInfo() =>
+            new StringBuilder()
+                .AppendLine($"m = {eDim}")
+                .AppendLine($"τ = {tau}")
+                .AppendLine($"Δt = {stepSize.ToString(NumFormat.Short, CultureInfo.InvariantCulture)}")
+                .AppendLine($"min ε = {scaleMin.ToString(NumFormat.Short, CultureInfo.InvariantCulture)}")
+                .AppendLine($"max ε = {scaleMax.ToString(NumFormat.Short, CultureInfo.InvariantCulture)}")
+                .AppendLine($"Evolution steps: {evolv}")
+                .ToString();
+
+        public override string GetInfoFull() =>
+            new StringBuilder()
+                .AppendLine($"Embedding dimension: {eDim}")
+                .AppendLine($"Reconstruction delay: {tau}")
+                .AppendLine($"Step size: {stepSize.ToString(NumFormat.Short, CultureInfo.InvariantCulture)}")
+                .AppendLine($"Min scale: {scaleMin.ToString(NumFormat.Short, CultureInfo.InvariantCulture)}")
+                .AppendLine($"Max scale: {scaleMax.ToString(NumFormat.Short, CultureInfo.InvariantCulture)}")
+                .AppendLine($"Evolution steps: {evolv}")
+                .ToString();
+
+        public override string GetResult() => rezult.ToString(NumFormat.Short, CultureInfo.InvariantCulture);
 
         public override void Calculate()
         {
@@ -206,19 +228,5 @@ namespace MathLib.MathMethods.Lyapunov
             int point = i + j * tau;
             return point < tsLen ? TimeSeries[point] : 0;
         }
-
-        public override string GetResult() => rezult.ToString(NumFormat.Short, CultureInfo.InvariantCulture);
-
-        public override string GetInfo() =>
-            new StringBuilder()
-                .AppendLine($"Lyapunov exponent: {rezult.ToString(NumFormat.Short, CultureInfo.InvariantCulture)}")
-                .AppendLine($"Embedding dimension: {eDim}")
-                .AppendLine($"Reconstruction delay: {tau}")
-                .AppendLine($"Step size: {stepSize.ToString(NumFormat.Short, CultureInfo.InvariantCulture)}")
-                .AppendLine($"Min scale: {scaleMin.ToString(NumFormat.Short, CultureInfo.InvariantCulture)}")
-                .AppendLine($"Max scale: {scaleMax.ToString(NumFormat.Short, CultureInfo.InvariantCulture)}")
-                .AppendLine($"Evolution steps: {evolv}\n\n")
-                .Append(Log.ToString())
-                .ToString();
     }
 }
