@@ -60,7 +60,7 @@ namespace MathLib
 
             if (interval == 0d)
             {
-                throw new ArgumentException($"Data amplitude is equal to 0, it makes no sense to continue.");
+                throw new ArgumentException($"Data amplitude is zero, it makes no sense to continue.");
             }
 
             for (int i = 0; i < timeSeries.Length; i++)

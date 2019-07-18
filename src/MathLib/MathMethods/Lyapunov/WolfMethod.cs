@@ -7,12 +7,16 @@ namespace MathLib.MathMethods.Lyapunov
 {
     public class WolfMethod : LyapunovMethod
     {
-        private int dim;
-        private int tau;
-        private int evolv;
-        private double stepSize;
-        private double scaleMin;
-        private double scaleMax;
+        private readonly int eDim;
+        private readonly int tau;
+        private readonly int evolv;
+        private readonly double stepSize;
+        private readonly double scaleMin;
+        private readonly double scaleMax;
+
+        // Pre-calculated variables
+        private readonly double evMulStMulLog2;
+        private readonly int tsLen;
 
         private double[] pt1;
         private double[] pt2; 
@@ -22,22 +26,18 @@ namespace MathLib.MathMethods.Lyapunov
 
         private int step;
 
-        //Pre-calculated variablees;
-        double evMulStMulLog2;
-        int tsLen;
-
-        public WolfMethod(double[] timeSeries, int dim, int tau, double stepSize, double scaleMin, double scaleMax, int evolv)
+        public WolfMethod(double[] timeSeries, int eDim, int tau, double stepSize, double scaleMin, double scaleMax, int evolv)
             : base(timeSeries)
         {
-            this.dim = dim;
+            this.eDim = eDim;
             this.tau = tau;
             this.stepSize = stepSize;
             this.scaleMin = scaleMin;
             this.scaleMax = scaleMax;
             this.evolv = evolv;
 
-            pt1 = new double[this.dim];
-            pt2 = new double[this.dim];
+            pt1 = new double[this.eDim];
+            pt2 = new double[this.eDim];
 
             evMulStMulLog2 = (double)this.evolv * this.stepSize * Math.Log(2d);
             tsLen = timeSeries.Length;
@@ -58,7 +58,7 @@ namespace MathLib.MathMethods.Lyapunov
             double dii = 0;//initialization absent in fortran
 
             //calculate useful size of datafile
-            int dataPointsCount = TimeSeries.Length - dim * tau - evolv;
+            int dataPointsCount = TimeSeries.Length - eDim * tau - evolv;
 
             //find nearest neighbor to first data point
             double di = 1e38;
@@ -69,7 +69,7 @@ namespace MathLib.MathMethods.Lyapunov
                 //compute separation between fiducial point and candidate
                 double d = 0d;
 
-                for (int j = 0; j < dim; j++)
+                for (int j = 0; j < eDim; j++)
                 {
                     d += Math.Pow(GetAttractorPoint(0, j) - GetAttractorPoint(i, j), 2);
                 }
@@ -89,7 +89,7 @@ namespace MathLib.MathMethods.Lyapunov
             for(int ind = evolv; ind < dataPointsCount; ind += evolv)
             { 
                 //get coordinates of evolved points
-                for (int j = 0; j < dim; j++)
+                for (int j = 0; j < eDim; j++)
                 {
                     pt1[j] = GetAttractorPoint(ind, j);
                     pt2[j] = GetAttractorPoint(ind2 + evolv, j);
@@ -98,7 +98,7 @@ namespace MathLib.MathMethods.Lyapunov
                 //compute final separation between pair, update exponent
                 double df = 0d;
 
-                for (int j = 0; j < dim; j++)
+                for (int j = 0; j < eDim; j++)
                     df += Math.Pow(pt1[j] - pt2[j], 2);
 
                 df = Math.Sqrt(df);
@@ -134,7 +134,7 @@ namespace MathLib.MathMethods.Lyapunov
                     //compute distance between fiducial point and candidate
                     double dnew = 0d;
 
-                    for (int j = 0; j < dim; j++)
+                    for (int j = 0; j < eDim; j++)
                     {
                         dnew += Math.Pow(pt1[j] - GetAttractorPoint(i, j), 2);
                     }
@@ -150,7 +150,7 @@ namespace MathLib.MathMethods.Lyapunov
                     //find angular change old to new vector
                     double dot = 0d;
 
-                    for (int j = 0; j < dim; j++)
+                    for (int j = 0; j < eDim; j++)
                     {
                         dot += (pt1[j] - GetAttractorPoint(i, j)) * (pt1[j] - pt2[j]);
                     }
@@ -207,17 +207,17 @@ namespace MathLib.MathMethods.Lyapunov
             return point < tsLen ? TimeSeries[point] : 0;
         }
 
-        public override string GetInfoShort() => rezult.ToString(NumFormat.Short, CultureInfo.InvariantCulture);
+        public override string GetResult() => rezult.ToString(NumFormat.Short, CultureInfo.InvariantCulture);
 
-        public override string GetInfoFull() =>
+        public override string GetInfo() =>
             new StringBuilder()
-                .Append("Lyapunov exponent: ").AppendLine(rezult.ToString(NumFormat.Short, CultureInfo.InvariantCulture))
-                .AppendFormat("Embedding dimension: {0}\n", dim)
-                .AppendFormat("Reconstruction delay: {0}\n", tau)
-                .Append("Step size: ").AppendLine(stepSize.ToString(NumFormat.Short, CultureInfo.InvariantCulture))
-                .Append("Min scale: ").AppendLine(scaleMin.ToString(NumFormat.Short, CultureInfo.InvariantCulture))
-                .Append("Max scale: ").AppendLine(scaleMax.ToString(NumFormat.Short, CultureInfo.InvariantCulture))
-                .AppendFormat("Evolution steps: {0}\n\n", evolv)
+                .AppendLine($"Lyapunov exponent: {rezult.ToString(NumFormat.Short, CultureInfo.InvariantCulture)}")
+                .AppendLine($"Embedding dimension: {eDim}")
+                .AppendLine($"Reconstruction delay: {tau}")
+                .AppendLine($"Step size: {stepSize.ToString(NumFormat.Short, CultureInfo.InvariantCulture)}")
+                .AppendLine($"Min scale: {scaleMin.ToString(NumFormat.Short, CultureInfo.InvariantCulture)}")
+                .AppendLine($"Max scale: {scaleMax.ToString(NumFormat.Short, CultureInfo.InvariantCulture)}")
+                .AppendLine($"Evolution steps: {evolv}\n\n")
                 .Append(Log.ToString())
                 .ToString();
     }

@@ -20,7 +20,11 @@ namespace MathLib.MathMethods.Lyapunov
 
         public abstract void Calculate();
 
-        public abstract string GetInfoShort();
+        public abstract string GetResult();
+
+        public abstract string GetResultFull();
+
+        public abstract string GetInfo();
 
         public abstract string GetInfoFull();
     }

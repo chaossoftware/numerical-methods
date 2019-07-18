@@ -1,24 +1,23 @@
 ﻿
+using System;
+
 namespace MathLib.MathMethods.EmbeddingDimension
 {
     public class BoxAssistedFnn
     {
         private readonly ushort boxSize;
+        private readonly ushort iBoxSize;
+        private readonly int[,] boxes;
+        private readonly int[] list;
 
         public BoxAssistedFnn(ushort boxSize, int timeSeriesSize)
         {
             this.boxSize = boxSize;
-            this.MaxBoxIndex = (ushort)(boxSize - 1);
-            this.Boxes = new int[boxSize, boxSize];
-            this.List = new int[timeSeriesSize];
+            this.iBoxSize = (ushort)(boxSize - 1);
+            this.boxes = new int[boxSize, boxSize];
+            this.list = new int[timeSeriesSize];
             this.Found = new int[timeSeriesSize];
         }
-
-        public int[,] Boxes { get; protected set; }
-
-        public ushort MaxBoxIndex { get; protected set; }
-
-        public int[] List { get; protected set; }
 
         public int[] Found { get; protected set; }
 
@@ -42,18 +41,167 @@ namespace MathLib.MathMethods.EmbeddingDimension
             {
                 for (var y = 0; y < boxSize; y++)
                 {
-                    this.Boxes[x, y] = -1;
+                    this.boxes[x, y] = -1;
                 }
             }
 
             for (int i = startIndex; i < endIndex; i++)
             {
-                var x = (int)(timeSeries[i + xShift] / epsilon) & MaxBoxIndex;
-                var y = (int)(timeSeries[i + yShift] / epsilon) & MaxBoxIndex;
-                this.List[i] = this.Boxes[x, y];
-                this.Boxes[x, y] = i;
+                var x = (int)(timeSeries[i + xShift] / epsilon) & iBoxSize;
+                var y = (int)(timeSeries[i + yShift] / epsilon) & iBoxSize;
+                this.list[i] = this.boxes[x, y];
+                this.boxes[x, y] = i;
             }
         }
 
+
+        public int FindNeighborsJ(double[] timeSeries, int eDim, int tau, double epsilon, int act)
+        {
+            int element;
+            int nf = 0;
+            int x, y, i, i1, j, k, k1;
+            double dx = 0.0;
+
+            x = (int)(timeSeries[act] / epsilon) & iBoxSize;
+            y = (int)(timeSeries[act] / epsilon) & iBoxSize;
+
+            for (i = x - 1; i <= x + 1; i++)
+            {
+                i1 = i & iBoxSize;
+
+                for (j = y - 1; j <= y + 1; j++)
+                {
+                    element = boxes[i1, j & iBoxSize];
+
+                    while (element != -1)
+                    {
+                        for (k = 0; k < eDim; k++)
+                        {
+                            k1 = -k * tau;
+
+                            dx = Math.Abs(timeSeries[k1 + act] - timeSeries[element + k1]);
+
+                            if (dx > epsilon)
+                            {
+                                break;
+                            }
+                        }
+
+                        if (dx <= epsilon)
+                        {
+                            Found[nf++] = element;
+                        }
+
+                        element = list[element];
+                    }
+                }
+            }
+
+            return nf;
+        }
+
+        public int FindNeighborsK(double[] timeSeries, int eDim, int tau, double epsilon, int act, int window)
+        {
+            int element;
+            int nf = 0;
+            int x, y, i, i1, j, k, k1;
+            double dx, eps2 = Math.Pow(epsilon, 2);
+
+            x = (int)(timeSeries[act] / epsilon) & iBoxSize;
+            y = (int)(timeSeries[act + tau] / epsilon) & iBoxSize;
+
+            for (i = x - 1; i <= x + 1; i++)
+            {
+                i1 = i & iBoxSize;
+
+                for (j = y - 1; j <= y + 1; j++)
+                {
+                    element = boxes[i1, j & iBoxSize];
+
+                    while (element != -1)
+                    {
+                        if (element < (act - window) || element > (act + window))
+                        {
+                            dx = Math.Pow(timeSeries[act] - timeSeries[element], 2);
+
+                            if (dx <= eps2)
+                            {
+                                k = eDim - 1;
+                                k1 = k * tau;
+                                dx += Math.Pow(timeSeries[act + k1] - timeSeries[element + k1], 2);
+
+                                if (dx > eps2)
+                                {
+                                    break;
+                                }
+
+                                k1 = k - 1;
+                                Found[nf++] = element;
+                            }
+                        }
+
+                        element = list[element];
+                    }
+                }
+            }
+
+            return nf;
+        }
+
+        public bool FindNeighborsR(double[] timeSeries, int eDim, int tau, double epsilon, long act, int window, out int minelement)
+        {
+            int element;
+            bool ok = false;
+            minelement = -1;
+            int x, y, i1, k, del1 = eDim * tau;
+            
+            double dx, eps2 = Math.Pow(epsilon, 2), mindx = 1.0;
+
+            x = (int)(timeSeries[act] / epsilon) & iBoxSize;
+            y = (int)(timeSeries[act + tau * (eDim - 1)] / epsilon) & iBoxSize;
+
+            for (int i = x - 1; i <= x + 1; i++)
+            {
+                i1 = i & iBoxSize;
+
+                for (int j = y - 1; j <= y + 1; j++)
+                {
+                    element = boxes[i1, j & iBoxSize];
+
+                    while (element != -1)
+                    {
+                        if (Math.Abs(act - element) > window)
+                        {
+                            dx = 0.0;
+
+                            for (k = 0; k < del1; k += tau)
+                            {
+                                dx += Math.Pow(timeSeries[act + k] - timeSeries[element + k], 2);
+
+                                if (dx > eps2)
+                                {
+                                    break;
+                                }
+                            }
+
+                            if (k == del1 && dx < mindx)
+                            {
+                                ok = true;
+
+                                if (dx > 0.0)
+                                {
+                                    mindx = dx;
+                                    minelement = element;
+                                }
+                            }
+                        }
+
+                        element = list[element];
+                    }
+                }
+            }
+
+            return ok;
+        }
     }
 }

@@ -11,19 +11,19 @@ namespace MathLib.MathMethods.Lyapunov
         private const double EPSMAX = 1.0;
         private const int tau = 1;
 
-        bool epsset = false;
-        bool inverse;
-        int length, iterations, exclude = 0;
-        int eDim = 2/*, DIMENSION = 1,DELAY=1*/, minNeighbors = 30;
-        double epsstep = 1.2;
+        private bool epsset = false;
+        private bool inverse;
+        private int length, iterations, exclude = 0;
+        private int eDim = 2/*, DIMENSION = 1,DELAY=1*/, minNeighbors = 30;
+        private double epsstep = 1.2;
 
-        double averr;
-        double avneig = 0.0, aveps = 0.0;
-        double[][] mat;
-        double[] vec, abstand;
-        double epsmin;
-        long count = 0;
-        int[] indexes;
+        private double averr;
+        private double avneig = 0.0, aveps = 0.0;
+        private double[][] mat;
+        private double[] vec, abstand;
+        private double epsmin;
+        private long count = 0;
+        private int[] indexes;
 
         private Random random;
         private readonly BoxAssistedFnn fnn;
@@ -39,10 +39,14 @@ namespace MathLib.MathMethods.Lyapunov
             this.minNeighbors = minNeigh;
             this.inverse = inverse;
 
-            length = TimeSeries.Length;
+            this.length = TimeSeries.Length;
+
+            if (minNeighbors > (length - tau * (eDim - 1) - 1))
+            {
+                throw new ArgumentException($"Too few points to find {minNeighbors} neighbors, it makes no sense to continue.");
+            }
 
             Slope = new Timeseries();
-            Log = new StringBuilder();
             random = new Random();
             fnn = new BoxAssistedFnn(512, length);
         }
@@ -57,12 +61,9 @@ namespace MathLib.MathMethods.Lyapunov
             double av = 0d;
             double var = 0d;
             double maxinterval = 0d;
-            long start, i, j;
+            int start, i, j;
 
-            if (minNeighbors > (length - tau * (eDim - 1) - 1))
-            {
-                throw new Exception("Your time series is not long enough to find " + minNeighbors + " neighbors!Exiting.\n");
-            }
+
 
             averr = 0.0;
 
@@ -177,12 +178,12 @@ namespace MathLib.MathMethods.Lyapunov
             Log.AppendLine($"#estimated KY-Dimension= {dim}");
         }
 
-        public override string GetInfoShort()
+        public override string GetResult()
         {
             return Log.ToString();
         }
 
-        public override string GetInfoFull()
+        public override string GetInfo()
         {
             StringBuilder fullInfo = new StringBuilder();
 
@@ -197,7 +198,7 @@ namespace MathLib.MathMethods.Lyapunov
             return fullInfo.ToString();
         }
 
-        double Sort(long act, long nFound, out long nfound, out bool enough)
+        private double Sort(long act, long nFound, out long nfound, out bool enough)
         {
             double maxeps = 0.0, dx, dswap, maxdx;
             int self = 0, i, j, del, hf, iswap;
@@ -286,9 +287,9 @@ namespace MathLib.MathMethods.Lyapunov
             return maxeps;
         }
 
-        void make_dynamics(double[] dynamics, long act)
+        private void make_dynamics(double[] dynamics, int act)
         {
-            long i, hi, j, hj, k, t = act, d;
+            long i, hi, j, hj, k, t = act;
             long nfound = 0;
             double[,] imat;
             double foundeps = 0.0, epsilon, hv, hv1;
@@ -307,8 +308,7 @@ namespace MathLib.MathMethods.Lyapunov
                 }
 
                 fnn.PutInBoxes(TimeSeries, epsilon, (eDim - 1) * tau, length - tau, 0, 0);
-
-                nfound = FindNeighbors(TimeSeries, tau, epsilon, (int)act);
+                nfound = fnn.FindNeighborsJ(TimeSeries, eDim, tau, epsilon, act);
 
                 if (nfound > minNeighbors)
                 {
@@ -423,7 +423,7 @@ namespace MathLib.MathMethods.Lyapunov
 
         }
 
-        void GramSchmidt(double[,] delta, double[] stretch)
+        private void GramSchmidt(double[,] delta, double[] stretch)
         {
             double[,] dnew = new double[eDim, eDim];
             double norm;
@@ -476,7 +476,7 @@ namespace MathLib.MathMethods.Lyapunov
             }
         }
 
-        void MakeIteration(double[] dynamics, double[,] delta)
+        private void MakeIteration(double[] dynamics, double[,] delta)
         {
             double[,] dnew;
             long i, j, k;
@@ -507,7 +507,7 @@ namespace MathLib.MathMethods.Lyapunov
             }
         }
 
-        double[,] InvertMatrix(double[][] mat, int size)
+        private double[,] InvertMatrix(double[][] mat, int size)
         {
             int i, j, k;
             double[,] imat;
@@ -545,7 +545,7 @@ namespace MathLib.MathMethods.Lyapunov
         }
 
 
-        void SolveLe(double[][] mat, double[] vec, int n)
+        private void SolveLe(double[][] mat, double[] vec, int n)
         {
             double vswap;
             double[] mswap, hvec;
@@ -599,51 +599,6 @@ namespace MathLib.MathMethods.Lyapunov
                     vec[i] -= hvec[j] * vec[j];
                 vec[i] /= hvec[i];
             }
-        }
-
-        int FindNeighbors(double[] timeSeries, int tau, double eps, int act)
-        {
-            int nf = 0;
-            int x, i, i1, y, j, k, k1;
-            int element;
-            double dx = 0.0;
-
-            x = (int)(timeSeries[act] / eps) & fnn.MaxBoxIndex;
-            y = (int)(timeSeries[act] / eps) & fnn.MaxBoxIndex;
-
-            for (i = x - 1; i <= x + 1; i++)
-            {
-                i1 = i & fnn.MaxBoxIndex;
-
-                for (j = y - 1; j <= y + 1; j++)
-                {
-                    element = fnn.Boxes[i1, j & fnn.MaxBoxIndex];
-
-                    while (element != -1)
-                    {
-                        for (k = 0; k < eDim; k++)
-                        {
-                            k1 = -k * tau;
-
-                            dx = Math.Abs(timeSeries[k1 + act] - timeSeries[element + k1]);
-
-                            if (dx > eps)
-                            {
-                                break;
-                            }
-                        }
-
-                        if (dx <= eps)
-                        {
-                            fnn.Found[nf++] = element;
-                        }
-
-                        element = fnn.List[element];
-                    }
-                }
-            }
-
-            return nf;
         }
 
         private int[] MakeIndex(int eDim, int delay)
