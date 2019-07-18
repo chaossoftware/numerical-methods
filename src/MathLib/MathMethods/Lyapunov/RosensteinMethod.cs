@@ -106,14 +106,15 @@ namespace MathLib.MathMethods.Lyapunov
 
         public override string GetInfoShort() => "Done";
 
-        public override string GetInfoFull() => new StringBuilder()
-                .AppendFormat("Embedding dimension: {0}\n", eDim)
-                .AppendFormat("Delay: {0}\n", tau)
-                .AppendFormat("Steps: {0}\n", steps)
-                .AppendFormat("Window around the reference point which should be omitted: {0}\n", window)
-                .Append("Min scale: ").AppendLine(eps0.ToString(NumFormat.Short, CultureInfo.InvariantCulture))
-                .AppendLine().Append(Log.ToString())
-                .ToString();
+        public override string GetInfoFull() => 
+            new StringBuilder()
+            .AppendLine($"Embedding dimension: {eDim}")
+            .AppendLine($"Delay: {tau}")
+            .AppendLine($"Steps: {steps}")
+            .AppendLine($"Window around the reference point which should be omitted: {window}")
+            .AppendLine($"Min scale: {eps0.ToString(NumFormat.Short, CultureInfo.InvariantCulture)}")
+            .AppendLine().Append(Log.ToString())
+            .ToString();
 
         private bool Iterate(long act)
         {

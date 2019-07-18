@@ -33,6 +33,7 @@ namespace MathLib.MathMethods.EmbeddingDimension
         /// <param name="epsilon"></param>
         /// <param name="startIndex"></param>
         /// <param name="endIndex"></param>
+        /// <param name="xShift"></param>
         /// <param name="yShift"></param>
         //shift (Kantz = Tau) (Rosenstein = Tau * (Dim - 1)) (Jakobian = 0)
         public void PutInBoxes(double[] timeSeries, double epsilon, int startIndex, int endIndex, int xShift, int yShift)

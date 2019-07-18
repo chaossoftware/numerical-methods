@@ -197,11 +197,6 @@ namespace MathLib.MathMethods.Lyapunov
             return fullInfo.ToString();
         }
 
-        public void SetSlope(string index)
-        {
-            //SlopesList.TryGetValue(index, out slope);
-        }
-
         double Sort(long act, long nFound, out long nfound, out bool enough)
         {
             double maxeps = 0.0, dx, dswap, maxdx;

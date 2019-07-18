@@ -142,14 +142,14 @@ namespace MathLib.MathMethods.Lyapunov
 
         public override string GetInfoFull() =>
             new StringBuilder()
-                .AppendFormat("Max Embedding dimension: {0}\n", eDim)
-                .AppendFormat("Delay: {0}\n", tau)
-                .AppendFormat("Max Iterations: {0}\n", maxIterations)
-                .AppendFormat("Window around the reference point which should be omitted: {0}\n", window)
-                .Append("Min scale: ").AppendLine(epsmin.ToString(NumFormat.Short, CultureInfo.InvariantCulture))
-                .Append("Max scale: ").AppendLine(epsmax.ToString(NumFormat.Short, CultureInfo.InvariantCulture))
-                .AppendLine().Append(Log.ToString())
-                .ToString();
+            .AppendLine($"Embedding dimension: {eDim}")
+            .AppendLine($"Delay: {tau}")
+            .AppendLine($"Max Iterations: {maxIterations}")
+            .AppendLine($"Window around the reference point which should be omitted: {window}")
+            .AppendLine($"Min scale: {epsmin.ToString(NumFormat.Short, CultureInfo.InvariantCulture)}")
+            .AppendLine($"Max scale: {epsmax.ToString(NumFormat.Short, CultureInfo.InvariantCulture)}")
+            .AppendLine().Append(Log.ToString())
+            .ToString();
 
         public void SetSlope(string index)
         {
