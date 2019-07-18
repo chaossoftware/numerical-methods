@@ -5,7 +5,7 @@ using MathLib.MathMethods.EmbeddingDimension;
 
 namespace MathLib.MathMethods.Lyapunov
 {
-    public class JakobianMethod : LleMethod
+    public class JakobianMethod : LyapunovMethod
     {
         private const int OUT = 10;
         private const double EPSMAX = 1.0;
@@ -59,9 +59,6 @@ namespace MathLib.MathMethods.Lyapunov
             double maxinterval = 0d;
             long start, i, j;
 
-            double min = 0d;
-            double interval = 0d;
-
             if (minNeighbors > (length - tau * (eDim - 1) - 1))
             {
                 throw new Exception("Your time series is not long enough to find " + minNeighbors + " neighbors!Exiting.\n");
@@ -69,7 +66,7 @@ namespace MathLib.MathMethods.Lyapunov
 
             averr = 0.0;
 
-            RescaleData(TimeSeries, out min, out interval);
+            var interval = Ext.RescaleData(TimeSeries);
 
             if (interval > maxinterval)
             {

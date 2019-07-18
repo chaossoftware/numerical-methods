@@ -6,7 +6,7 @@ using MathLib.MathMethods.EmbeddingDimension;
 
 namespace MathLib.MathMethods.Lyapunov
 {
-    public class RosensteinMethod : LleMethod
+    public class RosensteinMethod : LyapunovMethod
     {
         private int eDim;
         private int tau;
@@ -15,7 +15,6 @@ namespace MathLib.MathMethods.Lyapunov
         private double eps0; //minimal length scale for the neighborhood search
 
         private double eps;
-        private double min, max;
 
         private bool epsset = false;
 
@@ -56,11 +55,11 @@ namespace MathLib.MathMethods.Lyapunov
             long n;
             long maxlength;
 
-            RescaleData(TimeSeries, out min, out max);
+            var interval = Ext.RescaleData(TimeSeries);
 
             if (epsset)
             {
-                eps0 /= max;
+                eps0 /= interval;
             }
 
             lyap = new double[steps + 1];
@@ -91,7 +90,7 @@ namespace MathLib.MathMethods.Lyapunov
                     alldone &= done[n];
                 }
 
-                Log.AppendFormat("epsilon: {0:F5} already found: {1}\n", eps * max, found[0]);
+                Log.AppendFormat("epsilon: {0:F5} already found: {1}\n", eps * interval, found[0]);
             }
 
             for (int i = 0; i <= steps; i++)

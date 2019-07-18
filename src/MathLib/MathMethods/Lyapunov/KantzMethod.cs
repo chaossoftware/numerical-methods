@@ -8,7 +8,7 @@ using MathLib.MathMethods.EmbeddingDimension;
 
 namespace MathLib.MathMethods.Lyapunov
 {
-    public class KantzMethod : LleMethod
+    public class KantzMethod : LyapunovMethod
     {
         private int eDim;
         private int tau;
@@ -21,7 +21,6 @@ namespace MathLib.MathMethods.Lyapunov
         private bool eps0set = false;
         private bool eps1set = false;
 
-        double max, min;
         long reference = long.MaxValue;
         private int blength;
 
@@ -77,16 +76,16 @@ namespace MathLib.MathMethods.Lyapunov
             double epsilon;
             int j,l;
 
-            RescaleData(TimeSeries, out min, out max);
+            var interval = Ext.RescaleData(TimeSeries);
 
             if (eps0set)
             {
-                epsmin /= max;
+                epsmin /= interval;
             }
 
             if (eps1set)
             {
-                epsmax /= max;
+                epsmax /= interval;
             }
 
             reference = Math.Min(reference, blength);
@@ -117,7 +116,7 @@ namespace MathLib.MathMethods.Lyapunov
                     Iterate(i);
                 }
 
-                Log.AppendFormat(CultureInfo.InvariantCulture, "epsilon= {0:F5}\n", epsilon * max);
+                Log.AppendFormat(CultureInfo.InvariantCulture, "epsilon= {0:F5}\n", epsilon * interval);
 
                 Timeseries dict = new Timeseries();
 
@@ -134,7 +133,7 @@ namespace MathLib.MathMethods.Lyapunov
 
                 if (dict.Length > 1)
                 {
-                    SlopesList.Add(string.Format("eps = {0:F5}", epsilon * max), dict);
+                    SlopesList.Add(string.Format("eps = {0:F5}", epsilon * interval), dict);
                 }
             }
         }
