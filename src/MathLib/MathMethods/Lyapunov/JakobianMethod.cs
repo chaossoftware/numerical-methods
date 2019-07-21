@@ -88,8 +88,6 @@ namespace MathLib.MathMethods.Lyapunov
             double maxinterval = 0d;
             int start, i, j;
 
-
-
             averr = 0.0;
 
             var interval = Ext.RescaleData(TimeSeries);

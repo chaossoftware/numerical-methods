@@ -46,7 +46,7 @@ namespace MathLib.MathMethods.Lyapunov
             .AppendLine($"τ = {tau}")
             .AppendLine($"iterations = {iterations}")
             .AppendLine($"theiler window = {window}")
-            .AppendLine($"min ε = {epsilon.ToString(NumFormat.Short, CultureInfo.InvariantCulture)}")
+            .AppendLine($"min ε = {NumFormat.ToShort(epsilon)}")
             .ToString();
 
         public override string GetInfoFull() =>
@@ -55,7 +55,7 @@ namespace MathLib.MathMethods.Lyapunov
             .AppendLine($"Delay: {tau}")
             .AppendLine($"Iterations: {iterations}")
             .AppendLine($"Window around the reference point which should be omitted: {window}")
-            .AppendLine($"Min scale: {epsilon.ToString(NumFormat.Short, CultureInfo.InvariantCulture)}")
+            .AppendLine($"Min scale: {NumFormat.ToShort(epsilon)}")
             .ToString();
 
         public override string GetResult() => "Successful";
