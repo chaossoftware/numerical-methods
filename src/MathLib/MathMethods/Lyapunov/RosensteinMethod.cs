@@ -40,7 +40,7 @@ namespace MathLib.MathMethods.Lyapunov
             this.fnn = new BoxAssistedFnn(256, length);
         }
 
-        public override string GetInfo() =>
+        public override string ToString() =>
             new StringBuilder()
             .AppendLine($"m = {eDim}")
             .AppendLine($"τ = {tau}")

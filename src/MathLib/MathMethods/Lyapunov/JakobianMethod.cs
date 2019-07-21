@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Text;
 using MathLib.Data;
+using MathLib.IO;
 using MathLib.MathMethods.EmbeddingDimension;
 
 namespace MathLib.MathMethods.Lyapunov
@@ -14,7 +15,7 @@ namespace MathLib.MathMethods.Lyapunov
         private bool epsset = false;
         private bool inverse;
         private int length, iterations, exclude = 0;
-        private int eDim = 2/*, DIMENSION = 1,DELAY=1*/, minNeighbors = 30;
+        private int eDim = 2, minNeighbors = 30;
         private double epsstep = 1.2;
 
         private double averr;
@@ -27,6 +28,7 @@ namespace MathLib.MathMethods.Lyapunov
 
         private Random random;
         private readonly BoxAssistedFnn fnn;
+        public readonly LyapunovSpectrum result;
 
         public JakobianMethod(double[] timeSeries, int eDim, int iterations, double scaleMin, double epsstep, int minNeigh, bool inverse)
             : base(timeSeries)
@@ -49,32 +51,26 @@ namespace MathLib.MathMethods.Lyapunov
             Slope = new Timeseries();
             random = new Random();
             fnn = new BoxAssistedFnn(512, length);
+            this.result = new LyapunovSpectrum(eDim);
         }
 
-        public override string GetInfo()
-        {
-            StringBuilder fullInfo = new StringBuilder();
-
-            //fullInfo.AppendFormat("Min Embedding dimension: {0}\n", DimMin)
-            //    .AppendFormat("Max Embedding dimension: {0}\n", DimMax)
-            //    .AppendFormat("Delay: {0}\n", Tau)
-            //    .AppendFormat("Max Iterations: {0}\n", MaxIterations)
-            //    .AppendFormat("Window around the reference point which should be omitted: {0}\n", Window)
-            //    .AppendFormat(CultureInfo.InvariantCulture, "Min scale: {0:F5}\n", Epsmin)
-            //    .AppendFormat(CultureInfo.InvariantCulture, "Max scale: {0:F5}\n\n", Epsmax)
-            //    .Append(Log.ToString());
-            return fullInfo.ToString();
-        }
+        public override string ToString() =>
+            new StringBuilder()
+            .AppendLine($"m = {eDim}")
+            .AppendLine($"τ = {tau}")
+            .AppendLine($"iterations = {iterations}")
+            .AppendLine($"min ε = {NumFormat.ToShort(epsmin)}")
+            .AppendLine($"neighbour size increase factor = {NumFormat.ToShort(epsstep)}")
+            .AppendLine($"neighbors count = {NumFormat.ToShort(minNeighbors)}")
+            .AppendLine($"invert timeseries = {inverse}")
+            .ToString();
 
         public override string GetInfoFull()
         {
             throw new NotImplementedException();
         }
 
-        public override string GetResult()
-        {
-            return Log.ToString();
-        }
+        public override string GetResult() => result.ToString();
 
         public override void Calculate()
         {
@@ -82,7 +78,6 @@ namespace MathLib.MathMethods.Lyapunov
             double[] dynamics;
             double[] lfactor;
             double[] factor;
-            double dim;
             double av = 0d;
             double var = 0d;
             double maxinterval = 0d;
@@ -104,7 +99,7 @@ namespace MathLib.MathMethods.Lyapunov
                 Array.Reverse(TimeSeries);
             }
 
-            epsmin = epsset ? epsmin / maxinterval : 0.001d;
+            epsmin = epsset ? epsmin / maxinterval : interval / 1e-3;
 
             dynamics = new double[eDim];
             factor = new double[eDim];
@@ -166,39 +161,17 @@ namespace MathLib.MathMethods.Lyapunov
                     for (j = 0; j < eDim; j++)
                     {
                         Log.Append($"{factor[j] / count} ");
+                        result.Spectrum[j] = factor[j] / count;
                     }
 
                     Log.AppendLine();
                 }
             }
 
-            dim = 0.0;
-
-            for (i = 0; i < eDim; i++)
-            {
-                dim += factor[i];
-
-                if (dim < 0.0)
-                {
-                    break;
-                }
-            }
-
-            dim = i < eDim ? 
-                i + (dim - factor[i]) / Math.Abs(factor[i]) : 
-                eDim;
-
-            Log.Append("#Average relative forecast error:= ");
-            Log.Append($"{Math.Sqrt(averr / count) / var}");
-            Log.AppendLine();
-
-            Log.Append("#Average absolute forecast error:= ");
-            Log.Append($"{Math.Sqrt(averr / count) * interval}");
-            Log.AppendLine();
-
-            Log.AppendLine($"#Average Neighborhood Size= {aveps * maxinterval / count}");
-            Log.AppendLine($"#Average num. of neighbors= {avneig / count}");
-            Log.AppendLine($"#estimated KY-Dimension= {dim}");
+            Log.AppendLine($"Avg. relative forecast error = {NumFormat.ToShort(Math.Sqrt(averr / count) / var)}");
+            Log.AppendLine($"Avg. absolute forecast error = {NumFormat.ToShort(Math.Sqrt(averr / count) * interval)}");
+            Log.AppendLine($"Avg. neighborhood size = {NumFormat.ToShort(aveps * maxinterval / count)}");
+            Log.AppendLine($"Avg. number of neighbors = {NumFormat.ToShort(avneig / count)}");
         }
 
         private double Sort(long act, long nFound, out long nfound, out bool enough)
@@ -212,6 +185,7 @@ namespace MathLib.MathMethods.Lyapunov
             for (i = 0; i < imax; i++)
             {
                 hf = fnn.Found[i];
+
                 if (hf != act)
                 {
                     maxdx = Math.Abs(TimeSeries[act] - TimeSeries[hf]);
@@ -222,6 +196,7 @@ namespace MathLib.MathMethods.Lyapunov
                         dx = Math.Abs(TimeSeries[act - del] - TimeSeries[hf - del]);
                         if (dx > maxdx) maxdx = dx;
                     }
+
                     abstand[i] = maxdx;
                 }
                 else

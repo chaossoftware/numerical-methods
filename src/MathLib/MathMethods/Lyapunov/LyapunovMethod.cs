@@ -22,7 +22,7 @@ namespace MathLib.MathMethods.Lyapunov
 
         public abstract string GetResult();
 
-        public abstract string GetInfo();
+        public abstract string ToString();
 
         public abstract string GetInfoFull();
     }

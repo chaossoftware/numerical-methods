@@ -43,7 +43,7 @@ namespace MathLib.MathMethods.Lyapunov
             tsLen = timeSeries.Length;
         }
 
-        public override string GetInfo() =>
+        public override string ToString() =>
             new StringBuilder()
                 .AppendLine($"m = {eDim}")
                 .AppendLine($"τ = {tau}")
