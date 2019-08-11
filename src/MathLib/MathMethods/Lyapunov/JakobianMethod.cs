@@ -36,7 +36,7 @@ namespace MathLib.MathMethods.Lyapunov
             this.eDim = eDim;
             this.iterations = iterations;
             this.epsmin = scaleMin;
-            this.epsset = true;
+            this.epsset = scaleMin != 0;
             this.epsstep = epsstep;
             this.minNeighbors = minNeigh;
             this.inverse = inverse;
@@ -99,7 +99,10 @@ namespace MathLib.MathMethods.Lyapunov
                 Array.Reverse(TimeSeries);
             }
 
-            epsmin = epsset ? epsmin / maxinterval : interval / 1e-3;
+            epsmin = 
+                epsset ? 
+                epsmin / maxinterval : 
+                interval / 1e-3;
 
             dynamics = new double[eDim];
             factor = new double[eDim];
@@ -154,7 +157,7 @@ namespace MathLib.MathMethods.Lyapunov
 
                 if (((Time(DateTime.Now) - lastTime) > OUT) || (i == (start - 1)))
                 {
-                    //time(&lasttime);
+                    lastTime = Time(DateTime.Now);
 
                     Log.Append($"{count} ");
 
@@ -604,12 +607,12 @@ namespace MathLib.MathMethods.Lyapunov
                 var += h * h;
             }
 
-            av /= (double)l;
-            var = Math.Sqrt(Math.Abs(var / (double)l - av * av));
+            av /= l;
+            var = Math.Sqrt(Math.Abs(var / l - av * av));
 
             if (var == 0.0)
             {
-                throw new Exception("Variance of the data is zero. Exiting!\n\n");
+                throw new ArgumentException("Variance of the data is zero. Exiting!\n\n");
             }
         }
 
