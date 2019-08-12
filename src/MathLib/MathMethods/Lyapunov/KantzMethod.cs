@@ -81,8 +81,15 @@ namespace MathLib.MathMethods.Lyapunov
 
             var interval = Ext.RescaleData(TimeSeries);
 
-            epsmin = scaleMin == 0 ? 1e-3 : scaleMin / interval;
-            epsmax = scaleMax == 0 ? 1e-2 : scaleMax / interval;
+            epsmin = 
+                scaleMin == 0 ? 
+                1e-3 : 
+                scaleMin / interval;
+
+            epsmax = 
+                scaleMax == 0 ? 
+                1e-2 : 
+                scaleMax / interval;
 
             if (epsmin >= epsmax)
             {
