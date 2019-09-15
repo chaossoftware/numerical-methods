@@ -15,8 +15,8 @@ namespace MathLib.Transform
         {
             long pts = yt.Length;
 
-            double xtmin = Ext.countMin(yt);
-            double xtmax = Ext.countMax(yt);
+            double xtmin = Ext.CountMin(yt);
+            double xtmax = Ext.CountMax(yt);
 
             File.Delete(filePath);
             FileStream wavFile = File.Create(filePath);

@@ -2,84 +2,90 @@
 using System.Globalization;
 using System.Text;
 using MathLib.IO;
+using MathLib.MathMethods.EmbeddingDimension;
 
 namespace MathLib.MathMethods.Lyapunov
 {
-    public class RosensteinMethod : LleMethod
+    public class RosensteinMethod : LyapunovMethod
     {
-        private const int NMax = 256;
+        private readonly BoxAssistedFnn fnn;
+        private readonly int eDim;
+        private readonly int tau;
+        private readonly int iterations;
+        private readonly int window;        //window around the reference point which should be omitted
+        private readonly double scaleMin;
+        private readonly int length;
 
-        private int dim;
-        private int tau;
-        private int steps;
-        private int minDist; //window around the reference point which should be omitted
-        private double eps0; //minimal length scale for the neighborhood search
-
-        
-        private int nmax = NMax - 1;
+        private double epsilon;             //minimal length scale for the neighborhood search
         private double eps;
-        private double min, max;
-
-        private bool epsset = false;
 
         private double[] lyap;
-        private long[] found;
-        private int[,] box = new int[NMax, NMax];
-        private int[] list;
-        private int bLength;
+        private int[] found;
 
-        public RosensteinMethod(double[] timeSeries, int dim, int tau, int steps, int minDist, double scaleMin)
+        public RosensteinMethod(double[] timeSeries, int eDim, int tau, int iterations, int window, double scaleMin)
             : base(timeSeries)
         {
-            this.dim = dim;
+            this.eDim = eDim;
             this.tau = tau;
-            this.steps = steps;
-            this.minDist = minDist;
+            this.iterations = iterations;
+            this.window = window;
+            this.scaleMin = scaleMin;
+            this.length = timeSeries.Length;
 
-            if (scaleMin != 0)
+            if (iterations + (eDim - 1) * tau >= length)
             {
-                epsset = true;
-                this.eps0 = scaleMin;
-            }
-            else
-            {
-                this.eps0 = 1e-3;
+                throw new ArgumentException("Too few points to handle specified parameters, it makes no sense to continue.");
             }
 
-            bLength = timeSeries.Length - (this.dim - 1) * this.tau - this.steps;
+            this.fnn = new BoxAssistedFnn(256, length);
         }
 
+        public override string ToString() =>
+            new StringBuilder()
+            .AppendLine($"m = {eDim}")
+            .AppendLine($"τ = {tau}")
+            .AppendLine($"iterations = {iterations}")
+            .AppendLine($"theiler window = {window}")
+            .AppendLine($"min ε = {NumFormat.ToShort(epsilon)}")
+            .ToString();
+
+        public override string GetInfoFull() =>
+            new StringBuilder()
+            .AppendLine($"Embedding dimension: {eDim}")
+            .AppendLine($"Delay: {tau}")
+            .AppendLine($"Iterations: {iterations}")
+            .AppendLine($"Window around the reference point which should be omitted: {window}")
+            .AppendLine($"Min scale: {NumFormat.ToShort(epsilon)}")
+            .ToString();
+
+        public override string GetResult() => "Successful";
 
         public override void Calculate()
         {
             bool[] done;
             bool alldone;
-            long n;
-            long maxlength;
+            int n;
+            int bLength = length - (this.eDim - 1) * this.tau - this.iterations;
+            int maxlength = bLength - 1 - window;
 
-            RescaleData(TimeSeries, out min, out max);
+            lyap = new double[iterations + 1];
+            found = new int[iterations + 1];
+            done = new bool[length];
 
-            if (epsset)
-            {
-                eps0 /= max;
-            }
+            var interval = Ext.RescaleData(TimeSeries);
 
-            list = new int[TimeSeries.Length];
-            lyap = new double[steps + 1];
-            found = new long[steps + 1];
-            done = new bool[TimeSeries.Length];
+            epsilon = scaleMin == 0 ? 1e-3 : scaleMin / interval;
 
-            for (int i = 0; i < TimeSeries.Length; i++)
+            for (int i = 0; i < length; i++)
             {
                 done[i] = false;
             }
 
-            maxlength = TimeSeries.Length - tau * (dim - 1) - steps - 1 - minDist;
             alldone = false;
 
-            for (eps = eps0; !alldone; eps *= 1.1)
+            for (eps = epsilon; !alldone; eps *= 1.1)
             {
-                PutInBoxes(TimeSeries, box, list, eps, bLength, tau * (dim - 1));
+                fnn.PutInBoxes(TimeSeries, eps, 0, bLength, 0, tau * (eDim - 1));
 
                 alldone = true;
 
@@ -93,10 +99,10 @@ namespace MathLib.MathMethods.Lyapunov
                     alldone &= done[n];
                 }
 
-                Log.AppendFormat("epsilon: {0:F5} already found: {1}\n", eps * max, found[0]);
+                Log.AppendFormat("epsilon: {0:F5} already found: {1}\n", eps * interval, found[0]);
             }
 
-            for (int i = 0; i <= steps; i++)
+            for (int i = 0; i <= iterations; i++)
             {
                 if (found[i] != 0)
                 {
@@ -107,78 +113,21 @@ namespace MathLib.MathMethods.Lyapunov
             }
         }
 
-        public override string GetInfoShort() => "Done";
 
-        public override string GetInfoFull() => new StringBuilder()
-                .AppendFormat("Embedding dimension: {0}\n", dim)
-                .AppendFormat("Delay: {0}\n", tau)
-                .AppendFormat("Steps: {0}\n", steps)
-                .AppendFormat("Window around the reference point which should be omitted: {0}\n", minDist)
-                .Append("Min scale: ").AppendLine(eps0.ToString(NumFormat.Short, CultureInfo.InvariantCulture))
-                .AppendLine().Append(Log.ToString())
-                .ToString();
 
-        private bool Iterate(long act)
+        private bool Iterate(int act)
         {
-            bool ok = false;
-            int x, y, i1, k, del1 = dim * tau;
-            long element, minelement = -1;
-            double dx, mindx = 1.0;
+            int minelement;
+            double dx;
+            int del1 = eDim * tau;
+            bool ok = fnn.FindNeighborsR(TimeSeries, eDim, tau, eps, act, window, out minelement);
 
-            x = (int)(TimeSeries[act] / eps) & nmax;
-            y = (int)(TimeSeries[act + tau * (dim - 1)] / eps) & nmax;
-            
-            for (int i = x - 1; i <= x + 1; i++)
-            {
-                i1 = i & nmax;
-                
-                for (int j = y - 1; j <= y + 1; j++)
-                {
-                    element = box[i1, j & nmax];
-                    
-                    while (element != -1)
-                    {
-                        if (Math.Abs(act - element) > minDist)
-                        {
-                            dx = 0.0;
-                            
-                            for (k = 0; k < del1; k += tau)
-                            {
-                                dx += (TimeSeries[act + k] - TimeSeries[element + k]) *
-                                  (TimeSeries[act + k] - TimeSeries[element + k]);
-
-                                if (dx > eps * eps)
-                                {
-                                    break;
-                                }
-                            }
-
-                            if (k == del1)
-                            {
-                                if (dx < mindx)
-                                {
-                                    ok = true;
-                                    
-                                    if (dx > 0.0)
-                                    {
-                                        mindx = dx;
-                                        minelement = element;
-                                    }
-                                }
-                            }
-                        }
-
-                        element = list[element];
-                    }
-                }
-            }
-
-            if ((minelement != -1))
+            if (minelement != -1)
             {
                 act--;
                 minelement--;
                 
-                for (int i = 0; i <= steps; i++)
+                for (int i = 0; i <= iterations; i++)
                 {
                     act++;
                     minelement++;
@@ -196,9 +145,9 @@ namespace MathLib.MathMethods.Lyapunov
                     }
                 }
             }
+
             return ok;
         }
-
 
 
     }

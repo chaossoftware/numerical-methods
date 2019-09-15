@@ -5,7 +5,7 @@ namespace MathLib.MathMethods.Lyapunov
 {
     public abstract class LyapunovMethod
     {
-        public LyapunovMethod(double[] timeSeries)
+        protected LyapunovMethod(double[] timeSeries)
         {
             this.TimeSeries = timeSeries;
             Slope = new Timeseries();
@@ -14,13 +14,15 @@ namespace MathLib.MathMethods.Lyapunov
 
         public Timeseries Slope { get; set; }
 
-        protected StringBuilder Log { get; set; }
+        public StringBuilder Log { get; private set; }
 
-        protected double[] TimeSeries { get; set; }
+        protected double[] TimeSeries { get; private set; }
 
         public abstract void Calculate();
 
-        public abstract string GetInfoShort();
+        public abstract string GetResult();
+
+        public abstract string ToString();
 
         public abstract string GetInfoFull();
     }
