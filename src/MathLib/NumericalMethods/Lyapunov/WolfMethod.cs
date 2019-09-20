@@ -3,7 +3,7 @@ using System.Globalization;
 using System.Text;
 using MathLib.IO;
 
-namespace MathLib.MathMethods.Lyapunov
+namespace MathLib.NumericalMethods.Lyapunov
 {
     public class WolfMethod : LyapunovMethod
     {

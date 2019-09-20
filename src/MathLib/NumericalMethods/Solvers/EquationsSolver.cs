@@ -1,5 +1,5 @@
 ﻿
-namespace MathLib.MathMethods.Solvers
+namespace MathLib.NumericalMethods.Solvers
 {
     /// <summary>
     /// Solvers class

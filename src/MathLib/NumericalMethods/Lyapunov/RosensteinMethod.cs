@@ -2,9 +2,9 @@
 using System.Globalization;
 using System.Text;
 using MathLib.IO;
-using MathLib.MathMethods.EmbeddingDimension;
+using MathLib.NumericalMethods.EmbeddingDimension;
 
-namespace MathLib.MathMethods.Lyapunov
+namespace MathLib.NumericalMethods.Lyapunov
 {
     public class RosensteinMethod : LyapunovMethod
     {

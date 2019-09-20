@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace MathLib.MathMethods
+namespace MathLib.NumericalMethods
 {
     /**
      * In order to get the Correlation Coefficient (Pearson number) of a time series, we need 

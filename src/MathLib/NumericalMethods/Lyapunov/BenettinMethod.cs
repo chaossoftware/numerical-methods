@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace MathLib.MathMethods.Lyapunov
+namespace MathLib.NumericalMethods.Lyapunov
 {
     /// <summary>
     /// Lyapunov Methods class

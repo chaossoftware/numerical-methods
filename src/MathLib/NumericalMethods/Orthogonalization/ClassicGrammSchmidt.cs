@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace MathLib.MathMethods.Orthogonalization
+namespace MathLib.NumericalMethods.Orthogonalization
 {
     /// <summary>
     /// Classic Gramm-Schmidt orthogonalization

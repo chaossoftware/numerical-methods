@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace MathLib.MathMethods.Solvers
+namespace MathLib.NumericalMethods.Solvers
 {
     /// <summary>
     /// Simple solver

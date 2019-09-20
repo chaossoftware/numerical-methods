@@ -1,7 +1,7 @@
 ﻿
 using System;
 
-namespace MathLib.MathMethods.EmbeddingDimension
+namespace MathLib.NumericalMethods.EmbeddingDimension
 {
     public class BoxAssistedFnn
     {

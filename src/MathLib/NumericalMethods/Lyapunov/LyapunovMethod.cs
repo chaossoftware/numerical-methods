@@ -1,7 +1,7 @@
 ﻿using MathLib.Data;
 using System.Text;
 
-namespace MathLib.MathMethods.Lyapunov
+namespace MathLib.NumericalMethods.Lyapunov
 {
     public abstract class LyapunovMethod
     {
