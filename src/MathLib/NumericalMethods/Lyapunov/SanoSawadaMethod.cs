@@ -30,8 +30,8 @@ namespace MathLib.NumericalMethods.Lyapunov
 
         private double averr;
         private double avneig = 0.0, aveps = 0.0;
-        private double[][] mat;
-        private double[] vec, abstand;
+        private double[,] matrix;
+        private double[] vector, abstand;
         private double epsmin;
         private long count = 0;
         private int[] indexes;
@@ -130,13 +130,8 @@ namespace MathLib.NumericalMethods.Lyapunov
             factor = new double[_eDim];
             lfactor = new double[_eDim];
             delta = new double[_eDim, _eDim];
-            vec = new double[_eDim + 1];
-            mat = new double[_eDim + 1][];
-
-            for (int ii = 0; ii < _eDim + 1; ii++)
-            {
-                mat[ii] = new double[_eDim + 1];
-            }
+            vector = new double[_eDim + 1];
+            matrix = new double[_eDim + 1, _eDim + 1];
 
             indexes = MakeIndex(_eDim, tau);
 
@@ -337,24 +332,17 @@ namespace MathLib.NumericalMethods.Lyapunov
                 throw new CalculationException("Not enough neighbors found.");
             }
 
-            for (i = 0; i <= _eDim; i++)
-            {
-                vec[i] = 0.0;
-
-                for (j = 0; j <= _eDim; j++)
-                {
-                    mat[i][j] = 0.0;
-                }
-            }
+            Ext.FillVectorWith(vector, 0d);
+            Ext.FillMatrixWith(matrix, 0d);
 
             for (i = 0; i < nfound; i++)
             {
                 act = fnn.Found[i];
-                mat[0][0] += 1.0;
+                matrix[0, 0] += 1.0;
 
                 for (j = 0; j < _eDim; j++)
                 {
-                    mat[0][j + 1] += TimeSeries[act - indexes[j]];
+                    matrix[0, j + 1] += TimeSeries[act - indexes[j]];
                 }
 
                 for (j = 0; j < _eDim; j++)
@@ -364,7 +352,7 @@ namespace MathLib.NumericalMethods.Lyapunov
 
                     for (k = j; k < _eDim; k++)
                     {
-                        mat[hj][k + 1] += TimeSeries[act - indexes[k]] * hv1;
+                        matrix[hj, k + 1] += TimeSeries[act - indexes[k]] * hv1;
                     }
                 }
             }
@@ -373,39 +361,36 @@ namespace MathLib.NumericalMethods.Lyapunov
             {
                 for (j = i; j <= _eDim; j++)
                 {
-                    mat[j][i] = (mat[i][j] /= (double)nfound);
+                    matrix[j, i] = (matrix[i, j] /= (double)nfound);
                 }
             }
 
-            imat = InvertMatrix(mat, _eDim + 1);
+            imat = InvertMatrix(matrix, _eDim + 1);
 
-            for (i = 0; i <= _eDim; i++)
-            {
-                vec[i] = 0.0;
-            }
+            Ext.FillVectorWith(vector, 0d);
 
             for (i = 0; i < nfound; i++)
             {
                 act = fnn.Found[i];
                 hv = TimeSeries[act + tau];
-                vec[0] += hv;
+                vector[0] += hv;
 
                 for (j = 0; j < _eDim; j++)
                 {
-                    vec[j + 1] += hv * TimeSeries[act - indexes[j]];
+                    vector[j + 1] += hv * TimeSeries[act - indexes[j]];
                 }
             }
 
             for (i = 0; i <= _eDim; i++)
             {
-                vec[i] /= (double)nfound;
+                vector[i] /= (double)nfound;
             }
 
             new_vec = 0.0;
 
             for (i = 0; i <= _eDim; i++)
             {
-                new_vec += imat[0, i] * vec[i];
+                new_vec += imat[0, i] * vector[i];
             }
 
             for (i = 1; i <= _eDim; i++)
@@ -415,7 +400,7 @@ namespace MathLib.NumericalMethods.Lyapunov
 
                 for (j = 0; j <= _eDim; j++)
                 {
-                    dynamics[hi] += imat[i, j] * vec[j];
+                    dynamics[hi] += imat[i, j] * vector[j];
                 }
             }
 
@@ -512,7 +497,7 @@ namespace MathLib.NumericalMethods.Lyapunov
             }
         }
 
-        private double[,] InvertMatrix(double[][] mat, int size)
+        private double[,] InvertMatrix(double[, ] mat, int size)
         {
             int i, j, k;
             double[,] imat;
@@ -536,7 +521,7 @@ namespace MathLib.NumericalMethods.Lyapunov
 
                     for (k = 0; k < size; k++)
                     {
-                        hmat[j][k] = mat[j][k];
+                        hmat[j][k] = mat[j, k];
                     }
                 }
 

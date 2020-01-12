@@ -90,5 +90,31 @@ namespace MathLib
 
             return variance;
         }
+
+        public static void FillVectorWith(double[] vector, double value)
+        {
+            int i;
+            int len = vector.Length;
+
+            for (i = 0; i < len; i++)
+            {
+                vector[i] = value;
+            }
+        }
+
+        public static void FillMatrixWith(double[,] matrix, double value)
+        {
+            int i, j;
+            int xLen = matrix.GetLength(0); 
+            int yLen = matrix.GetLength(1);
+
+            for (i = 0; i < xLen; i++)
+            {
+                for (j = 0; j < yLen; j++)
+                {
+                    matrix[i, j] = value;
+                }
+            }
+        }
     }
 }
