@@ -70,5 +70,25 @@ namespace MathLib
 
             return interval;
         }
+
+        public static double Variance(double[] timeSeries)
+        {
+            int length = timeSeries.Length;
+            double h;
+            double av = 0d;
+            double variance = 0d;
+
+            for (int i = 0; i < length; i++)
+            {
+                h = timeSeries[i];
+                av += h;
+                variance += h * h;
+            }
+
+            av /= length;
+            variance = Math.Sqrt(Math.Abs(variance / length - av * av));          
+
+            return variance;
+        }
     }
 }

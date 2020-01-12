@@ -5,14 +5,17 @@ using MathLib.IO;
 
 namespace MathLib.NumericalMethods.Lyapunov
 {
+    /// <summary>
+    /// A Wolf, JB Swift, HL Swinney, JA Vastano, Determining Lyapunov exponents from a time series, Physica D: Nonlinear Phenomena, 1985
+    /// </summary>
     public class WolfMethod : LyapunovMethod
     {
-        private readonly int eDim;
-        private readonly int tau;
-        private readonly int evolv;
-        private readonly double stepSize;
-        private readonly double scaleMin;
-        private readonly double scaleMax;
+        private readonly int _eDim;
+        private readonly int _tau;
+        private readonly int _evolv;
+        private readonly double _dt;
+        private readonly double _epsMin;
+        private readonly double _epsMax;
 
         // Pre-calculated variables
         private readonly double evMulStMulLog2;
@@ -29,98 +32,96 @@ namespace MathLib.NumericalMethods.Lyapunov
         public WolfMethod(double[] timeSeries, int eDim, int tau, double stepSize, double scaleMin, double scaleMax, int evolv)
             : base(timeSeries)
         {
-            this.eDim = eDim;
-            this.tau = tau;
-            this.stepSize = stepSize;
-            this.scaleMin = scaleMin;
-            this.scaleMax = scaleMax;
-            this.evolv = evolv;
+            _eDim = eDim;
+            _tau = tau;
+            _dt = stepSize;
+            _epsMin = scaleMin;
+            _epsMax = scaleMax;
+            _evolv = evolv;
 
-            pt1 = new double[this.eDim];
-            pt2 = new double[this.eDim];
+            pt1 = new double[_eDim];
+            pt2 = new double[_eDim];
 
-            evMulStMulLog2 = (double)this.evolv * this.stepSize * Math.Log(2d);
+            evMulStMulLog2 = (double)_evolv * _dt * Math.Log(2d);
             tsLen = timeSeries.Length;
         }
 
         public override string ToString() =>
             new StringBuilder()
-                .AppendLine($"m = {eDim}")
-                .AppendLine($"τ = {tau}")
-                .AppendLine($"Δt = {stepSize.ToString(NumFormat.Short, CultureInfo.InvariantCulture)}")
-                .AppendLine($"min ε = {scaleMin.ToString(NumFormat.Short, CultureInfo.InvariantCulture)}")
-                .AppendLine($"max ε = {scaleMax.ToString(NumFormat.Short, CultureInfo.InvariantCulture)}")
-                .AppendLine($"Evolution steps: {evolv}")
+                .AppendLine("Wolf fixed evolution time method")
+                .AppendLine($"m = {_eDim}")
+                .AppendLine($"τ = {_tau}")
+                .AppendLine($"Δt = {_dt.ToString(NumFormat.Short, CultureInfo.InvariantCulture)}")
+                .AppendLine($"min ε = {_epsMin.ToString(NumFormat.Short, CultureInfo.InvariantCulture)}")
+                .AppendLine($"max ε = {_epsMax.ToString(NumFormat.Short, CultureInfo.InvariantCulture)}")
+                .AppendLine($"Evolution steps: {_evolv}")
                 .ToString();
 
         public override string GetInfoFull() =>
             new StringBuilder()
-                .AppendLine($"Embedding dimension: {eDim}")
-                .AppendLine($"Reconstruction delay: {tau}")
-                .AppendLine($"Step size: {stepSize.ToString(NumFormat.Short, CultureInfo.InvariantCulture)}")
-                .AppendLine($"Min scale: {scaleMin.ToString(NumFormat.Short, CultureInfo.InvariantCulture)}")
-                .AppendLine($"Max scale: {scaleMax.ToString(NumFormat.Short, CultureInfo.InvariantCulture)}")
-                .AppendLine($"Evolution steps: {evolv}")
+                .AppendLine("Wolf fixed evolution time method")
+                .AppendLine($"Embedding dimension: {_eDim}")
+                .AppendLine($"Reconstruction delay: {_tau}")
+                .AppendLine($"Step size: {_dt.ToString(NumFormat.Short, CultureInfo.InvariantCulture)}")
+                .AppendLine($"Min scale: {_epsMin.ToString(NumFormat.Short, CultureInfo.InvariantCulture)}")
+                .AppendLine($"Max scale: {_epsMax.ToString(NumFormat.Short, CultureInfo.InvariantCulture)}")
+                .AppendLine($"Evolution steps: {_evolv}")
                 .ToString();
 
         public override string GetResult() => rezult.ToString(NumFormat.Short, CultureInfo.InvariantCulture);
 
         public override void Calculate()
         {
-            //ind points to fiducial trajectory
-            //ind2 points to second trajectory
-            //sum holds running exponent estimate sans i/time
-            //its is total number of propagation steps
+            //int ind = 0; // <In fortran was 1>.
+            int ind2 = 0; // Points to second trajectory <in fortran was empty and defined later>.
+            double sum = 0d; // Holds running exponent estimate sans i/time.
+            int its = 0; // Total number of propagation steps.
 
-            //int ind = 0; //in fortran was 1
-            int ind2 = 0;//in fortran was empty and defined later
-            double sum = 0d;
-            int its = 0;
+            double dii = 0; // <initialization absent in fortran>
 
-            double dii = 0;//initialization absent in fortran
+            // Calculate useful size of timeseries.
+            int dataPointsCount = TimeSeries.Length - _eDim * _tau - _evolv;
 
-            //calculate useful size of datafile
-            int dataPointsCount = TimeSeries.Length - eDim * tau - evolv;
-
-            //find nearest neighbor to first data point
+            // Find nearest neighbor to first data point.
             double di = 1e38;
 
-            //dont take point too close to fiducial point
+            // Don't take point too close to fiducial point.
             for (int i = 10; i < dataPointsCount; i++)
             {
-                //compute separation between fiducial point and candidate
+                // Compute separation between fiducial point and candidate.
                 double d = 0d;
 
-                for (int j = 0; j < eDim; j++)
+                for (int j = 0; j < _eDim; j++)
                 {
                     d += Math.Pow(GetAttractorPoint(0, j) - GetAttractorPoint(i, j), 2);
                 }
 
                 d = Math.Sqrt(d);
 
-                //store the best point so far but no closer than noise scale
-                if (d >= scaleMin && d <= di)
+                // Store the best point so far but no closer than noise scale.
+                if (d >= _epsMin && d <= di)
                 {
                     di = d;
                     ind2 = i;
                 }
             }
 
-            //Log.Append("Lyapunov exponent\tTotal Propagation Time\tDI\tInformation dimention\n");
+            ////Log.Append("Lyapunov exponent\tTotal Propagation Time\tDI\tInformation dimention\n");
 
-            for(int ind = evolv; ind < dataPointsCount; ind += evolv)
+            // ind - points to fiducial trajectory
+            for (int ind = _evolv; ind < dataPointsCount; ind += _evolv)
             { 
-                //get coordinates of evolved points
-                for (int j = 0; j < eDim; j++)
+                // Get coordinates of evolved points.
+                for (int j = 0; j < _eDim; j++)
                 {
                     pt1[j] = GetAttractorPoint(ind, j);
-                    pt2[j] = GetAttractorPoint(ind2 + evolv, j);
+                    pt2[j] = GetAttractorPoint(ind2 + _evolv, j);
                 }
 
-                //compute final separation between pair, update exponent
+                // Compute final separation between pair, update exponent.
                 double df = 0d;
 
-                for (int j = 0; j < eDim; j++)
+                for (int j = 0; j < _eDim; j++)
                     df += Math.Pow(pt1[j] - pt2[j], 2);
 
                 df = Math.Sqrt(df);
@@ -129,23 +130,22 @@ namespace MathLib.NumericalMethods.Lyapunov
                 sum += Math.Log(df / di) / evMulStMulLog2;
                 zlyap = sum / (double)its;
 
-                //Log.AppendFormat("{0:F5}\t{1}\t{2:F5}\t{3:F5}\n", zlyap, Evolv * its, di, df);
+                ////Log.AppendFormat("{0:F5}\t{1}\t{2:F5}\t{3:F5}\n", zlyap, Evolv * its, di, df);
                 Slope.AddDataPoint(step++, zlyap);
 
-                //look for replacement point
-                //zmult is multiplier of scalMax when go to longer distances
+                // Look for replacement point.
                 int indold = ind2;
-                double zmult = 1d;
+                double zmult = 1d; // Multiplier of scalMax when go to longer distances.
                 double anglmx = 0.3;
 
                 metka:
 
-                double thmin = Math.PI;//3.14;
+                double thmin = Math.PI;
 
-                //search over all points
+                // Search over all points.
                 for (int i = 0; i < dataPointsCount; i++)
                 {
-                    //dont take points too close in time to fiducial point
+                    // Don't take points too close in time to fiducial point.
                     int iii = Math.Abs(i - ind);
 
                     if (iii < 9)
@@ -153,26 +153,26 @@ namespace MathLib.NumericalMethods.Lyapunov
                         continue;
                     }
 
-                    //compute distance between fiducial point and candidate
+                    // Compute distance between fiducial point and candidate.
                     double dnew = 0d;
 
-                    for (int j = 0; j < eDim; j++)
+                    for (int j = 0; j < _eDim; j++)
                     {
                         dnew += Math.Pow(pt1[j] - GetAttractorPoint(i, j), 2);
                     }
 
                     dnew = Math.Sqrt(dnew);
 
-                    //look further away than noise scale, closer than zmult*scalMax
-                    if (dnew > zmult * scaleMax || dnew < scaleMin)
+                    // Look further away than noise scale, closer than zmult*scalMax.
+                    if (dnew > zmult * _epsMax || dnew < _epsMin)
                     {
                         continue;
                     }
 
-                    //find angular change old to new vector
+                    // Find angular change old to new vector.
                     double dot = 0d;
 
-                    for (int j = 0; j < eDim; j++)
+                    for (int j = 0; j < _eDim; j++)
                     {
                         dot += (pt1[j] - GetAttractorPoint(i, j)) * (pt1[j] - pt2[j]);
                     }
@@ -183,7 +183,7 @@ namespace MathLib.NumericalMethods.Lyapunov
 
                     double th = Math.Acos(cth);
 
-                    //save point with smallest angular change so far
+                    // Save point with smallest angular change so far.
                     if (th < thmin)
                     { 
                         thmin = th;
@@ -194,7 +194,7 @@ namespace MathLib.NumericalMethods.Lyapunov
 
                 if (thmin > anglmx)
                 {
-                    //cant find a replacement - look at longer distances
+                    // Can't find a replacement - look at longer distances.
                     zmult++;
 
                     if (zmult <= 5d)
@@ -202,16 +202,16 @@ namespace MathLib.NumericalMethods.Lyapunov
                         goto metka;
                     }
 
-                    //no replacement at 5*scale, double search angle, reset distance
+                    // No replacement at 5*scale, double search angle, reset distance.
                     zmult = 1d;
                     anglmx *= 2d;
 
-                    if (anglmx < Math.PI /*3.14*/)
+                    if (anglmx < Math.PI)
                     {
                         goto metka;
                     }
 
-                    ind2 = indold + evolv;
+                    ind2 = indold + _evolv;
                     dii = df;
                 }
 
@@ -225,7 +225,7 @@ namespace MathLib.NumericalMethods.Lyapunov
         ///<returns>j-th component of i-th reconstructed attractor point</returns>
         private double GetAttractorPoint(int i, int j)
         {
-            int point = i + j * tau;
+            int point = i + j * _tau;
             return point < tsLen ? TimeSeries[point] : 0;
         }
     }

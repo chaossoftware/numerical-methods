@@ -61,7 +61,7 @@ namespace MathLib.NumericalMethods
         {
             if (x.Length != y.Length)
             {
-                throw new Exception("Length of sources is different");
+                throw new CalculationException("Auto-Correlation: length of sources is different.");
             }
 
             var avgX = GetAverage(x);
@@ -69,7 +69,6 @@ namespace MathLib.NumericalMethods
             var avgY = GetAverage(y);
             var stdevY = GetStdev(y);
             var covXY = 0d;
-            var pearson = 0d;
             int len = x.Length;
 
             for (int i = 0; i < len; i++)
@@ -78,7 +77,8 @@ namespace MathLib.NumericalMethods
             }
 
             covXY /= len;
-            pearson = covXY / (stdevX * stdevY);
+            var pearson = covXY / (stdevX * stdevY);
+            
             return pearson;
         }
 
@@ -88,7 +88,7 @@ namespace MathLib.NumericalMethods
 
             if (len == 0)
             {
-                throw new ArgumentException("No data");
+                throw new CalculationException("Auto-Correlation: no data.");
             }
 
             return data.Sum() / len;

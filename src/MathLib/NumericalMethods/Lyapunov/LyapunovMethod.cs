@@ -7,7 +7,7 @@ namespace MathLib.NumericalMethods.Lyapunov
     {
         protected LyapunovMethod(double[] timeSeries)
         {
-            this.TimeSeries = timeSeries;
+            TimeSeries = timeSeries;
             Slope = new Timeseries();
             Log = new StringBuilder();
         }
@@ -22,7 +22,7 @@ namespace MathLib.NumericalMethods.Lyapunov
 
         public abstract string GetResult();
 
-        public abstract string ToString();
+        //public abstract string ToString();
 
         public abstract string GetInfoFull();
     }

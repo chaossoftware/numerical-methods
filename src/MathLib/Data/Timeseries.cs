@@ -15,13 +15,15 @@ namespace MathLib.Data
 
         public Timeseries()
         {
-            this.Init();
+            DataPoints = new List<DataPoint>();
+            min = new DataPoint(0, 0);
+            max = new DataPoint(0, 0);
+            amplitude = new DataPoint(0, 0);
+            outdated = true;
         }
 
-        public Timeseries(double[] timeSeries)
+        public Timeseries(double[] timeSeries) : this()
         {
-            this.Init();
-
             foreach (double val in timeSeries)
             {
                 AddDataPoint(val);
@@ -36,12 +38,12 @@ namespace MathLib.Data
         {
             get
             {
-                if (this.outdated)
+                if (outdated)
                 {
                     UpdateProperties();
                 }
 
-                return this.max;
+                return max;
             }
         }
 
@@ -49,12 +51,12 @@ namespace MathLib.Data
         {
             get
             {
-                if (this.outdated)
+                if (outdated)
                 {
                     UpdateProperties();
                 }
 
-                return this.min;
+                return min;
             }
         }
         
@@ -62,24 +64,24 @@ namespace MathLib.Data
         {
             get
             {
-                if (this.outdated)
+                if (outdated)
                 {
                     UpdateProperties();
                 }
 
-                return this.amplitude;
+                return amplitude;
             }
         }
 
-        public int Length => this.DataPoints.Count;
+        public int Length => DataPoints.Count;
         
         private double[] XValues
         {
             get
             {
-                if (this.outdated)
+                if (outdated)
                 {
-                    this.xValues = (from dp in this.DataPoints select dp.X).ToArray();
+                    xValues = (from dp in DataPoints select dp.X).ToArray();
                 }
 
                 return xValues;
@@ -90,9 +92,9 @@ namespace MathLib.Data
         {
             get
             {
-                if (this.outdated)
+                if (outdated)
                 {
-                    this.yValues = (from dp in this.DataPoints select dp.Y).ToArray();
+                    yValues = (from dp in DataPoints select dp.Y).ToArray();
                 }
 
                 return yValues;
@@ -101,21 +103,21 @@ namespace MathLib.Data
 
         public void AddDataPoint(double x, double y)
         {
-            this.DataPoints.Add(new DataPoint(x, y));
-            this.outdated = true;
+            DataPoints.Add(new DataPoint(x, y));
+            outdated = true;
         }
 
         public void AddDataPoint(double y)
         {
-            this.DataPoints.Add(new DataPoint(this.DataPoints.Count + 1, y));
-            this.outdated = true;
+            DataPoints.Add(new DataPoint(DataPoints.Count + 1, y));
+            outdated = true;
         }
 
         public override string ToString()
         {
             var sb = new StringBuilder();
 
-            foreach (DataPoint dp in this.DataPoints)
+            foreach (DataPoint dp in DataPoints)
             {
                 sb.AppendFormat("{0:G14}\t{1:G14}\n", dp.X, dp.Y);
             }
@@ -125,22 +127,13 @@ namespace MathLib.Data
 
         private void UpdateProperties()
         {
-            this.min.X = this.XValues.Min();
-            this.min.Y = this.YValues.Min();
-            this.max.X = this.XValues.Max();
-            this.max.Y = this.YValues.Max();
-            this.amplitude.X = this.max.X - this.min.X;
-            this.amplitude.Y = this.max.Y - this.min.Y;
-            this.outdated = false;
-        }
-
-        private void Init()
-        {
-            this.DataPoints = new List<DataPoint>();
-            this.min = new DataPoint(0, 0);
-            this.max = new DataPoint(0, 0);
-            this.amplitude = new DataPoint(0, 0);
-            this.outdated = true;
+            min.X = XValues.Min();
+            min.Y = YValues.Min();
+            max.X = XValues.Max();
+            max.Y = YValues.Max();
+            amplitude.X = max.X - min.X;
+            amplitude.Y = max.Y - min.Y;
+            outdated = false;
         }
     }
 }

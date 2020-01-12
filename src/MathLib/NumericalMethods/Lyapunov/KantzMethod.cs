@@ -8,18 +8,21 @@ using MathLib.NumericalMethods.EmbeddingDimension;
 
 namespace MathLib.NumericalMethods.Lyapunov
 {
+    /// <summary>
+    /// H. Kantz, A robust method to estimate the maximal Lyapunov exponent of a time series, Phys. Lett. A 185, 77 (1994)
+    /// </summary>
     public class KantzMethod : LyapunovMethod
     {
-        private readonly BoxAssistedFnn fnn;
-        private readonly int eDim;
-        private readonly int tau;
-        private readonly int iterations;
-        private readonly int window; //'theiler window' (0)
-        private readonly double scaleMin;
-        private readonly double scaleMax;
-        private readonly int length;
+        private readonly BoxAssistedFnn _fnn;
+        private readonly int _eDim;
+        private readonly int _tau;
+        private readonly int _iterations;
+        private readonly int _window; // (0)
+        private readonly double _epsMin;
+        private readonly double _epsMax;
+        private readonly int _length;
 
-        private int epscount;   //number of length scales to use (5)
+        private int epscount;   // (5)
         private double epsmin;  //1e-3  
         private double epsmax;  //1e-2
 
@@ -27,24 +30,35 @@ namespace MathLib.NumericalMethods.Lyapunov
         private int[] count;
         private int nf;
 
+        /// <summary>
+        /// The method estimates the largest Lyapunov exponent of a given scalar data set using the algorithm of Kantz.
+        /// </summary>
+        /// <param name="timeSeries">timeseries to analyze</param>
+        /// <param name="eDim">embedding dimension</param>
+        /// <param name="tau"></param>
+        /// <param name="iterations"></param>
+        /// <param name="window">theiler window</param>
+        /// <param name="scaleMin"></param>
+        /// <param name="scaleMax"></param>
+        /// <param name="epscount">number of length scales to use</param>
         public KantzMethod(double[] timeSeries, int eDim, int tau, int iterations, int window, double scaleMin, double scaleMax, int epscount)
             : base(timeSeries)
         {
-            this.eDim = eDim;
+            _eDim = eDim;
 
-            this.tau = tau;
-            this.iterations = iterations;
-            this.window = window;
-            this.scaleMin = scaleMin;
-            this.scaleMax = scaleMax;
-            this.length = timeSeries.Length;
+            _tau = tau;
+            _iterations = iterations;
+            _window = window;
+            _epsMin = scaleMin;
+            _epsMax = scaleMax;
+            _length = timeSeries.Length;
 
-            if (iterations + (eDim - 1) * tau >= length)
+            if (iterations + (eDim - 1) * tau >= _length)
             {
                 throw new ArgumentException("Too few points to handle specified parameters, it makes no sense to continue.");
             }
 
-            this.fnn = new BoxAssistedFnn(128, length);
+            _fnn = new BoxAssistedFnn(128, _length);
             SlopesList = new Dictionary<string, Timeseries>();
         }
 
@@ -52,20 +66,22 @@ namespace MathLib.NumericalMethods.Lyapunov
 
         public override string ToString() =>
             new StringBuilder()
-            .AppendLine($"m = {eDim}")
-            .AppendLine($"τ = {tau}")
-            .AppendLine($"iterations = {iterations}")
-            .AppendLine($"theiler window = {window}")
+            .AppendLine("Kantz method")
+            .AppendLine($"m = {_eDim}")
+            .AppendLine($"τ = {_tau}")
+            .AppendLine($"iterations = {_iterations}")
+            .AppendLine($"theiler window = {_window}")
             .AppendLine($"min ε = {epsmin.ToString(NumFormat.Short, CultureInfo.InvariantCulture)}")
             .AppendLine($"max ε = {epsmax.ToString(NumFormat.Short, CultureInfo.InvariantCulture)}")
             .ToString();
 
         public override string GetInfoFull() =>
             new StringBuilder()
-            .AppendLine($"Embedding dimension: {eDim}")
-            .AppendLine($"Delay: {tau}")
-            .AppendLine($"Max Iterations: {iterations}")
-            .AppendLine($"Window around the reference point which should be omitted: {window}")
+            .AppendLine("Kantz method")
+            .AppendLine($"Embedding dimension: {_eDim}")
+            .AppendLine($"Delay: {_tau}")
+            .AppendLine($"Max Iterations: {_iterations}")
+            .AppendLine($"Window around the reference point which should be omitted: {_window}")
             .AppendLine($"Min scale: {epsmin.ToString(NumFormat.Short, CultureInfo.InvariantCulture)}")
             .AppendLine($"Max scale: {epsmax.ToString(NumFormat.Short, CultureInfo.InvariantCulture)}")
             .ToString();
@@ -77,19 +93,19 @@ namespace MathLib.NumericalMethods.Lyapunov
             double eps_fak;
             double epsilon;
             int j,l;
-            var blength = length - (this.eDim - 1) * this.tau - this.iterations;
+            var blength = _length - (_eDim - 1) * _tau - _iterations;
 
             var interval = Ext.RescaleData(TimeSeries);
 
             epsmin = 
-                scaleMin == 0 ? 
+                _epsMin == 0 ? 
                 1e-3 : 
-                scaleMin / interval;
+                _epsMin / interval;
 
             epsmax = 
-                scaleMax == 0 ? 
+                _epsMax == 0 ? 
                 1e-2 : 
-                scaleMax / interval;
+                _epsMax / interval;
 
             if (epsmin >= epsmax)
             {
@@ -101,8 +117,8 @@ namespace MathLib.NumericalMethods.Lyapunov
             var reference = Math.Min(int.MaxValue, blength);
 
             nf = 0;
-            count = new int[iterations + 1];
-            lyap = new double[iterations + 1];
+            count = new int[_iterations + 1];
+            lyap = new double[_iterations + 1];
 
             eps_fak = epscount == 1 ? 1d : Math.Pow(epsmax / epsmin, 1d / (epscount - 1));
 
@@ -113,11 +129,11 @@ namespace MathLib.NumericalMethods.Lyapunov
                 Array.Clear(count, 0, count.Length);
                 Array.Clear(lyap, 0, lyap.Length);
 
-                fnn.PutInBoxes(TimeSeries, epsilon, 0, blength, 0, tau);
+                _fnn.PutInBoxes(TimeSeries, epsilon, 0, blength, 0, _tau);
 
                 for (int i = 0; i < reference; i++)
                 {
-                    nf = fnn.FindNeighborsK(TimeSeries, eDim, tau, epsilon, i, window);
+                    nf = _fnn.FindNeighborsK(TimeSeries, _eDim, _tau, epsilon, i, _window);
                     Iterate(i);
                 }
 
@@ -125,7 +141,7 @@ namespace MathLib.NumericalMethods.Lyapunov
 
                 Timeseries dict = new Timeseries();
 
-                for (j = 0; j <= iterations; j++)
+                for (j = 0; j <= _iterations; j++)
                 {
                     if (count[j] != 0)
                     {
@@ -153,32 +169,32 @@ namespace MathLib.NumericalMethods.Lyapunov
 
         private void Iterate(long act)
         {
-            double[] lfactor = new double[iterations + 1];
-            double[] dx = new double[iterations + 1];
+            double[] lfactor = new double[_iterations + 1];
+            double[] dx = new double[_iterations + 1];
             int i, j ,l, l1;
             long k, element;
-            long[] lcount = new long[iterations + 1];
+            long[] lcount = new long[_iterations + 1];
               
             for (k = 0; k < nf; k++)
             {
-                element = fnn.Found[k];
+                element = _fnn.Found[k];
             
-                for (i = 0; i <= iterations; i++)
+                for (i = 0; i <= _iterations; i++)
                 {
                     dx[i] = Math.Pow(TimeSeries[act + i] - TimeSeries[element + i], 2);
                 }
 
-                for (l = 1; l < eDim; l++)
+                for (l = 1; l < _eDim; l++)
                 {
-                    l1 = l * tau;
+                    l1 = l * _tau;
             
-                    for (i = 0; i <= iterations; i++)
+                    for (i = 0; i <= _iterations; i++)
                     {
                         dx[i] += Math.Pow(TimeSeries[act + i + l1] - TimeSeries[element + l1 + i], 2);
                     }
                 }
             
-                for (i = 0; i <= iterations; i++)
+                for (i = 0; i <= _iterations; i++)
                 {
                     if (dx[i] > 0.0)
                     {
@@ -188,7 +204,7 @@ namespace MathLib.NumericalMethods.Lyapunov
                 }
             }
   
-            for (j = 0; j <= iterations; j++)
+            for (j = 0; j <= _iterations; j++)
             {
                 if (lcount[j] != 0)
                 {

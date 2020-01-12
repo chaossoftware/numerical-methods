@@ -1,60 +1,74 @@
 ﻿using System;
-using System.Globalization;
 using System.Text;
 using MathLib.IO;
 using MathLib.NumericalMethods.EmbeddingDimension;
 
 namespace MathLib.NumericalMethods.Lyapunov
 {
+    /// <summary>
+    /// 
+    /// M. T. Rosenstein, J. J. Collins, C. J. De Luca, A practical method for calculating largest Lyapunov exponents from small data sets, Physica D 65, 117 (1993)
+    /// </summary>
     public class RosensteinMethod : LyapunovMethod
     {
-        private readonly BoxAssistedFnn fnn;
-        private readonly int eDim;
-        private readonly int tau;
-        private readonly int iterations;
-        private readonly int window;        //window around the reference point which should be omitted
-        private readonly double scaleMin;
-        private readonly int length;
+        private readonly BoxAssistedFnn _fnn;
+        private readonly int _eDim;
+        private readonly int _tau;
+        private readonly int _iterations;
+        private readonly int _window;
+        private readonly double _epsMin;
+        private readonly int _length;
 
-        private double epsilon;             //minimal length scale for the neighborhood search
+        private double epsilon; //minimal length scale for the neighborhood search
         private double eps;
 
         private double[] lyap;
         private int[] found;
 
+        /// <summary>
+        /// The method estimates the largest Lyapunov exponent of a given scalar data set using the algorithm of Rosenstein et al.
+        /// </summary>
+        /// <param name="timeSeries">timeseries to analyze</param>
+        /// <param name="eDim">embedding dimension</param>
+        /// <param name="tau"></param>
+        /// <param name="iterations"></param>
+        /// <param name="window">window around the reference point which should be omitted</param>
+        /// <param name="scaleMin"></param>
         public RosensteinMethod(double[] timeSeries, int eDim, int tau, int iterations, int window, double scaleMin)
             : base(timeSeries)
         {
-            this.eDim = eDim;
-            this.tau = tau;
-            this.iterations = iterations;
-            this.window = window;
-            this.scaleMin = scaleMin;
-            this.length = timeSeries.Length;
+            _eDim = eDim;
+            _tau = tau;
+            _iterations = iterations;
+            _window = window;
+            _epsMin = scaleMin;
+            _length = timeSeries.Length;
 
-            if (iterations + (eDim - 1) * tau >= length)
+            if (iterations + (eDim - 1) * tau >= _length)
             {
                 throw new ArgumentException("Too few points to handle specified parameters, it makes no sense to continue.");
             }
 
-            this.fnn = new BoxAssistedFnn(256, length);
+            _fnn = new BoxAssistedFnn(256, _length);
         }
 
         public override string ToString() =>
             new StringBuilder()
-            .AppendLine($"m = {eDim}")
-            .AppendLine($"τ = {tau}")
-            .AppendLine($"iterations = {iterations}")
-            .AppendLine($"theiler window = {window}")
+            .AppendLine("Rosenstein method")
+            .AppendLine($"m = {_eDim}")
+            .AppendLine($"τ = {_tau}")
+            .AppendLine($"iterations = {_iterations}")
+            .AppendLine($"theiler window = {_window}")
             .AppendLine($"min ε = {NumFormat.ToShort(epsilon)}")
             .ToString();
 
         public override string GetInfoFull() =>
             new StringBuilder()
-            .AppendLine($"Embedding dimension: {eDim}")
-            .AppendLine($"Delay: {tau}")
-            .AppendLine($"Iterations: {iterations}")
-            .AppendLine($"Window around the reference point which should be omitted: {window}")
+            .AppendLine("Rosenstein method")
+            .AppendLine($"Embedding dimension: {_eDim}")
+            .AppendLine($"Delay: {_tau}")
+            .AppendLine($"Iterations: {_iterations}")
+            .AppendLine($"Window around the reference point which should be omitted: {_window}")
             .AppendLine($"Min scale: {NumFormat.ToShort(epsilon)}")
             .ToString();
 
@@ -65,18 +79,18 @@ namespace MathLib.NumericalMethods.Lyapunov
             bool[] done;
             bool alldone;
             int n;
-            int bLength = length - (this.eDim - 1) * this.tau - this.iterations;
-            int maxlength = bLength - 1 - window;
+            int bLength = _length - (_eDim - 1) * _tau - _iterations;
+            int maxlength = bLength - 1 - _window;
 
-            lyap = new double[iterations + 1];
-            found = new int[iterations + 1];
-            done = new bool[length];
+            lyap = new double[_iterations + 1];
+            found = new int[_iterations + 1];
+            done = new bool[_length];
 
             var interval = Ext.RescaleData(TimeSeries);
 
-            epsilon = scaleMin == 0 ? 1e-3 : scaleMin / interval;
+            epsilon = _epsMin == 0 ? 1e-3 : _epsMin / interval;
 
-            for (int i = 0; i < length; i++)
+            for (int i = 0; i < _length; i++)
             {
                 done[i] = false;
             }
@@ -85,7 +99,7 @@ namespace MathLib.NumericalMethods.Lyapunov
 
             for (eps = epsilon; !alldone; eps *= 1.1)
             {
-                fnn.PutInBoxes(TimeSeries, eps, 0, bLength, 0, tau * (eDim - 1));
+                _fnn.PutInBoxes(TimeSeries, eps, 0, bLength, 0, _tau * (_eDim - 1));
 
                 alldone = true;
 
@@ -102,7 +116,7 @@ namespace MathLib.NumericalMethods.Lyapunov
                 Log.AppendFormat("epsilon: {0:F5} already found: {1}\n", eps * interval, found[0]);
             }
 
-            for (int i = 0; i <= iterations; i++)
+            for (int i = 0; i <= _iterations; i++)
             {
                 if (found[i] != 0)
                 {
@@ -113,27 +127,25 @@ namespace MathLib.NumericalMethods.Lyapunov
             }
         }
 
-
-
         private bool Iterate(int act)
         {
             int minelement;
             double dx;
-            int del1 = eDim * tau;
-            bool ok = fnn.FindNeighborsR(TimeSeries, eDim, tau, eps, act, window, out minelement);
+            int del1 = _eDim * _tau;
+            bool ok = _fnn.FindNeighborsR(TimeSeries, _eDim, _tau, eps, act, _window, out minelement);
 
             if (minelement != -1)
             {
                 act--;
                 minelement--;
                 
-                for (int i = 0; i <= iterations; i++)
+                for (int i = 0; i <= _iterations; i++)
                 {
                     act++;
                     minelement++;
                     dx = 0.0;
                     
-                    for (int j = 0; j < del1; j += tau)
+                    for (int j = 0; j < del1; j += _tau)
                     {
                         dx += (TimeSeries[act + j] - TimeSeries[minelement + j]) * (TimeSeries[act + j] - TimeSeries[minelement + j]);
                     }
@@ -148,7 +160,5 @@ namespace MathLib.NumericalMethods.Lyapunov
 
             return ok;
         }
-
-
     }
 }

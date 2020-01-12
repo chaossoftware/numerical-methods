@@ -15,10 +15,10 @@ namespace MathLib.Data
         {
             ReadFromFile(filePath);
 
-            this.FileName = filePath.Substring(filePath.LastIndexOf("\\") + 1);
-            this.Folder = Path.GetDirectoryName(filePath);
-            this.Length = dataColumns.GetLength(0);
-            this.ColumnsCount = dataColumns.GetLength(1);
+            FileName = filePath.Substring(filePath.LastIndexOf("\\") + 1);
+            Folder = Path.GetDirectoryName(filePath);
+            Length = dataColumns.GetLength(0);
+            ColumnsCount = dataColumns.GetLength(1);
 
             SetTimeSeries(0, 0, Length, 1, false);
         }
@@ -45,17 +45,17 @@ namespace MathLib.Data
         public void SetTimeSeries(int colIndex, int startPoint, int endPoint, int pts, bool timeInFirstColumn)
         {
             int max = (endPoint - startPoint) / pts;
-            this.TimeSeries = new Timeseries();
+            TimeSeries = new Timeseries();
 
             for (int i = 0; i < max; i++)
             {
                 int row = startPoint + i * pts;
                 var x = timeInFirstColumn ? dataColumns[row, 0] : i + 1;
                 var y = dataColumns[row, colIndex];
-                this.TimeSeries.AddDataPoint(x, y);
+                TimeSeries.AddDataPoint(x, y);
             }
                     
-            this.Step = this.TimeSeries.DataPoints[1].X - this.TimeSeries.DataPoints[0].X;
+            Step = TimeSeries.DataPoints[1].X - TimeSeries.DataPoints[0].X;
         }
 
         public string GetTimeSeriesString(bool withTime)
@@ -70,17 +70,15 @@ namespace MathLib.Data
             return timeSeriesOut.ToString();
         }
 
-        public override string ToString()
-        {
-            return $"File: {this.FileName}\nLines: {this.Length}\nColumns: {this.ColumnsCount}";
-        }
+        public override string ToString() =>
+            $"File: {FileName}\nLines: {Length}\nColumns: {ColumnsCount}";
 
         private void ReadFromFile(string file)
         {
             var sourceData = File.ReadAllLines(file);
             var timeSeriesWidth = Regex.Split(sourceData[0].ToString().Trim(), "\\s+").Length;
 
-            this.dataColumns = new double[sourceData.Length, timeSeriesWidth];
+            dataColumns = new double[sourceData.Length, timeSeriesWidth];
 
             for (int i = 0; i < sourceData.Length; i++)
             {

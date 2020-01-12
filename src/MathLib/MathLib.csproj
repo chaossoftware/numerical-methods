@@ -69,9 +69,10 @@
     <Compile Include="Data\SourceData.cs" />
     <Compile Include="IO\NumFormat.cs" />
     <Compile Include="NumericalMethods\AutoCorrelationFunction.cs" />
+    <Compile Include="NumericalMethods\CalculationException.cs" />
     <Compile Include="NumericalMethods\EmbeddingDimension\BoxAssistedFfn.cs" />
     <Compile Include="NumericalMethods\Lyapunov\BenettinMethod.cs" />
-    <Compile Include="NumericalMethods\Lyapunov\JakobianMethod.cs" />
+    <Compile Include="NumericalMethods\Lyapunov\SanoSawadaMethod.cs" />
     <Compile Include="NumericalMethods\Lyapunov\KantzMethod.cs" />
     <Compile Include="NumericalMethods\Lyapunov\LyapunovSpectrum.cs" />
     <Compile Include="NumericalMethods\Lyapunov\LyapunovMethod.cs" />
