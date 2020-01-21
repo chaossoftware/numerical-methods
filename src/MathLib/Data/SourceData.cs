@@ -9,23 +9,29 @@ namespace MathLib.Data
 {
     public class SourceData
     {
+        private const string NumberRegex = "\\s+";
+
         private double[,] dataColumns;
 
-        public SourceData(string filePath)
+        public SourceData(string filePath, int startOffset, int readLines)
         {
-            ReadFromFile(filePath);
+            ReadFromFile(filePath, startOffset, readLines);
 
-            FileName = filePath.Substring(filePath.LastIndexOf("\\") + 1);
+            FileName = Path.GetFileName(filePath);
             Folder = Path.GetDirectoryName(filePath);
-            Length = dataColumns.GetLength(0);
+            LinesCount = dataColumns.GetLength(0);
             ColumnsCount = dataColumns.GetLength(1);
 
-            SetTimeSeries(0, 0, Length, 1, false);
+            SetTimeSeries(0, 0, LinesCount, 1, false);
+        }
+
+        public SourceData(string filePath) : this (filePath, 0, -1)
+        {
         }
 
         public Timeseries TimeSeries { get; protected set; }
 
-        public int Length { get; protected set; }
+        public int LinesCount { get; protected set; }
 
         public int ColumnsCount { get; protected set; }
 
@@ -36,12 +42,13 @@ namespace MathLib.Data
         public string Folder { get; protected set; }
 
         /// <summary>
-        /// Set current time series from column and data range
+        /// Set current time series from column and data range.
         /// </summary>
         /// <param name="colIndex">index of column</param>
         /// <param name="startPoint">start point for time series</param>
         /// <param name="endPoint">end point for time series</param>
         /// <param name="pts">use each N point from range</param>
+        /// <param name="timeInFirstColumn">specify whether to use first column values as time or not</param>
         public void SetTimeSeries(int colIndex, int startPoint, int endPoint, int pts, bool timeInFirstColumn)
         {
             int max = (endPoint - startPoint) / pts;
@@ -58,7 +65,7 @@ namespace MathLib.Data
             Step = TimeSeries.DataPoints[1].X - TimeSeries.DataPoints[0].X;
         }
 
-        public string GetTimeSeriesString(bool withTime)
+        public string GetTimeSeriesString()
         {
             var timeSeriesOut = new StringBuilder();
 
@@ -71,28 +78,34 @@ namespace MathLib.Data
         }
 
         public override string ToString() =>
-            $"File: {FileName}\nLines: {Length}\nColumns: {ColumnsCount}";
+            $"File: {FileName}\nLines: {LinesCount}\nColumns: {ColumnsCount}";
 
-        private void ReadFromFile(string file)
+        private void ReadFromFile(string file, int startOffset, int readLines)
         {
+            int i, j;
+
             var sourceData = File.ReadAllLines(file);
-            var timeSeriesWidth = Regex.Split(sourceData[0].ToString().Trim(), "\\s+").Length;
 
-            dataColumns = new double[sourceData.Length, timeSeriesWidth];
+            // Determine how many numbers in line.
+            var columns = Regex.Split(sourceData[startOffset].Trim(), NumberRegex).Length;
 
-            for (int i = 0; i < sourceData.Length; i++)
+            var length = readLines == -1 ? sourceData.Length - startOffset : readLines;
+
+            dataColumns = new double[length, columns];
+
+            for (i = startOffset; i < length + startOffset; i++)
             {
-                var numbers = Regex.Split(sourceData[i].Trim(), "\\s+");
+                var numbers = Regex.Split(sourceData[i].Trim(), NumberRegex);
 
-                for (int j = 0; j < timeSeriesWidth; j++)
+                for (j = 0; j < columns; j++)
                 {
-                    try
+                    if (double.TryParse(numbers[j], NumberStyles.Any, CultureInfo.InvariantCulture, out double value))
                     {
-                        dataColumns[i, j] = double.Parse(numbers[j], NumberStyles.Any, CultureInfo.InvariantCulture);
+                        dataColumns[i - startOffset, j] = value;
                     }
-                    catch (FormatException ex)
+                    else
                     {
-                        throw new ArgumentException($"{ex.Message}\nLine: {j} , value: {numbers[j]}");
+                        throw new ArgumentException($"Unable to parse value (Line: {i + 1}, Column: {j} [value: {numbers[j]}])");
                     }
                 }
             }
