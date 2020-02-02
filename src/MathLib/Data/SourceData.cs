@@ -99,7 +99,8 @@ namespace MathLib.Data
 
                 for (j = 0; j < columns; j++)
                 {
-                    if (double.TryParse(numbers[j], NumberStyles.Any, CultureInfo.InvariantCulture, out double value))
+                    double value;
+                    if (double.TryParse(numbers[j], NumberStyles.Any, CultureInfo.InvariantCulture, out value))
                     {
                         dataColumns[i - startOffset, j] = value;
                     }

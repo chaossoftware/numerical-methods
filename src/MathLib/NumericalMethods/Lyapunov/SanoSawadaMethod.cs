@@ -309,7 +309,9 @@ namespace MathLib.NumericalMethods.Lyapunov
 
                 if (nfound > _minNeighbors)
                 {
-                    foundeps = Sort(act, nfound, out nfound, out bool got_enough);
+                    bool got_enough;
+
+                    foundeps = Sort(act, nfound, out nfound, out got_enough);
 
                     if (got_enough)
                     {
