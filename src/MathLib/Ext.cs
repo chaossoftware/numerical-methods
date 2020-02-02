@@ -1,4 +1,8 @@
-﻿using System;
+﻿using MathLib.Data;
+using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Linq;
 
 namespace MathLib
 {
@@ -116,5 +120,47 @@ namespace MathLib
                 }
             }
         }
+
+        public static int SlopeChangePointIndex(Timeseries timeseries, int groupingCoefficient, double cutOffValue)
+        {
+            var smoothed = new List<PointF>();     // reduced smoothed data
+            var d1 = new List<PointF>();     // 1st derivative
+            var d2 = new List<PointF>();     // 2nd derivative
+            var m = new List<PointF>();      // reasonably large values from D2
+
+            // smoothen the data
+            for (int i = 1; i < timeseries.Length / groupingCoefficient; i++)
+            {
+                double ysum = 0.0f;
+
+                for (int j = 0; j < groupingCoefficient; j++)
+                {
+                    ysum += timeseries.DataPoints[i * groupingCoefficient + j].Y;
+                }
+
+                smoothed.Add(new PointF(i, (float)ysum / groupingCoefficient));
+            }
+
+            // 1st derivative
+            for (int i = 1; i < smoothed.Count; i++)
+            {
+                d1.Add(new PointF(i, smoothed[i - 1].Y - smoothed[i].Y));
+            }
+
+            // 2nd derivative
+            for (int i = 1; i < d1.Count; i++)
+            {
+                d2.Add(new PointF(i, d1[i - 1].Y - d1[i].Y));
+            }
+
+            // collect 'reasonably' large values from D2
+            foreach (var p in d2.Where(p => Math.Abs(p.Y / cutOffValue) > 1))
+            {
+                m.Add(p);
+            }
+
+            return m.Any() ? (int)(m.Last().X * groupingCoefficient) /*+ groupingCoefficient*/ : 0;
+        }
     }
+
 }
