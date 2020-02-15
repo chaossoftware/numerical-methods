@@ -14,7 +14,6 @@ namespace MathLib.NumericalMethods.Lyapunov
     {
         private const int OutputInterval = 10000;
         private const double EpsMax = 1.0;
-        private const int tau = 1;
 
         private readonly BoxAssistedFnn fnn;
         public readonly LyapunovSpectrum result;
@@ -25,6 +24,7 @@ namespace MathLib.NumericalMethods.Lyapunov
         private readonly double _epsStep = 1.2;
         private readonly int _iterations;
         private readonly int _length;
+        private readonly int _tau;
 
         private bool epsset = false;
 
@@ -49,10 +49,11 @@ namespace MathLib.NumericalMethods.Lyapunov
         /// <param name="epsstep"></param>
         /// <param name="minNeigh"></param>
         /// <param name="inverse"></param>
-        public SanoSawadaMethod(double[] timeSeries, int eDim, int iterations, double scaleMin, double epsstep, int minNeigh, bool inverse)
+        public SanoSawadaMethod(double[] timeSeries, int eDim, int tau, int iterations, double scaleMin, double epsstep, int minNeigh, bool inverse)
             : base(timeSeries)
         {
             _eDim = eDim;
+            _tau = tau;
             _iterations = iterations;
             this.epsmin = scaleMin;
             this.epsset = scaleMin != 0;
@@ -62,7 +63,7 @@ namespace MathLib.NumericalMethods.Lyapunov
 
             _length = TimeSeries.Length;
 
-            if (_minNeighbors > (_length - tau * (eDim - 1) - 1))
+            if (_minNeighbors > (_length - _tau * (eDim - 1) - 1))
             {
                 throw new ArgumentException($"Too few points to find {_minNeighbors} neighbors, it makes no sense to continue.");
             }
@@ -76,7 +77,7 @@ namespace MathLib.NumericalMethods.Lyapunov
         public override string ToString() =>
             new StringBuilder()
             .AppendLine($"m = {_eDim}")
-            .AppendLine($"τ = {tau}")
+            .AppendLine($"τ = {_tau}")
             .AppendLine($"iterations = {_iterations}")
             .AppendLine($"min ε = {NumFormat.ToShort(epsmin)}")
             .AppendLine($"neighbour size increase factor = {NumFormat.ToShort(_epsStep)}")
@@ -133,7 +134,7 @@ namespace MathLib.NumericalMethods.Lyapunov
             vector = new double[_eDim + 1];
             matrix = new double[_eDim + 1, _eDim + 1];
 
-            indexes = MakeIndex(_eDim, tau);
+            indexes = MakeIndex(_eDim, _tau);
 
             random = new Random(int.MaxValue);
 
@@ -154,13 +155,13 @@ namespace MathLib.NumericalMethods.Lyapunov
 
             GramSchmidt(delta, lfactor);
 
-            start = Math.Min(_iterations, _length - tau);
+            start = Math.Min(_iterations, _length - _tau);
 
             abstand = new double[_length];
 
             var timer = Stopwatch.StartNew();
 
-            for (i = (_eDim - 1) * tau; i < start; i++)
+            for (i = (_eDim - 1) * _tau; i < start; i++)
             {
                 count++;
                 MakeDynamics(dynamics, i);
@@ -169,7 +170,7 @@ namespace MathLib.NumericalMethods.Lyapunov
 
                 for (j = 0; j < _eDim; j++)
                 {
-                    factor[j] += Math.Log(lfactor[j]) / tau;
+                    factor[j] += Math.Log(lfactor[j]) / _tau;
                 }
 
                 if (timer.ElapsedMilliseconds > OutputInterval || (i == (start - 1)))
@@ -304,8 +305,8 @@ namespace MathLib.NumericalMethods.Lyapunov
                     epsilon = EpsMax;
                 }
 
-                fnn.PutInBoxes(TimeSeries, epsilon, (_eDim - 1) * tau, _length - tau, 0, 0);
-                nfound = fnn.FindNeighborsJ(TimeSeries, _eDim, tau, epsilon, act);
+                fnn.PutInBoxes(TimeSeries, epsilon, (_eDim - 1) * _tau, _length - _tau, 0, 0);
+                nfound = fnn.FindNeighborsJ(TimeSeries, _eDim, _tau, epsilon, act);
 
                 if (nfound > _minNeighbors)
                 {
@@ -374,7 +375,7 @@ namespace MathLib.NumericalMethods.Lyapunov
             for (i = 0; i < nfound; i++)
             {
                 act = fnn.Found[i];
-                hv = TimeSeries[act + tau];
+                hv = TimeSeries[act + _tau];
                 vector[0] += hv;
 
                 for (j = 0; j < _eDim; j++)
@@ -411,7 +412,7 @@ namespace MathLib.NumericalMethods.Lyapunov
                 new_vec += dynamics[i] * TimeSeries[t - indexes[i]];
             }
 
-            averr += (new_vec - TimeSeries[t + tau]) * (new_vec - TimeSeries[t + tau]);
+            averr += (new_vec - TimeSeries[t + _tau]) * (new_vec - TimeSeries[t + _tau]);
 
         }
 
