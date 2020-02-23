@@ -75,7 +75,7 @@ namespace MathLib.Data
 
         public int Length => DataPoints.Count;
         
-        private double[] XValues
+        public double[] XValues
         {
             get
             {
