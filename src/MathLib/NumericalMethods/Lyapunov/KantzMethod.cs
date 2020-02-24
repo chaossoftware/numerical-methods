@@ -52,6 +52,7 @@ namespace MathLib.NumericalMethods.Lyapunov
             _epsMin = scaleMin;
             _epsMax = scaleMax;
             _length = timeSeries.Length;
+            this.epscount = epscount;
 
             if (iterations + (eDim - 1) * tau >= _length)
             {
@@ -154,7 +155,7 @@ namespace MathLib.NumericalMethods.Lyapunov
 
                 if (dict.Length > 1)
                 {
-                    SlopesList.Add(string.Format("eps = {0:F5}", epsilon * interval), dict);
+                    SlopesList.Add(string.Format("ε = {0:F5}", epsilon * interval), dict);
                 }
             }
         }
