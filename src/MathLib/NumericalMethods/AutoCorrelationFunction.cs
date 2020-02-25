@@ -18,7 +18,7 @@ namespace MathLib.NumericalMethods
      */
     public class AutoCorrelationFunction
     {
-        public double[] GetAutoCorrelationOfSeries(double[] timeSeries)
+        public double[] GetFromSeries(double[] timeSeries)
         {
             var half = timeSeries.Length / 2;
             var autoCorrelation = new double[half];
