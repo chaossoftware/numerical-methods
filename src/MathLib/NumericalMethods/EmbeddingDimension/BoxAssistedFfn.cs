@@ -5,18 +5,18 @@ namespace MathLib.NumericalMethods.EmbeddingDimension
 {
     public class BoxAssistedFnn
     {
-        private readonly ushort boxSize;
-        private readonly ushort iBoxSize;
-        private readonly int[,] boxes;
-        private readonly int[] list;
+        private readonly ushort _boxSize;
+        private readonly ushort _iBoxSize;
+        private readonly int[,] _boxes;
+        private readonly int[] _list;
 
         public BoxAssistedFnn(ushort boxSize, int timeSeriesSize)
         {
-            this.boxSize = boxSize;
-            this.iBoxSize = (ushort)(boxSize - 1);
-            this.boxes = new int[boxSize, boxSize];
-            this.list = new int[timeSeriesSize];
-            this.Found = new int[timeSeriesSize];
+            _boxSize = boxSize;
+            _iBoxSize = (ushort)(boxSize - 1);
+            _boxes = new int[boxSize, boxSize];
+            _list = new int[timeSeriesSize];
+            Found = new int[timeSeriesSize];
         }
 
         public int[] Found { get; protected set; }
@@ -37,23 +37,22 @@ namespace MathLib.NumericalMethods.EmbeddingDimension
         //shift (Kantz = Tau) (Rosenstein = Tau * (Dim - 1)) (Jakobian = 0)
         public void PutInBoxes(double[] timeSeries, double epsilon, int startIndex, int endIndex, int xShift, int yShift)
         {
-            for (var x = 0; x < boxSize; x++)
+            for (var x = 0; x < _boxSize; x++)
             {
-                for (var y = 0; y < boxSize; y++)
+                for (var y = 0; y < _boxSize; y++)
                 {
-                    this.boxes[x, y] = -1;
+                    _boxes[x, y] = -1;
                 }
             }
 
             for (int i = startIndex; i < endIndex; i++)
             {
-                var x = (int)(timeSeries[i + xShift] / epsilon) & iBoxSize;
-                var y = (int)(timeSeries[i + yShift] / epsilon) & iBoxSize;
-                this.list[i] = this.boxes[x, y];
-                this.boxes[x, y] = i;
+                var x = (int)(timeSeries[i + xShift] / epsilon) & _iBoxSize;
+                var y = (int)(timeSeries[i + yShift] / epsilon) & _iBoxSize;
+                _list[i] = _boxes[x, y];
+                _boxes[x, y] = i;
             }
         }
-
 
         public int FindNeighborsJ(double[] timeSeries, int eDim, int tau, double epsilon, int act)
         {
@@ -62,16 +61,16 @@ namespace MathLib.NumericalMethods.EmbeddingDimension
             int x, y, i, i1, j, k, k1;
             double dx = 0.0;
 
-            x = (int)(timeSeries[act] / epsilon) & iBoxSize;
-            y = (int)(timeSeries[act] / epsilon) & iBoxSize;
+            x = (int)(timeSeries[act] / epsilon) & _iBoxSize;
+            y = (int)(timeSeries[act] / epsilon) & _iBoxSize;
 
             for (i = x - 1; i <= x + 1; i++)
             {
-                i1 = i & iBoxSize;
+                i1 = i & _iBoxSize;
 
                 for (j = y - 1; j <= y + 1; j++)
                 {
-                    element = boxes[i1, j & iBoxSize];
+                    element = _boxes[i1, j & _iBoxSize];
 
                     while (element != -1)
                     {
@@ -92,7 +91,7 @@ namespace MathLib.NumericalMethods.EmbeddingDimension
                             Found[nf++] = element;
                         }
 
-                        element = list[element];
+                        element = _list[element];
                     }
                 }
             }
@@ -107,16 +106,16 @@ namespace MathLib.NumericalMethods.EmbeddingDimension
             int x, y, i, i1, j, k, k1;
             double dx, eps2 = Math.Pow(epsilon, 2);
 
-            x = (int)(timeSeries[act] / epsilon) & iBoxSize;
-            y = (int)(timeSeries[act + tau] / epsilon) & iBoxSize;
+            x = (int)(timeSeries[act] / epsilon) & _iBoxSize;
+            y = (int)(timeSeries[act + tau] / epsilon) & _iBoxSize;
 
             for (i = x - 1; i <= x + 1; i++)
             {
-                i1 = i & iBoxSize;
+                i1 = i & _iBoxSize;
 
                 for (j = y - 1; j <= y + 1; j++)
                 {
-                    element = boxes[i1, j & iBoxSize];
+                    element = _boxes[i1, j & _iBoxSize];
 
                     while (element != -1)
                     {
@@ -140,7 +139,7 @@ namespace MathLib.NumericalMethods.EmbeddingDimension
                             }
                         }
 
-                        element = list[element];
+                        element = _list[element];
                     }
                 }
             }
@@ -157,16 +156,16 @@ namespace MathLib.NumericalMethods.EmbeddingDimension
             
             double dx, eps2 = Math.Pow(epsilon, 2), mindx = 1.0;
 
-            x = (int)(timeSeries[act] / epsilon) & iBoxSize;
-            y = (int)(timeSeries[act + tau * (eDim - 1)] / epsilon) & iBoxSize;
+            x = (int)(timeSeries[act] / epsilon) & _iBoxSize;
+            y = (int)(timeSeries[act + tau * (eDim - 1)] / epsilon) & _iBoxSize;
 
             for (int i = x - 1; i <= x + 1; i++)
             {
-                i1 = i & iBoxSize;
+                i1 = i & _iBoxSize;
 
                 for (int j = y - 1; j <= y + 1; j++)
                 {
-                    element = boxes[i1, j & iBoxSize];
+                    element = _boxes[i1, j & _iBoxSize];
 
                     while (element != -1)
                     {
@@ -196,7 +195,7 @@ namespace MathLib.NumericalMethods.EmbeddingDimension
                             }
                         }
 
-                        element = list[element];
+                        element = _list[element];
                     }
                 }
             }
