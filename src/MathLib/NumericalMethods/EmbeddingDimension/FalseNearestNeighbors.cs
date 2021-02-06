@@ -53,13 +53,15 @@ namespace MathLib.NumericalMethods.EmbeddingDimension
         {
             int i;
 
+            // to calculate only if not retrieved in constructor;
             double inter = Ext.RescaleData(_series);
 
+            // to calculate only if not retrieved in constructor;
             variance = Ext.Variance(_series);
 
             list = new int[_length];
             bool[] nearest = new bool[_length];
-            
+            box = new int[BoxSize, BoxSize];
 
             for (int dim = _minDim; dim <= _maxDim; dim++)
             {
@@ -79,7 +81,7 @@ namespace MathLib.NumericalMethods.EmbeddingDimension
                 while (!alldone && (epsilon < 2d * variance / _rt))
                 {
                     alldone = true;
-                    MakeBox(dim, epsilon);
+                    PutInBox(dim, epsilon);
 
                     for (i = (dim - 1) * _tau; i < _length - 1; i++)
                     {
@@ -180,11 +182,10 @@ namespace MathLib.NumericalMethods.EmbeddingDimension
             return false;
         }
 
-        private void MakeBox(int dim, double eps)
+        private void PutInBox(int dim, double eps)
         {
-            box = new int[BoxSize, BoxSize];
-
             int x, y;
+            int xShift = (dim - 1) * _tau;
 
             for (x = 0; x < BoxSize; x++)
             {
@@ -194,9 +195,9 @@ namespace MathLib.NumericalMethods.EmbeddingDimension
                 }
             }
 
-            for (int i = (dim - 1) * _tau; i < _length - 1; i++)
+            for (int i = xShift; i < _length - 1; i++)
             {
-                x = (int)(_series[i - (dim - 1) * _tau] / eps) & IBoxSize;
+                x = (int)(_series[i - xShift] / eps) & IBoxSize;
                 y = (int)(_series[i] / eps) & IBoxSize;
                 list[i] = box[x, y];
                 box[x, y] = i;
