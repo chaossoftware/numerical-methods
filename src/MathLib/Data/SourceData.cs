@@ -82,6 +82,11 @@ namespace MathLib.Data
 
         private void ReadFromFile(string file, int startOffset, int readLines)
         {
+            if (!File.Exists(file))
+            {
+                throw new FileNotFoundException("File not found.", file);
+            }
+
             int i, j;
 
             var sourceData = File.ReadAllLines(file);
