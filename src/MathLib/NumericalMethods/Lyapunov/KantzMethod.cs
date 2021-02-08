@@ -13,6 +13,7 @@ namespace MathLib.NumericalMethods.Lyapunov
     /// </summary>
     public class KantzMethod : LyapunovMethod
     {
+        private const string Paper = "H. Kantz, A robust method to estimate the maximal Lyapunov exponent of a time series, Phys. Lett. A 185, 77 (1994)";
         private readonly BoxAssistedFnn _fnn;
         private readonly int _eDim;
         private readonly int _tau;
@@ -67,7 +68,7 @@ namespace MathLib.NumericalMethods.Lyapunov
 
         public override string ToString() =>
             new StringBuilder()
-            .AppendLine("Kantz method")
+            .AppendLine("LLE by Kantz")
             .AppendLine($"m = {_eDim}")
             .AppendLine($"τ = {_tau}")
             .AppendLine($"iterations = {_iterations}")
@@ -76,15 +77,15 @@ namespace MathLib.NumericalMethods.Lyapunov
             .AppendLine($"max ε = {epsmax.ToString(NumFormat.Short, CultureInfo.InvariantCulture)}")
             .ToString();
 
-        public override string GetInfoFull() =>
+        public override string GetHelp() =>
             new StringBuilder()
-            .AppendLine("Kantz method")
-            .AppendLine($"Embedding dimension: {_eDim}")
-            .AppendLine($"Delay: {_tau}")
-            .AppendLine($"Max Iterations: {_iterations}")
-            .AppendLine($"Window around the reference point which should be omitted: {_window}")
-            .AppendLine($"Min scale: {epsmin.ToString(NumFormat.Short, CultureInfo.InvariantCulture)}")
-            .AppendLine($"Max scale: {epsmax.ToString(NumFormat.Short, CultureInfo.InvariantCulture)}")
+            .AppendLine($"LLE by Kantz [{Paper}]")
+            .AppendLine("m - Embedding dimension (default: 2)")
+            .AppendLine("τ - Reconstruction delay (default: 1)")
+            .AppendLine("Iterations (default: 50)")
+            .AppendLine("theiler window - Window around the reference point which should be omitted (default: 0)")
+            .AppendLine("min ε - Min scale (default: 1e-3)")
+            .AppendLine($"max ε - Max scale (default: 1e-2)")
             .ToString();
 
         public override string GetResult() => "Successful";

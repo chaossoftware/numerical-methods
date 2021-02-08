@@ -16,7 +16,6 @@ namespace MathLib.NumericalMethods.Lyapunov
         private const double EpsMax = 1.0;
 
         private readonly BoxAssistedFnn fnn;
-        public readonly LyapunovSpectrum result;
 
         private readonly int _eDim;
         private readonly bool _inverse;
@@ -55,8 +54,8 @@ namespace MathLib.NumericalMethods.Lyapunov
             _eDim = eDim;
             _tau = tau;
             _iterations = iterations;
-            this.epsmin = scaleMin;
-            this.epsset = scaleMin != 0;
+            epsmin = scaleMin;
+            epsset = scaleMin != 0;
             _epsStep = epsstep;
             _minNeighbors = minNeigh;
             _inverse = inverse;
@@ -71,11 +70,14 @@ namespace MathLib.NumericalMethods.Lyapunov
             Slope = new Timeseries();
             random = new Random();
             fnn = new BoxAssistedFnn(512, _length);
-            this.result = new LyapunovSpectrum(eDim);
+            Result = new LyapunovSpectrum(eDim);
         }
+
+        public LyapunovSpectrum Result { get; }
 
         public override string ToString() =>
             new StringBuilder()
+            .AppendLine("LE spectrum by Sano/Sawada")
             .AppendLine($"m = {_eDim}")
             .AppendLine($"τ = {_tau}")
             .AppendLine($"iterations = {_iterations}")
@@ -85,12 +87,12 @@ namespace MathLib.NumericalMethods.Lyapunov
             .AppendLine($"invert timeseries = {_inverse}")
             .ToString();
 
-        public override string GetInfoFull()
+        public override string GetHelp()
         {
             throw new NotImplementedException();
         }
 
-        public override string GetResult() => result.ToString();
+        public override string GetResult() => Result.ToString();
 
         public override void Calculate()
         {
@@ -181,17 +183,18 @@ namespace MathLib.NumericalMethods.Lyapunov
 
                     for (j = 0; j < _eDim; j++)
                     {
-                        Log.Append($"{factor[j] / count} ");
-                        result.Spectrum[j] = factor[j] / count;
+                        Log.Append($"{NumFormat.ToShort(factor[j] / count)} ");
+                        Result.Spectrum[j] = factor[j] / count;
                     }
 
                     Log.AppendLine();
                 }
             }
 
-            Log.AppendLine($"Avg. relative forecast error = {NumFormat.ToShort(Math.Sqrt(averr / count) / variance)}");
-            Log.AppendLine($"Avg. absolute forecast error = {NumFormat.ToShort(Math.Sqrt(averr / count) * interval)}");
-            Log.AppendLine($"Avg. neighborhood size = {NumFormat.ToShort(aveps * maxinterval / count)}");
+            Log.AppendLine();
+            Log.AppendLine($"Avg. rel. forecast error = {NumFormat.ToShort(Math.Sqrt(averr / count) / variance)}");
+            Log.AppendLine($"Avg. abs. forecast error = {NumFormat.ToShort(Math.Sqrt(averr / count) * interval)}");
+            Log.AppendLine($"Avg. neighborhood size   = {NumFormat.ToShort(aveps * maxinterval / count)}");
             Log.AppendLine($"Avg. number of neighbors = {NumFormat.ToShort(avneig / count)}");
         }
 

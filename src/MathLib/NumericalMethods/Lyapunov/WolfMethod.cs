@@ -1,15 +1,16 @@
-﻿using System;
-using System.Globalization;
+﻿using MathLib.IO;
+using System;
 using System.Text;
-using MathLib.IO;
 
 namespace MathLib.NumericalMethods.Lyapunov
 {
     /// <summary>
+    /// LLE by Wolf (fixed evolution time)
     /// A Wolf, JB Swift, HL Swinney, JA Vastano, Determining Lyapunov exponents from a time series, Physica D: Nonlinear Phenomena, 1985
     /// </summary>
     public class WolfMethod : LyapunovMethod
     {
+        private const string Paper = "A Wolf, JB Swift, HL Swinney, JA Vastano, Determining Lyapunov exponents from a time series, Physica D: Nonlinear Phenomena, 1985";
         private readonly int _eDim;
         private readonly int _tau;
         private readonly int _evolv;
@@ -25,7 +26,6 @@ namespace MathLib.NumericalMethods.Lyapunov
         private double[] pt2; 
 
         private double zlyap;
-        private double rezult;
 
         private int step;
 
@@ -42,33 +42,43 @@ namespace MathLib.NumericalMethods.Lyapunov
             pt1 = new double[_eDim];
             pt2 = new double[_eDim];
 
-            evMulStMulLog2 = (double)_evolv * _dt * Math.Log(2d);
+            evMulStMulLog2 = _evolv * _dt * Math.Log(2d);
             tsLen = timeSeries.Length;
         }
 
+        public WolfMethod(double[] timeSeries) : this(timeSeries, 2, 1, 1d, 1e-3, 1e-2, 1)
+        {
+        }
+
+        public WolfMethod(double[] timeSeries, int eDim, double stepSize) : this(timeSeries, eDim, 1, stepSize, 1e-3, 1e-2, 1)
+        {
+        }
+
+        public double Result { get; protected set; }
+
         public override string ToString() =>
             new StringBuilder()
-                .AppendLine("Wolf fixed evolution time method")
+                .AppendLine("LLE by Wolf (fixed evolution time)")
                 .AppendLine($"m = {_eDim}")
                 .AppendLine($"τ = {_tau}")
-                .AppendLine($"Δt = {_dt.ToString(NumFormat.Short, CultureInfo.InvariantCulture)}")
-                .AppendLine($"min ε = {_epsMin.ToString(NumFormat.Short, CultureInfo.InvariantCulture)}")
-                .AppendLine($"max ε = {_epsMax.ToString(NumFormat.Short, CultureInfo.InvariantCulture)}")
+                .AppendLine($"Δt = {NumFormat.ToShort(_dt)}")
+                .AppendLine($"min ε = {NumFormat.ToShort(_epsMin)}")
+                .AppendLine($"max ε = {NumFormat.ToShort(_epsMax)}")
                 .AppendLine($"Evolution steps: {_evolv}")
                 .ToString();
 
-        public override string GetInfoFull() =>
+        public override string GetHelp() =>
             new StringBuilder()
-                .AppendLine("Wolf fixed evolution time method")
-                .AppendLine($"Embedding dimension: {_eDim}")
-                .AppendLine($"Reconstruction delay: {_tau}")
-                .AppendLine($"Step size: {_dt.ToString(NumFormat.Short, CultureInfo.InvariantCulture)}")
-                .AppendLine($"Min scale: {_epsMin.ToString(NumFormat.Short, CultureInfo.InvariantCulture)}")
-                .AppendLine($"Max scale: {_epsMax.ToString(NumFormat.Short, CultureInfo.InvariantCulture)}")
-                .AppendLine($"Evolution steps: {_evolv}")
+                .AppendLine($"LLE by Wolf (fixed evolution time) [{Paper}]")
+                .AppendLine("m - Embedding dimension (default: 2)")
+                .AppendLine("τ - Reconstruction delay (default: 1)")
+                .AppendLine("Δt - Step size (default: 1.0)")
+                .AppendLine("min ε - Min scale (default: 1e-3)")
+                .AppendLine("max ε - Max scale (default: 1e-2)")
+                .AppendLine("Evolution steps (default: 1)")
                 .ToString();
 
-        public override string GetResult() => rezult.ToString(NumFormat.Short, CultureInfo.InvariantCulture);
+        public override string GetResult() => NumFormat.ToShort(Result);
 
         public override void Calculate()
         {
@@ -106,7 +116,7 @@ namespace MathLib.NumericalMethods.Lyapunov
                 }
             }
 
-            ////Log.Append("Lyapunov exponent\tTotal Propagation Time\tDI\tInformation dimention\n");
+            Log.Append("Total Propagation Time\tLyapunov exponent\tDI\tInformation dimention\n");
 
             // ind - points to fiducial trajectory
             for (int ind = _evolv; ind < dataPointsCount; ind += _evolv)
@@ -128,9 +138,9 @@ namespace MathLib.NumericalMethods.Lyapunov
 
                 its++;
                 sum += Math.Log(df / di) / evMulStMulLog2;
-                zlyap = sum / (double)its;
+                zlyap = sum / its;
 
-                ////Log.AppendFormat("{0:F5}\t{1}\t{2:F5}\t{3:F5}\n", zlyap, Evolv * its, di, df);
+                Log.AppendFormat("{0}\t{1:F5}\t{2:F5}\t{3:F5}\n", _evolv * its, zlyap, di, df);
                 Slope.AddDataPoint(step++, zlyap);
 
                 // Look for replacement point.
@@ -218,7 +228,7 @@ namespace MathLib.NumericalMethods.Lyapunov
                 di = dii;
             }
 
-            rezult = zlyap;
+            Result = zlyap;
         }
 
         ///<summary>Define delay coordinates with a statement function</summary>

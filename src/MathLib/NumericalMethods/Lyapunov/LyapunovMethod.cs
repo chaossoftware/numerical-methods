@@ -14,16 +14,14 @@ namespace MathLib.NumericalMethods.Lyapunov
 
         public Timeseries Slope { get; set; }
 
-        public StringBuilder Log { get; private set; }
+        public StringBuilder Log { get; }
 
-        protected double[] TimeSeries { get; private set; }
+        protected double[] TimeSeries { get; }
 
         public abstract void Calculate();
 
         public abstract string GetResult();
 
-        //public abstract string ToString();
-
-        public abstract string GetInfoFull();
+        public abstract string GetHelp();
     }
 }

@@ -11,6 +11,7 @@ namespace MathLib.NumericalMethods.Lyapunov
     /// </summary>
     public class RosensteinMethod : LyapunovMethod
     {
+        private const string Paper = "M. T. Rosenstein, J. J. Collins, C. J. De Luca, A practical method for calculating largest Lyapunov exponents from small data sets, Physica D 65, 117 (1993)";
         private readonly BoxAssistedFnn _fnn;
         private readonly int _eDim;
         private readonly int _tau;
@@ -52,9 +53,17 @@ namespace MathLib.NumericalMethods.Lyapunov
             _fnn = new BoxAssistedFnn(256, _length);
         }
 
+        public RosensteinMethod(double[] timeSeries) : this(timeSeries, 2, 1, 50, 0, 0) // last parameter (eps) is 0 to obtain further it's default value
+        {
+        }
+
+        public RosensteinMethod(double[] timeSeries, int eDim) : this(timeSeries, eDim, 1, 50, 0, 0) // last parameter (eps) is 0 to obtain further it's default value
+        {
+        }
+
         public override string ToString() =>
             new StringBuilder()
-            .AppendLine("Rosenstein method")
+            .AppendLine("LLE by Rosenstein")
             .AppendLine($"m = {_eDim}")
             .AppendLine($"τ = {_tau}")
             .AppendLine($"iterations = {_iterations}")
@@ -62,14 +71,14 @@ namespace MathLib.NumericalMethods.Lyapunov
             .AppendLine($"min ε = {NumFormat.ToShort(epsilon)}")
             .ToString();
 
-        public override string GetInfoFull() =>
+        public override string GetHelp() =>
             new StringBuilder()
-            .AppendLine("Rosenstein method")
-            .AppendLine($"Embedding dimension: {_eDim}")
-            .AppendLine($"Delay: {_tau}")
-            .AppendLine($"Iterations: {_iterations}")
-            .AppendLine($"Window around the reference point which should be omitted: {_window}")
-            .AppendLine($"Min scale: {NumFormat.ToShort(epsilon)}")
+            .AppendLine($"LLE by Rosenstein [{Paper}]")
+            .AppendLine("m - Embedding dimension (default: 2)")
+            .AppendLine("τ - Reconstruction delay (default: 1)")
+            .AppendLine("Iterations (default: 50)")
+            .AppendLine("theiler window - Window around the reference point which should be omitted (default: 0)")
+            .AppendLine("min ε - Min scale (default: 1e-3)")
             .ToString();
 
         public override string GetResult() => "Successful";
