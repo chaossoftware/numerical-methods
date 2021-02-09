@@ -8,7 +8,7 @@ namespace MathLib.NumericalMethods.Lyapunov
     /// LLE by Wolf (fixed evolution time)
     /// A Wolf, JB Swift, HL Swinney, JA Vastano, Determining Lyapunov exponents from a time series, Physica D: Nonlinear Phenomena, 1985
     /// </summary>
-    public class WolfMethod : LyapunovMethod
+    public class LleWolf : LyapunovMethod
     {
         private const string Paper = "A Wolf, JB Swift, HL Swinney, JA Vastano, Determining Lyapunov exponents from a time series, Physica D: Nonlinear Phenomena, 1985";
         private readonly int _eDim;
@@ -29,7 +29,7 @@ namespace MathLib.NumericalMethods.Lyapunov
 
         private int step;
 
-        public WolfMethod(double[] timeSeries, int eDim, int tau, double stepSize, double scaleMin, double scaleMax, int evolv)
+        public LleWolf(double[] timeSeries, int eDim, int tau, double stepSize, double scaleMin, double scaleMax, int evolv)
             : base(timeSeries)
         {
             _eDim = eDim;
@@ -46,11 +46,11 @@ namespace MathLib.NumericalMethods.Lyapunov
             tsLen = timeSeries.Length;
         }
 
-        public WolfMethod(double[] timeSeries) : this(timeSeries, 2, 1, 1d, 1e-3, 1e-2, 1)
+        public LleWolf(double[] timeSeries) : this(timeSeries, 2, 1, 1d, 1e-3, 1e-2, 1)
         {
         }
 
-        public WolfMethod(double[] timeSeries, int eDim, double stepSize) : this(timeSeries, eDim, 1, stepSize, 1e-3, 1e-2, 1)
+        public LleWolf(double[] timeSeries, int eDim, double stepSize) : this(timeSeries, eDim, 1, stepSize, 1e-3, 1e-2, 1)
         {
         }
 
@@ -64,18 +64,18 @@ namespace MathLib.NumericalMethods.Lyapunov
                 .AppendLine($"Δt = {NumFormat.ToShort(_dt)}")
                 .AppendLine($"min ε = {NumFormat.ToShort(_epsMin)}")
                 .AppendLine($"max ε = {NumFormat.ToShort(_epsMax)}")
-                .AppendLine($"Evolution steps: {_evolv}")
+                .AppendLine($"evolution steps: {_evolv}")
                 .ToString();
 
         public override string GetHelp() =>
             new StringBuilder()
                 .AppendLine($"LLE by Wolf (fixed evolution time) [{Paper}]")
-                .AppendLine("m - Embedding dimension (default: 2)")
-                .AppendLine("τ - Reconstruction delay (default: 1)")
+                .AppendLine("m - embedding dimension (default: 2)")
+                .AppendLine("τ - reconstruction delay (default: 1)")
                 .AppendLine("Δt - Step size (default: 1.0)")
                 .AppendLine("min ε - Min scale (default: 1e-3)")
                 .AppendLine("max ε - Max scale (default: 1e-2)")
-                .AppendLine("Evolution steps (default: 1)")
+                .AppendLine("evolution steps (default: 1)")
                 .ToString();
 
         public override string GetResult() => NumFormat.ToShort(Result);

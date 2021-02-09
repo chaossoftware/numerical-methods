@@ -10,8 +10,9 @@ namespace MathLib.NumericalMethods.Lyapunov
     /// <summary>
     /// M.Sano and Y.Sawada, Measurement of the Lyapunov spectrum from a chaotic time series, Phys. Rev.Lett. 55, 1082 (1985).
     /// </summary>
-    public class SanoSawadaMethod : LyapunovMethod
+    public class LesSanoSawada : LyapunovMethod
     {
+        private const string Paper = "M.Sano and Y.Sawada, Measurement of the Lyapunov spectrum from a chaotic time series, Phys. Rev.Lett. 55, 1082 (1985)";
         private const int OutputInterval = 10000;
         private const double EpsMax = 1.0;
 
@@ -25,7 +26,7 @@ namespace MathLib.NumericalMethods.Lyapunov
         private readonly int _length;
         private readonly int _tau;
 
-        private bool epsset = false;
+        private readonly bool _epsset = false;
 
         private double averr;
         private double avneig = 0.0, aveps = 0.0;
@@ -48,14 +49,14 @@ namespace MathLib.NumericalMethods.Lyapunov
         /// <param name="epsstep"></param>
         /// <param name="minNeigh"></param>
         /// <param name="inverse"></param>
-        public SanoSawadaMethod(double[] timeSeries, int eDim, int tau, int iterations, double scaleMin, double epsstep, int minNeigh, bool inverse)
+        public LesSanoSawada(double[] timeSeries, int eDim, int tau, int iterations, double scaleMin, double epsstep, int minNeigh, bool inverse)
             : base(timeSeries)
         {
             _eDim = eDim;
             _tau = tau;
             _iterations = iterations;
             epsmin = scaleMin;
-            epsset = scaleMin != 0;
+            _epsset = scaleMin != 0;
             _epsStep = epsstep;
             _minNeighbors = minNeigh;
             _inverse = inverse;
@@ -73,11 +74,19 @@ namespace MathLib.NumericalMethods.Lyapunov
             Result = new LyapunovSpectrum(eDim);
         }
 
+        public LesSanoSawada(double[] timeSeries) : this(timeSeries, 2, 1, timeSeries.Length, 0, 1.2, 30, false) // 3rd from end parameter (eps) is 0 to obtain further it's default value
+        {
+        }
+
+        public LesSanoSawada(double[] timeSeries, int eDim) : this(timeSeries, eDim, 1, timeSeries.Length, 0, 1.2, 30, false) // 3rd from end parameter (eps) is 0 to obtain further it's default value
+        {
+        }
+
         public LyapunovSpectrum Result { get; }
 
         public override string ToString() =>
             new StringBuilder()
-            .AppendLine("LE spectrum by Sano/Sawada")
+            .AppendLine("LES by Sano & Sawada")
             .AppendLine($"m = {_eDim}")
             .AppendLine($"τ = {_tau}")
             .AppendLine($"iterations = {_iterations}")
@@ -87,10 +96,17 @@ namespace MathLib.NumericalMethods.Lyapunov
             .AppendLine($"invert timeseries = {_inverse}")
             .ToString();
 
-        public override string GetHelp()
-        {
-            throw new NotImplementedException();
-        }
+        public override string GetHelp() =>
+            new StringBuilder()
+            .AppendLine($"LES by Sano & Sawada [{Paper}]")
+            .AppendLine("m - embedding dimension (default: 2)")
+            .AppendLine("τ - reconstruction delay (default: 1)")
+            .AppendLine("iterations (default: number of points)")
+            .AppendLine("min ε - Min scale (default: ??)")
+            .AppendLine($"neighbour size increase factor (default: 1.2)")
+            .AppendLine($"neighbors count (default: 30)")
+            .AppendLine($"invert timeseries (default: false)")
+            .ToString();
 
         public override string GetResult() => Result.ToString();
 
@@ -125,7 +141,7 @@ namespace MathLib.NumericalMethods.Lyapunov
             }
 
             epsmin = 
-                epsset ? 
+                _epsset ? 
                 epsmin / maxinterval : 
                 interval / 1e-3;
 
@@ -251,7 +267,7 @@ namespace MathLib.NumericalMethods.Lyapunov
                 }
             }
 
-            if (!epsset || (abstand[_minNeighbors - 1] >= epsmin))
+            if (!_epsset || (abstand[_minNeighbors - 1] >= epsmin))
             {
                 nfound = _minNeighbors;
                 enough = true;
@@ -328,7 +344,7 @@ namespace MathLib.NumericalMethods.Lyapunov
             avneig += nfound;
             aveps += foundeps;
 
-            if (!epsset)
+            if (!_epsset)
             {
                 epsmin = aveps / count;
             }

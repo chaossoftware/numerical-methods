@@ -9,7 +9,7 @@ namespace MathLib.NumericalMethods.Lyapunov
     /// 
     /// M. T. Rosenstein, J. J. Collins, C. J. De Luca, A practical method for calculating largest Lyapunov exponents from small data sets, Physica D 65, 117 (1993)
     /// </summary>
-    public class RosensteinMethod : LyapunovMethod
+    public class LleRosenstein : LyapunovMethod
     {
         private const string Paper = "M. T. Rosenstein, J. J. Collins, C. J. De Luca, A practical method for calculating largest Lyapunov exponents from small data sets, Physica D 65, 117 (1993)";
         private readonly BoxAssistedFnn _fnn;
@@ -35,7 +35,7 @@ namespace MathLib.NumericalMethods.Lyapunov
         /// <param name="iterations"></param>
         /// <param name="window">window around the reference point which should be omitted</param>
         /// <param name="scaleMin"></param>
-        public RosensteinMethod(double[] timeSeries, int eDim, int tau, int iterations, int window, double scaleMin)
+        public LleRosenstein(double[] timeSeries, int eDim, int tau, int iterations, int window, double scaleMin)
             : base(timeSeries)
         {
             _eDim = eDim;
@@ -53,11 +53,11 @@ namespace MathLib.NumericalMethods.Lyapunov
             _fnn = new BoxAssistedFnn(256, _length);
         }
 
-        public RosensteinMethod(double[] timeSeries) : this(timeSeries, 2, 1, 50, 0, 0) // last parameter (eps) is 0 to obtain further it's default value
+        public LleRosenstein(double[] timeSeries) : this(timeSeries, 2, 1, 50, 0, 0) // last parameter (eps) is 0 to obtain further it's default value
         {
         }
 
-        public RosensteinMethod(double[] timeSeries, int eDim) : this(timeSeries, eDim, 1, 50, 0, 0) // last parameter (eps) is 0 to obtain further it's default value
+        public LleRosenstein(double[] timeSeries, int eDim) : this(timeSeries, eDim, 1, 50, 0, 0) // last parameter (eps) is 0 to obtain further it's default value
         {
         }
 
@@ -74,9 +74,9 @@ namespace MathLib.NumericalMethods.Lyapunov
         public override string GetHelp() =>
             new StringBuilder()
             .AppendLine($"LLE by Rosenstein [{Paper}]")
-            .AppendLine("m - Embedding dimension (default: 2)")
-            .AppendLine("τ - Reconstruction delay (default: 1)")
-            .AppendLine("Iterations (default: 50)")
+            .AppendLine("m - embedding dimension (default: 2)")
+            .AppendLine("τ - reconstruction delay (default: 1)")
+            .AppendLine("iterations (default: 50)")
             .AppendLine("theiler window - Window around the reference point which should be omitted (default: 0)")
             .AppendLine("min ε - Min scale (default: 1e-3)")
             .ToString();

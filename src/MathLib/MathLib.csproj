@@ -73,11 +73,11 @@
     <Compile Include="NumericalMethods\EmbeddingDimension\BoxAssistedFfn.cs" />
     <Compile Include="NumericalMethods\EmbeddingDimension\FalseNearestNeighbors.cs" />
     <Compile Include="NumericalMethods\Lyapunov\BenettinMethod.cs" />
-    <Compile Include="NumericalMethods\Lyapunov\SanoSawadaMethod.cs" />
-    <Compile Include="NumericalMethods\Lyapunov\KantzMethod.cs" />
+    <Compile Include="NumericalMethods\Lyapunov\LesSanoSawada.cs" />
+    <Compile Include="NumericalMethods\Lyapunov\LleKantz.cs" />
     <Compile Include="NumericalMethods\Lyapunov\LyapunovSpectrum.cs" />
     <Compile Include="NumericalMethods\Lyapunov\LyapunovMethod.cs" />
-    <Compile Include="NumericalMethods\Lyapunov\RosensteinMethod.cs" />
+    <Compile Include="NumericalMethods\Lyapunov\LleRosenstein.cs" />
     <Compile Include="NumericalMethods\Solvers\RK6.cs" />
     <Compile Include="Threading\ThreadedRun.cs" />
     <Compile Include="NumericalMethods\Orthogonalization\ClassicGrammSchmidt.cs" />
@@ -88,7 +88,7 @@
     <Compile Include="NumericalMethods\Solvers\SimpleSolver.cs" />
     <Compile Include="NumericalMethods\Solvers\EquationsSolver.cs" />
     <Compile Include="NumericalMethods\Solvers\SystemEquations.cs" />
-    <Compile Include="NumericalMethods\Lyapunov\WolfMethod.cs" />
+    <Compile Include="NumericalMethods\Lyapunov\LleWolf.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Transform\Fourier.cs" />
     <Compile Include="Transform\Model3D.cs" />

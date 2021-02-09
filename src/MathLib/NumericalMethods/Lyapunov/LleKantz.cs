@@ -11,7 +11,7 @@ namespace MathLib.NumericalMethods.Lyapunov
     /// <summary>
     /// H. Kantz, A robust method to estimate the maximal Lyapunov exponent of a time series, Phys. Lett. A 185, 77 (1994)
     /// </summary>
-    public class KantzMethod : LyapunovMethod
+    public class LleKantz : LyapunovMethod
     {
         private const string Paper = "H. Kantz, A robust method to estimate the maximal Lyapunov exponent of a time series, Phys. Lett. A 185, 77 (1994)";
         private readonly BoxAssistedFnn _fnn;
@@ -42,7 +42,7 @@ namespace MathLib.NumericalMethods.Lyapunov
         /// <param name="scaleMin"></param>
         /// <param name="scaleMax"></param>
         /// <param name="epscount">number of length scales to use</param>
-        public KantzMethod(double[] timeSeries, int eDim, int tau, int iterations, int window, double scaleMin, double scaleMax, int epscount)
+        public LleKantz(double[] timeSeries, int eDim, int tau, int iterations, int window, double scaleMin, double scaleMax, int epscount)
             : base(timeSeries)
         {
             _eDim = eDim;
@@ -80,9 +80,9 @@ namespace MathLib.NumericalMethods.Lyapunov
         public override string GetHelp() =>
             new StringBuilder()
             .AppendLine($"LLE by Kantz [{Paper}]")
-            .AppendLine("m - Embedding dimension (default: 2)")
-            .AppendLine("τ - Reconstruction delay (default: 1)")
-            .AppendLine("Iterations (default: 50)")
+            .AppendLine("m - embedding dimension (default: 2)")
+            .AppendLine("τ - reconstruction delay (default: 1)")
+            .AppendLine("iterations (default: 50)")
             .AppendLine("theiler window - Window around the reference point which should be omitted (default: 0)")
             .AppendLine("min ε - Min scale (default: 1e-3)")
             .AppendLine($"max ε - Max scale (default: 1e-2)")
