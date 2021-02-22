@@ -116,7 +116,7 @@ namespace MathLib.NumericalMethods.Lyapunov
                 }
             }
 
-            Log.Append("Total Propagation Time\tLyapunov exponent\tDI\tInformation dimention\n");
+            Log.Append("Propagation time\tLyapunov exponent\tNearest neighbor\tInformation dimension\n");
 
             // ind - points to fiducial trajectory
             for (int ind = _evolv; ind < dataPointsCount; ind += _evolv)
@@ -140,7 +140,7 @@ namespace MathLib.NumericalMethods.Lyapunov
                 sum += Math.Log(df / di) / evMulStMulLog2;
                 zlyap = sum / its;
 
-                Log.AppendFormat("{0}\t{1:F5}\t{2:F5}\t{3:F5}\n", _evolv * its, zlyap, di, df);
+                Log.AppendFormat("{0}\t{1:F4}\t\t{2:F4}\t\t{3:F4}\n", _evolv * its, zlyap, di, df);
                 Slope.AddDataPoint(step++, zlyap);
 
                 // Look for replacement point.

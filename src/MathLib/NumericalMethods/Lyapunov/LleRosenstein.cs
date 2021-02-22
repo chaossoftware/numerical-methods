@@ -106,6 +106,8 @@ namespace MathLib.NumericalMethods.Lyapunov
 
             alldone = false;
 
+            Log.AppendLine("epsilon\t\tneighbors");
+
             for (eps = epsilon; !alldone; eps *= 1.1)
             {
                 _fnn.PutInBoxes(TimeSeries, eps, 0, bLength, 0, _tau * (_eDim - 1));
@@ -122,7 +124,7 @@ namespace MathLib.NumericalMethods.Lyapunov
                     alldone &= done[n];
                 }
 
-                Log.AppendFormat("epsilon: {0:F5} already found: {1}\n", eps * interval, found[0]);
+                Log.AppendFormat("{0:F5}\t\t{1}\n", eps * interval, found[0]);
             }
 
             for (int i = 0; i <= _iterations; i++)
@@ -131,7 +133,6 @@ namespace MathLib.NumericalMethods.Lyapunov
                 {
                     double val = lyap[i] / found[i] / 2.0;
                     Slope.AddDataPoint(i, val);
-                    Log.AppendFormat("{0}\t{1:F15}\n", i, val);
                 }
             }
         }
