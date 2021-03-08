@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30309.148
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MathLib", "MathLib\MathLib.csproj", "{EDA2C4F0-1D19-4FC8-A608-5B0607EEA67A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChaosSoft.Core", "ChaosSoft.Core\ChaosSoft.Core.csproj", "{EDA2C4F0-1D19-4FC8-A608-5B0607EEA67A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ModelledSystems", "ModelledSystems\ModelledSystems.csproj", "{F54C531B-1F6C-4A67-9341-8745778B1CDF}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -13,8 +13,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EbPanelTemperature", "EbPanelTemperature\EbPanelTemperature.csproj", "{687D9242-3BD8-4254-8019-19C5A01DF501}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NeuralAnalyser", "NeuralNetwork\NeuralAnalyser.csproj", "{CA380EF7-0E34-4141-B31C-14AE4187A213}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "3dviewer", "3DViewer\3dviewer.csproj", "{871B28F9-A931-4637-BD3C-7622922D8F30}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TimeSeriesToolbox", "TimeSeriesToolbox\TimeSeriesToolbox.csproj", "{9AE359BF-1576-4833-A542-95C29B6E4064}"
 EndProject
@@ -55,14 +53,6 @@ Global
 		{CA380EF7-0E34-4141-B31C-14AE4187A213}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CA380EF7-0E34-4141-B31C-14AE4187A213}.Release|Any CPU.Build.0 = Release|Any CPU
 		{CA380EF7-0E34-4141-B31C-14AE4187A213}.Release|x86.ActiveCfg = Release|Any CPU
-		{871B28F9-A931-4637-BD3C-7622922D8F30}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{871B28F9-A931-4637-BD3C-7622922D8F30}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{871B28F9-A931-4637-BD3C-7622922D8F30}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{871B28F9-A931-4637-BD3C-7622922D8F30}.Debug|x86.Build.0 = Debug|Any CPU
-		{871B28F9-A931-4637-BD3C-7622922D8F30}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{871B28F9-A931-4637-BD3C-7622922D8F30}.Release|Any CPU.Build.0 = Release|Any CPU
-		{871B28F9-A931-4637-BD3C-7622922D8F30}.Release|x86.ActiveCfg = Release|Any CPU
-		{871B28F9-A931-4637-BD3C-7622922D8F30}.Release|x86.Build.0 = Release|Any CPU
 		{9AE359BF-1576-4833-A542-95C29B6E4064}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{9AE359BF-1576-4833-A542-95C29B6E4064}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9AE359BF-1576-4833-A542-95C29B6E4064}.Debug|x86.ActiveCfg = Debug|Any CPU

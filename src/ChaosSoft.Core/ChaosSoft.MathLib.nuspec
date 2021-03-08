@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<package>
+  <metadata>
+    <id>ChaosSoft.CoreLib</id>
+    <version>$version$</version>
+    <title>$title$</title>
+    <authors>$author$</authors>
+    <owners>$author$</owners>
+    <projectUrl>https://bitbucket.org/dobriyanchik/chaossoft</projectUrl>
+    <repository type="git" url="https://bitbucket.org/dobriyanchik/chaossoft"/>
+    <iconUrl>https://bitbucket.org/repo/dapykeA/images/1111167104-logo.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <summary>TDB</summary>
+    <description>$description$</description>
+    <releaseNotes></releaseNotes>
+    <copyright>$copyright$</copyright>
+    <tags></tags>
+	<dependencies>
+    </dependencies>
+  </metadata>
+</package>
