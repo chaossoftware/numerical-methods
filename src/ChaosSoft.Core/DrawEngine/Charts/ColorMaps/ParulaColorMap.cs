@@ -4,7 +4,7 @@ namespace ChaosSoft.Core.DrawEngine.Charts.ColorMaps
 {
     public class ParulaColorMap : IColorMap
     {
-        private static double[,] colorData =
+        private static readonly double[,] ColorData =
         {
             {0.2081, 0.1663, 0.5292},
             {0.2116238095, 0.1897809524, 0.5776761905},
@@ -72,44 +72,44 @@ namespace ChaosSoft.Core.DrawEngine.Charts.ColorMaps
             {0.9763, 0.9831, 0.0538}
         };
 
-        private static Color[] colors;
+        private static readonly Color[] Colors;
 
-        private readonly double step;
-        private readonly double min;
+        private readonly double _step;
+        private readonly double _min;
 
         static ParulaColorMap()
         {
-            colors = new Color[colorData.GetLength(0)];
+            Colors = new Color[ColorData.GetLength(0)];
 
-            for (int i = 0; i < colorData.GetLength(0); i++)
+            for (int i = 0; i < ColorData.GetLength(0); i++)
             {
-                double r = colorData[i, 0] * 255;
-                double g = colorData[i, 1] * 255;
-                double b = colorData[i, 2] * 255;
+                double r = ColorData[i, 0] * 255;
+                double g = ColorData[i, 1] * 255;
+                double b = ColorData[i, 2] * 255;
 
-                colors[i] = Color.FromArgb((int)r, (int)g, (int)b);
+                Colors[i] = Color.FromArgb((int)r, (int)g, (int)b);
             }
         }
 
         public ParulaColorMap(double min, double max)
         {
-            this.min = min;
-            step = (max - min) / 64;
+            _min = min;
+            _step = (max - min) / 64;
         }
 
         public Color GetColor(double value)
         {
-            double current = min;
+            double current = _min;
             int counter = -1;
 
             do
             {
-                current += step;
+                current += _step;
                 counter++;
             }
             while (current < value);
 
-            return colors[counter];
+            return Colors[counter];
         }
     }
 }
