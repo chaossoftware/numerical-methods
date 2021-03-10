@@ -27,15 +27,15 @@ namespace ChaosSoft.Core.NumericalMethods.EmbeddingDimension
         /// Then, each point falls into one of these boxes. 
         /// All its neighbors closer than eps have to lie in either the same box or one of the adjacent ones
         /// </summary>
-        /// <param name="timeSeries"></param>
+        /// <param name="series"></param>
         /// <param name="list"></param>
         /// <param name="epsilon"></param>
         /// <param name="startIndex"></param>
         /// <param name="endIndex"></param>
         /// <param name="xShift"></param>
         /// <param name="yShift"></param>
-        //shift (Kantz = Tau) (Rosenstein = Tau * (Dim - 1)) (Jakobian = 0)
-        public void PutInBoxes(double[] timeSeries, double epsilon, int startIndex, int endIndex, int xShift, int yShift)
+        // Shift (Kantz = Tau) (Rosenstein = Tau * (Dim - 1)) (Jakobian = 0)
+        public void PutInBoxes(double[] series, double epsilon, int startIndex, int endIndex, int xShift, int yShift)
         {
             for (var x = 0; x < _boxSize; x++)
             {
@@ -47,22 +47,22 @@ namespace ChaosSoft.Core.NumericalMethods.EmbeddingDimension
 
             for (int i = startIndex; i < endIndex; i++)
             {
-                var x = (int)(timeSeries[i + xShift] / epsilon) & _iBoxSize;
-                var y = (int)(timeSeries[i + yShift] / epsilon) & _iBoxSize;
+                var x = (int)(series[i + xShift] / epsilon) & _iBoxSize;
+                var y = (int)(series[i + yShift] / epsilon) & _iBoxSize;
                 _list[i] = _boxes[x, y];
                 _boxes[x, y] = i;
             }
         }
 
-        public int FindNeighborsJ(double[] timeSeries, int eDim, int tau, double epsilon, int act)
+        public int FindNeighborsJ(double[] series, int eDim, int tau, double epsilon, int act)
         {
             int element;
             int nf = 0;
             int x, y, i, i1, j, k, k1;
             double dx = 0.0;
 
-            x = (int)(timeSeries[act] / epsilon) & _iBoxSize;
-            y = (int)(timeSeries[act] / epsilon) & _iBoxSize;
+            x = (int)(series[act] / epsilon) & _iBoxSize;
+            y = (int)(series[act] / epsilon) & _iBoxSize;
 
             for (i = x - 1; i <= x + 1; i++)
             {
@@ -78,7 +78,7 @@ namespace ChaosSoft.Core.NumericalMethods.EmbeddingDimension
                         {
                             k1 = -k * tau;
 
-                            dx = Math.Abs(timeSeries[k1 + act] - timeSeries[element + k1]);
+                            dx = Math.Abs(series[k1 + act] - series[element + k1]);
 
                             if (dx > epsilon)
                             {
@@ -99,15 +99,15 @@ namespace ChaosSoft.Core.NumericalMethods.EmbeddingDimension
             return nf;
         }
 
-        public int FindNeighborsK(double[] timeSeries, int eDim, int tau, double epsilon, int act, int window)
+        public int FindNeighborsK(double[] series, int eDim, int tau, double epsilon, int act, int window)
         {
             int element;
             int nf = 0;
             int x, y, i, i1, j, k, k1;
-            double dx, eps2 = Math.Pow(epsilon, 2);
+            double dx, eps2 = FastMath.Pow2(epsilon);
 
-            x = (int)(timeSeries[act] / epsilon) & _iBoxSize;
-            y = (int)(timeSeries[act + tau] / epsilon) & _iBoxSize;
+            x = (int)(series[act] / epsilon) & _iBoxSize;
+            y = (int)(series[act + tau] / epsilon) & _iBoxSize;
 
             for (i = x - 1; i <= x + 1; i++)
             {
@@ -121,13 +121,13 @@ namespace ChaosSoft.Core.NumericalMethods.EmbeddingDimension
                     {
                         if (element < (act - window) || element > (act + window))
                         {
-                            dx = Math.Pow(timeSeries[act] - timeSeries[element], 2);
+                            dx = FastMath.Pow2(series[act] - series[element]);
 
                             if (dx <= eps2)
                             {
                                 k = eDim - 1;
                                 k1 = k * tau;
-                                dx += Math.Pow(timeSeries[act + k1] - timeSeries[element + k1], 2);
+                                dx += FastMath.Pow2(series[act + k1] - series[element + k1]);
 
                                 if (dx > eps2)
                                 {
@@ -154,7 +154,7 @@ namespace ChaosSoft.Core.NumericalMethods.EmbeddingDimension
             minelement = -1;
             int x, y, i1, k, del1 = eDim * tau;
             
-            double dx, eps2 = Math.Pow(epsilon, 2), mindx = 1.0;
+            double dx, eps2 = FastMath.Pow2(epsilon), mindx = 1.0;
 
             x = (int)(timeSeries[act] / epsilon) & _iBoxSize;
             y = (int)(timeSeries[act + tau * (eDim - 1)] / epsilon) & _iBoxSize;
@@ -175,7 +175,7 @@ namespace ChaosSoft.Core.NumericalMethods.EmbeddingDimension
 
                             for (k = 0; k < del1; k += tau)
                             {
-                                dx += Math.Pow(timeSeries[act + k] - timeSeries[element + k], 2);
+                                dx += FastMath.Pow2(timeSeries[act + k] - timeSeries[element + k]);
 
                                 if (dx > eps2)
                                 {

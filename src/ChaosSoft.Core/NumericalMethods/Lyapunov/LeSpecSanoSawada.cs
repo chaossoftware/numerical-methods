@@ -61,7 +61,7 @@ namespace ChaosSoft.Core.NumericalMethods.Lyapunov
             _minNeighbors = minNeigh;
             _inverse = inverse;
 
-            _length = TimeSeries.Length;
+            _length = Series.Length;
 
             if (_minNeighbors > (_length - _tau * (eDim - 1) - 1))
             {
@@ -121,14 +121,14 @@ namespace ChaosSoft.Core.NumericalMethods.Lyapunov
 
             averr = 0.0;
 
-            var interval = Ext.RescaleData(TimeSeries);
+            var interval = Ext.RescaleData(Series);
 
             if (interval > maxinterval)
             {
                 maxinterval = interval;
             }
 
-            double variance = Ext.Variance(TimeSeries);
+            double variance = Ext.Variance(Series);
 
             if (variance == 0.0)
             {
@@ -137,7 +137,7 @@ namespace ChaosSoft.Core.NumericalMethods.Lyapunov
 
             if (_inverse)
             {
-                Array.Reverse(TimeSeries);
+                Array.Reverse(Series);
             }
 
             epsmin = 
@@ -228,12 +228,12 @@ namespace ChaosSoft.Core.NumericalMethods.Lyapunov
 
                 if (hf != act)
                 {
-                    maxdx = Math.Abs(TimeSeries[act] - TimeSeries[hf]);
+                    maxdx = Math.Abs(Series[act] - Series[hf]);
 
                     for (j = 1; j < _eDim; j++)
                     {
                         del = indexes[j];
-                        dx = Math.Abs(TimeSeries[act - del] - TimeSeries[hf - del]);
+                        dx = Math.Abs(Series[act - del] - Series[hf - del]);
                         if (dx > maxdx) maxdx = dx;
                     }
 
@@ -324,8 +324,8 @@ namespace ChaosSoft.Core.NumericalMethods.Lyapunov
                     epsilon = EpsMax;
                 }
 
-                fnn.PutInBoxes(TimeSeries, epsilon, (_eDim - 1) * _tau, _length - _tau, 0, 0);
-                nfound = fnn.FindNeighborsJ(TimeSeries, _eDim, _tau, epsilon, act);
+                fnn.PutInBoxes(Series, epsilon, (_eDim - 1) * _tau, _length - _tau, 0, 0);
+                nfound = fnn.FindNeighborsJ(Series, _eDim, _tau, epsilon, act);
 
                 if (nfound > _minNeighbors)
                 {
@@ -364,17 +364,17 @@ namespace ChaosSoft.Core.NumericalMethods.Lyapunov
 
                 for (j = 0; j < _eDim; j++)
                 {
-                    matrix[0, j + 1] += TimeSeries[act - indexes[j]];
+                    matrix[0, j + 1] += Series[act - indexes[j]];
                 }
 
                 for (j = 0; j < _eDim; j++)
                 {
-                    hv1 = TimeSeries[act - indexes[j]];
+                    hv1 = Series[act - indexes[j]];
                     hj = j + 1;
 
                     for (k = j; k < _eDim; k++)
                     {
-                        matrix[hj, k + 1] += TimeSeries[act - indexes[k]] * hv1;
+                        matrix[hj, k + 1] += Series[act - indexes[k]] * hv1;
                     }
                 }
             }
@@ -394,12 +394,12 @@ namespace ChaosSoft.Core.NumericalMethods.Lyapunov
             for (i = 0; i < nfound; i++)
             {
                 act = fnn.Found[i];
-                hv = TimeSeries[act + _tau];
+                hv = Series[act + _tau];
                 vector[0] += hv;
 
                 for (j = 0; j < _eDim; j++)
                 {
-                    vector[j + 1] += hv * TimeSeries[act - indexes[j]];
+                    vector[j + 1] += hv * Series[act - indexes[j]];
                 }
             }
 
@@ -428,10 +428,10 @@ namespace ChaosSoft.Core.NumericalMethods.Lyapunov
 
             for (i = 0; i < _eDim; i++)
             {
-                new_vec += dynamics[i] * TimeSeries[t - indexes[i]];
+                new_vec += dynamics[i] * Series[t - indexes[i]];
             }
 
-            averr += (new_vec - TimeSeries[t + _tau]) * (new_vec - TimeSeries[t + _tau]);
+            averr += (new_vec - Series[t + _tau]) * (new_vec - Series[t + _tau]);
 
         }
 
@@ -468,10 +468,11 @@ namespace ChaosSoft.Core.NumericalMethods.Lyapunov
 
                 for (j = 0; j < _eDim; j++)
                 {
-                    norm += Math.Pow(delta[i, j] + diff[j], 2);
+                    norm += FastMath.Pow2(delta[i, j] + diff[j]);
                 }
 
-                stretch[i] = (norm = Math.Sqrt(norm));
+                norm = Math.Sqrt(norm);
+                stretch[i] = norm;
 
                 for (j = 0; j < _eDim; j++)
                 {
@@ -519,7 +520,7 @@ namespace ChaosSoft.Core.NumericalMethods.Lyapunov
             }
         }
 
-        private double[,] InvertMatrix(double[, ] mat, int size)
+        private double[,] InvertMatrix(double[,] mat, int size)
         {
             int i, j, k;
             double[,] imat;

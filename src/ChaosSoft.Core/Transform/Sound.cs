@@ -15,8 +15,8 @@ namespace ChaosSoft.Core.Transform
         {
             long pts = yt.Length;
 
-            double xtmin = Ext.CountMin(yt);
-            double xtmax = Ext.CountMax(yt);
+            double xtmin = FastMath.Min(yt);
+            double xtmax = FastMath.Max(yt);
 
             File.Delete(filePath);
             FileStream wavFile = File.Create(filePath);

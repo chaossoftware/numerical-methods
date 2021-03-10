@@ -11,6 +11,7 @@ namespace ChaosSoft.Core.NumericalMethods.Lyapunov
     public class LleWolf : LyapunovMethod
     {
         private const string Paper = "A Wolf, JB Swift, HL Swinney, JA Vastano, Determining Lyapunov exponents from a time series, Physica D: Nonlinear Phenomena, 1985";
+        
         private readonly int _eDim;
         private readonly int _tau;
         private readonly int _evolv;
@@ -20,37 +21,37 @@ namespace ChaosSoft.Core.NumericalMethods.Lyapunov
 
         // Pre-calculated variables
         private readonly double evMulStMulLog2;
-        private readonly int tsLen;
+        private readonly int _tsLength;
 
-        private double[] pt1;
-        private double[] pt2; 
+        private readonly double[] _pt1;
+        private readonly double[] _pt2; 
 
-        private double zlyap;
+        private int propagation;
 
-        private int step;
-
-        public LleWolf(double[] timeSeries, int eDim, int tau, double stepSize, double scaleMin, double scaleMax, int evolv)
-            : base(timeSeries)
+        public LleWolf(double[] series, int eDim, int tau, double dt, double epsMin, double epsMax, int evolv) : 
+            base(series)
         {
             _eDim = eDim;
             _tau = tau;
-            _dt = stepSize;
-            _epsMin = scaleMin;
-            _epsMax = scaleMax;
+            _dt = dt;
+            _epsMin = epsMin;
+            _epsMax = epsMax;
             _evolv = evolv;
 
-            pt1 = new double[_eDim];
-            pt2 = new double[_eDim];
+            _pt1 = new double[_eDim];
+            _pt2 = new double[_eDim];
 
             evMulStMulLog2 = _evolv * _dt * Math.Log(2d);
-            tsLen = timeSeries.Length;
+            _tsLength = series.Length;
         }
 
-        public LleWolf(double[] timeSeries) : this(timeSeries, 2, 1, 1d, 1e-3, 1e-2, 1)
+        public LleWolf(double[] timeSeries, int eDim, double stepSize) :
+            this(timeSeries, eDim, 1, stepSize, 1e-3, 1e-2, 1)
         {
         }
 
-        public LleWolf(double[] timeSeries, int eDim, double stepSize) : this(timeSeries, eDim, 1, stepSize, 1e-3, 1e-2, 1)
+        public LleWolf(double[] timeSeries) : 
+            this(timeSeries, 2, 1, 1d, 1e-3, 1e-2, 1)
         {
         }
 
@@ -82,7 +83,8 @@ namespace ChaosSoft.Core.NumericalMethods.Lyapunov
 
         public override void Calculate()
         {
-            //int ind = 0; // <In fortran was 1>.
+            double zlyap = 0;
+            ////int ind = 0; // <In fortran was 1>.
             int ind2 = 0; // Points to second trajectory <in fortran was empty and defined later>.
             double sum = 0d; // Holds running exponent estimate sans i/time.
             int its = 0; // Total number of propagation steps.
@@ -90,7 +92,7 @@ namespace ChaosSoft.Core.NumericalMethods.Lyapunov
             double dii = 0; // <initialization absent in fortran>
 
             // Calculate useful size of timeseries.
-            int dataPointsCount = TimeSeries.Length - _eDim * _tau - _evolv;
+            int dataPointsCount = _tsLength - _eDim * _tau - _evolv;
 
             // Find nearest neighbor to first data point.
             double di = 1e38;
@@ -99,11 +101,11 @@ namespace ChaosSoft.Core.NumericalMethods.Lyapunov
             for (int i = 10; i < dataPointsCount; i++)
             {
                 // Compute separation between fiducial point and candidate.
-                double d = 0d;
+                var d = 0d;
 
                 for (int j = 0; j < _eDim; j++)
                 {
-                    d += Math.Pow(GetAttractorPoint(0, j) - GetAttractorPoint(i, j), 2);
+                    d += FastMath.Pow2(GetAttractorPoint(0, j) - GetAttractorPoint(i, j));
                 }
 
                 d = Math.Sqrt(d);
@@ -124,15 +126,17 @@ namespace ChaosSoft.Core.NumericalMethods.Lyapunov
                 // Get coordinates of evolved points.
                 for (int j = 0; j < _eDim; j++)
                 {
-                    pt1[j] = GetAttractorPoint(ind, j);
-                    pt2[j] = GetAttractorPoint(ind2 + _evolv, j);
+                    _pt1[j] = GetAttractorPoint(ind, j);
+                    _pt2[j] = GetAttractorPoint(ind2 + _evolv, j);
                 }
 
                 // Compute final separation between pair, update exponent.
-                double df = 0d;
+                var df = 0d;
 
                 for (int j = 0; j < _eDim; j++)
-                    df += Math.Pow(pt1[j] - pt2[j], 2);
+                {
+                    df += FastMath.Pow2(_pt1[j] - _pt2[j]);
+                }
 
                 df = Math.Sqrt(df);
 
@@ -140,8 +144,9 @@ namespace ChaosSoft.Core.NumericalMethods.Lyapunov
                 sum += Math.Log(df / di) / evMulStMulLog2;
                 zlyap = sum / its;
 
-                Log.AppendFormat("{0}\t{1:F4}\t\t{2:F4}\t\t{3:F4}\n", _evolv * its, zlyap, di, df);
-                Slope.AddDataPoint(step++, zlyap);
+                propagation = _evolv * its;
+                Log.AppendFormat("{0}\t{1:F4}\t\t{2:F4}\t\t{3:F4}\n", propagation, zlyap, di, df);
+                Slope.AddDataPoint(propagation, zlyap);
 
                 // Look for replacement point.
                 int indold = ind2;
@@ -168,7 +173,7 @@ namespace ChaosSoft.Core.NumericalMethods.Lyapunov
 
                     for (int j = 0; j < _eDim; j++)
                     {
-                        dnew += Math.Pow(pt1[j] - GetAttractorPoint(i, j), 2);
+                        dnew += FastMath.Pow2(_pt1[j] - GetAttractorPoint(i, j));
                     }
 
                     dnew = Math.Sqrt(dnew);
@@ -184,12 +189,12 @@ namespace ChaosSoft.Core.NumericalMethods.Lyapunov
 
                     for (int j = 0; j < _eDim; j++)
                     {
-                        dot += (pt1[j] - GetAttractorPoint(i, j)) * (pt1[j] - pt2[j]);
+                        dot += (_pt1[j] - GetAttractorPoint(i, j)) * (_pt1[j] - _pt2[j]);
                     }
 
                     double cth = Math.Abs(dot / (dnew * df));
 
-                    cth = Math.Min(cth, 1d);
+                    cth = FastMath.Min(cth, 1d);
 
                     double th = Math.Acos(cth);
 
@@ -236,7 +241,7 @@ namespace ChaosSoft.Core.NumericalMethods.Lyapunov
         private double GetAttractorPoint(int i, int j)
         {
             int point = i + j * _tau;
-            return point < tsLen ? TimeSeries[point] : 0;
+            return point < _tsLength ? Series[point] : 0;
         }
     }
 }

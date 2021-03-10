@@ -65,6 +65,7 @@
     <Compile Include="DrawEngine\MathChart.Designer.cs">
       <DependentUpon>MathChart.cs</DependentUpon>
     </Compile>
+    <Compile Include="FastMath.cs" />
     <Compile Include="Ext.cs" />
     <Compile Include="IO\DataWriter.cs" />
     <Compile Include="Data\SourceData.cs" />

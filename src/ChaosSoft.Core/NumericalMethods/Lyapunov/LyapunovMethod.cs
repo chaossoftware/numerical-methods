@@ -5,9 +5,9 @@ namespace ChaosSoft.Core.NumericalMethods.Lyapunov
 {
     public abstract class LyapunovMethod
     {
-        protected LyapunovMethod(double[] timeSeries)
+        protected LyapunovMethod(double[] series)
         {
-            TimeSeries = timeSeries;
+            Series = series;
             Slope = new Timeseries();
             Log = new StringBuilder();
         }
@@ -16,7 +16,7 @@ namespace ChaosSoft.Core.NumericalMethods.Lyapunov
 
         public StringBuilder Log { get; }
 
-        protected double[] TimeSeries { get; }
+        protected double[] Series { get; }
 
         public abstract void Calculate();
 

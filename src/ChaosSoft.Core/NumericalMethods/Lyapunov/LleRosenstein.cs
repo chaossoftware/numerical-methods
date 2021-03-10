@@ -6,12 +6,12 @@ using ChaosSoft.Core.NumericalMethods.EmbeddingDimension;
 namespace ChaosSoft.Core.NumericalMethods.Lyapunov
 {
     /// <summary>
-    /// 
     /// M. T. Rosenstein, J. J. Collins, C. J. De Luca, A practical method for calculating largest Lyapunov exponents from small data sets, Physica D 65, 117 (1993)
     /// </summary>
     public class LleRosenstein : LyapunovMethod
     {
         private const string Paper = "M. T. Rosenstein, J. J. Collins, C. J. De Luca, A practical method for calculating largest Lyapunov exponents from small data sets, Physica D 65, 117 (1993)";
+        
         private readonly BoxAssistedFnn _fnn;
         private readonly int _eDim;
         private readonly int _tau;
@@ -29,35 +29,37 @@ namespace ChaosSoft.Core.NumericalMethods.Lyapunov
         /// <summary>
         /// The method estimates the largest Lyapunov exponent of a given scalar data set using the algorithm of Rosenstein et al.
         /// </summary>
-        /// <param name="timeSeries">timeseries to analyze</param>
+        /// <param name="series">timeseries to analyze</param>
         /// <param name="eDim">embedding dimension</param>
         /// <param name="tau"></param>
         /// <param name="iterations"></param>
         /// <param name="window">window around the reference point which should be omitted</param>
-        /// <param name="scaleMin"></param>
-        public LleRosenstein(double[] timeSeries, int eDim, int tau, int iterations, int window, double scaleMin)
-            : base(timeSeries)
+        /// <param name="epsMin"></param>
+        public LleRosenstein(double[] series, int eDim, int tau, int iterations, int window, double epsMin) : 
+            base(series)
         {
             _eDim = eDim;
             _tau = tau;
             _iterations = iterations;
             _window = window;
-            _epsMin = scaleMin;
-            _length = timeSeries.Length;
+            _epsMin = epsMin;
+            _length = series.Length;
 
             if (iterations + (eDim - 1) * tau >= _length)
             {
-                throw new ArgumentException("Too few points to handle specified parameters, it makes no sense to continue.");
+                throw new ArgumentException(
+                    "Too few points to handle specified parameters, it makes no sense to continue.");
             }
 
             _fnn = new BoxAssistedFnn(256, _length);
         }
-
-        public LleRosenstein(double[] timeSeries) : this(timeSeries, 2, 1, 50, 0, 0) // last parameter (eps) is 0 to obtain further it's default value
+        // last parameter (eps) is 0 to obtain further it's default value
+        public LleRosenstein(double[] timeSeries) : this(timeSeries, 2, 1, 50, 0, 0)
         {
         }
 
-        public LleRosenstein(double[] timeSeries, int eDim) : this(timeSeries, eDim, 1, 50, 0, 0) // last parameter (eps) is 0 to obtain further it's default value
+        // last parameter (eps) is 0 to obtain further it's default value
+        public LleRosenstein(double[] timeSeries, int eDim) : this(timeSeries, eDim, 1, 50, 0, 0) 
         {
         }
 
@@ -95,7 +97,7 @@ namespace ChaosSoft.Core.NumericalMethods.Lyapunov
             found = new int[_iterations + 1];
             done = new bool[_length];
 
-            var interval = Ext.RescaleData(TimeSeries);
+            var interval = Ext.RescaleData(Series);
 
             epsilon = _epsMin == 0 ? 1e-3 : _epsMin / interval;
 
@@ -110,7 +112,7 @@ namespace ChaosSoft.Core.NumericalMethods.Lyapunov
 
             for (eps = epsilon; !alldone; eps *= 1.1)
             {
-                _fnn.PutInBoxes(TimeSeries, eps, 0, bLength, 0, _tau * (_eDim - 1));
+                _fnn.PutInBoxes(Series, eps, 0, bLength, 0, _tau * (_eDim - 1));
 
                 alldone = true;
 
@@ -142,7 +144,7 @@ namespace ChaosSoft.Core.NumericalMethods.Lyapunov
             int minelement;
             double dx;
             int del1 = _eDim * _tau;
-            bool ok = _fnn.FindNeighborsR(TimeSeries, _eDim, _tau, eps, act, _window, out minelement);
+            bool ok = _fnn.FindNeighborsR(Series, _eDim, _tau, eps, act, _window, out minelement);
 
             if (minelement != -1)
             {
@@ -157,7 +159,7 @@ namespace ChaosSoft.Core.NumericalMethods.Lyapunov
                     
                     for (int j = 0; j < del1; j += _tau)
                     {
-                        dx += (TimeSeries[act + j] - TimeSeries[minelement + j]) * (TimeSeries[act + j] - TimeSeries[minelement + j]);
+                        dx += FastMath.Pow2(Series[act + j] - Series[minelement + j]);
                     }
 
                     if (dx > 0.0)

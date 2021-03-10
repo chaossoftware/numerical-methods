@@ -34,26 +34,26 @@ namespace ChaosSoft.Core.NumericalMethods.Lyapunov
         /// <summary>
         /// The method estimates the largest Lyapunov exponent of a given scalar data set using the algorithm of Kantz.
         /// </summary>
-        /// <param name="timeSeries">timeseries to analyze</param>
+        /// <param name="series">timeseries to analyze</param>
         /// <param name="eDim">embedding dimension</param>
         /// <param name="tau"></param>
         /// <param name="iterations"></param>
         /// <param name="window">theiler window</param>
-        /// <param name="scaleMin"></param>
-        /// <param name="scaleMax"></param>
-        /// <param name="epscount">number of length scales to use</param>
-        public LleKantz(double[] timeSeries, int eDim, int tau, int iterations, int window, double scaleMin, double scaleMax, int epscount)
-            : base(timeSeries)
+        /// <param name="epsMin"></param>
+        /// <param name="epsMax"></param>
+        /// <param name="epsCount">number of length scales to use</param>
+        public LleKantz(double[] series, int eDim, int tau, int iterations, int window, double epsMin, double epsMax, int epsCount)
+            : base(series)
         {
             _eDim = eDim;
 
             _tau = tau;
             _iterations = iterations;
             _window = window;
-            _epsMin = scaleMin;
-            _epsMax = scaleMax;
-            _length = timeSeries.Length;
-            this.epscount = epscount;
+            _epsMin = epsMin;
+            _epsMax = epsMax;
+            _length = series.Length;
+            this.epscount = epsCount;
 
             if (iterations + (eDim - 1) * tau >= _length)
             {
@@ -97,7 +97,7 @@ namespace ChaosSoft.Core.NumericalMethods.Lyapunov
             int j,l;
             var blength = _length - (_eDim - 1) * _tau - _iterations;
 
-            var interval = Ext.RescaleData(TimeSeries);
+            var interval = Ext.RescaleData(Series);
 
             epsmin = 
                 _epsMin == 0 ? 
@@ -131,11 +131,11 @@ namespace ChaosSoft.Core.NumericalMethods.Lyapunov
                 Array.Clear(count, 0, count.Length);
                 Array.Clear(lyap, 0, lyap.Length);
 
-                _fnn.PutInBoxes(TimeSeries, epsilon, 0, blength, 0, _tau);
+                _fnn.PutInBoxes(Series, epsilon, 0, blength, 0, _tau);
 
                 for (int i = 0; i < reference; i++)
                 {
-                    nf = _fnn.FindNeighborsK(TimeSeries, _eDim, _tau, epsilon, i, _window);
+                    nf = _fnn.FindNeighborsK(Series, _eDim, _tau, epsilon, i, _window);
                     Iterate(i);
                 }
 
@@ -183,7 +183,7 @@ namespace ChaosSoft.Core.NumericalMethods.Lyapunov
             
                 for (i = 0; i <= _iterations; i++)
                 {
-                    dx[i] = Math.Pow(TimeSeries[act + i] - TimeSeries[element + i], 2);
+                    dx[i] = FastMath.Pow2(Series[act + i] - Series[element + i]);
                 }
 
                 for (l = 1; l < _eDim; l++)
@@ -192,7 +192,7 @@ namespace ChaosSoft.Core.NumericalMethods.Lyapunov
             
                     for (i = 0; i <= _iterations; i++)
                     {
-                        dx[i] += Math.Pow(TimeSeries[act + i + l1] - TimeSeries[element + l1 + i], 2);
+                        dx[i] += FastMath.Pow2(Series[act + i + l1] - Series[element + l1 + i]);
                     }
                 }
             

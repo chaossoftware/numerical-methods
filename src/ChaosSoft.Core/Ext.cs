@@ -12,54 +12,22 @@ namespace ChaosSoft.Core
         /// get maximum absolute value from signal
         /// </summary>
         /// <returns></returns>
-        public static double CountMaxAbs(double[] timeSeries)
+        public static double CountMaxAbs(double[] series)
         {
             double maxVal = double.MinValue;
 
-            foreach (double val in timeSeries)
+            foreach (double val in series)
             {
-                maxVal = Math.Max(maxVal, Math.Abs(val));
+                maxVal = FastMath.Max(maxVal, Math.Abs(val));
             }
 
             return maxVal;
         }
 
-        /// <summary>
-        /// get maximum value from signal
-        /// </summary>
-        /// <returns></returns>
-        public static double CountMax(double[] timeSeries)
+        public static double RescaleData(double[] series)
         {
-            double maxVal = double.MinValue;
-
-            foreach (double val in timeSeries)
-            {
-                maxVal = Math.Max(maxVal, val);
-            }
-
-            return maxVal;
-        }
-
-        /// <summary>
-        /// get minimum value from signal
-        /// </summary>
-        /// <returns></returns>
-        public static double CountMin(double[] timeSeries)
-        {
-            double minVal = double.MaxValue;
-
-            foreach (double val in timeSeries)
-            {
-                minVal = Math.Min(minVal, val);
-            }
-
-            return minVal;
-        }
-
-        public static double RescaleData(double[] timeSeries)
-        {
-            var max = CountMax(timeSeries);
-            var min = CountMin(timeSeries);
+            var max = FastMath.Max(series);
+            var min = FastMath.Min(series);
             var interval = max - min;
 
             if (interval == 0d)
@@ -67,24 +35,24 @@ namespace ChaosSoft.Core
                 throw new ArgumentException($"Data amplitude is zero, it makes no sense to continue.");
             }
 
-            for (int i = 0; i < timeSeries.Length; i++)
+            for (int i = 0; i < series.Length; i++)
             {
-                timeSeries[i] = (timeSeries[i] - min) / interval;
+                series[i] = (series[i] - min) / interval;
             }
 
             return interval;
         }
 
-        public static double Variance(double[] timeSeries)
+        public static double Variance(double[] series)
         {
-            int length = timeSeries.Length;
+            int length = series.Length;
             double h;
             double av = 0d;
             double variance = 0d;
 
             for (int i = 0; i < length; i++)
             {
-                h = timeSeries[i];
+                h = series[i];
                 av += h;
                 variance += h * h;
             }

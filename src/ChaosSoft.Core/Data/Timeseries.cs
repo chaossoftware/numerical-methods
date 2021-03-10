@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using ChaosSoft.Core.IO;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
@@ -32,7 +33,7 @@ namespace ChaosSoft.Core.Data
 
         public string Name { get; set; }
 
-        public List<DataPoint> DataPoints { get; protected set; }
+        public List<DataPoint> DataPoints { get; }
 
         public DataPoint Max
         {
@@ -119,7 +120,7 @@ namespace ChaosSoft.Core.Data
 
             foreach (DataPoint dp in DataPoints)
             {
-                sb.AppendFormat("{0:G14}\t{1:G14}\n", dp.X, dp.Y);
+                sb.AppendLine($"{NumFormat.ToLong(dp.X)}\t{NumFormat.ToLong(dp.Y)}");
             }
                 
             return sb.ToString();
