@@ -7,6 +7,7 @@
             double mean = Mean(timeSeries);
 
             double[] autocorrelation = new double[timeSeries.Length / 2];
+
             for (int t = 0; t < autocorrelation.Length; t++)
             {
                 double n = 0; // Numerator
@@ -28,8 +29,12 @@
         private double Mean(double[] x)
         {
             double sum = 0;
+
             for (int i = 0; i < x.Length; i++)
+            {
                 sum += x[i];
+            }
+
             return sum / x.Length;
         }
     }

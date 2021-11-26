@@ -6,16 +6,14 @@ namespace ChaosSoft.Core.NumericalMethods.Solvers
     /// </summary>
     public abstract class EquationsSolver
     {
-        protected SystemEquations equations;
-
         /// <summary>
         /// Equations system solver
         /// </summary>
         /// <param name="numberOfEquations">Number of equations</param>
         public EquationsSolver(SystemEquations equations)
         {
-            this.equations = equations;
-            Solution = new double[this.equations.TotalEquationsCount, this.equations.EquationsCount];
+            Equations = equations;
+            Solution = new double[Equations.TotalEquationsCount, Equations.EquationsCount];
         }
 
         public double Time { get; set; }
@@ -24,6 +22,8 @@ namespace ChaosSoft.Core.NumericalMethods.Solvers
 
         public double[,] Solution { get; set; }
 
+        protected SystemEquations Equations { get; }
+
         /// <summary>
         /// solve equations system step
         /// </summary>
@@ -31,8 +31,8 @@ namespace ChaosSoft.Core.NumericalMethods.Solvers
 
         public void Init()
         {
-            this.Time = 0;
-            this.equations.Init(this.Solution);
+            Time = 0;
+            Equations.Init(Solution);
         }
     }
 }
