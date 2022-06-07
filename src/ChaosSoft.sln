@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30309.148
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32526.322
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChaosSoft.Core", "ChaosSoft.Core\ChaosSoft.Core.csproj", "{EDA2C4F0-1D19-4FC8-A608-5B0607EEA67A}"
 EndProject
@@ -12,11 +12,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ModelledSystems", "Modelled
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EbPanelTemperature", "EbPanelTemperature\EbPanelTemperature.csproj", "{687D9242-3BD8-4254-8019-19C5A01DF501}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NeuralAnalyser", "NeuralNetwork\NeuralAnalyser.csproj", "{CA380EF7-0E34-4141-B31C-14AE4187A213}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TimeSeriesToolbox", "TimeSeriesToolbox\TimeSeriesToolbox.csproj", "{9AE359BF-1576-4833-A542-95C29B6E4064}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AttractorViewer", "AttractorViewer\AttractorViewer.csproj", "{6B475299-098A-4934-B27A-064D75AD5C6A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NeuralNetTsa", "NeuralNetTsa\NeuralNetTsa.csproj", "{92311AC3-5547-4535-B3A3-45E9E2369C69}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -47,12 +47,6 @@ Global
 		{687D9242-3BD8-4254-8019-19C5A01DF501}.Release|Any CPU.Build.0 = Release|Any CPU
 		{687D9242-3BD8-4254-8019-19C5A01DF501}.Release|x86.ActiveCfg = Release|x86
 		{687D9242-3BD8-4254-8019-19C5A01DF501}.Release|x86.Build.0 = Release|x86
-		{CA380EF7-0E34-4141-B31C-14AE4187A213}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{CA380EF7-0E34-4141-B31C-14AE4187A213}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{CA380EF7-0E34-4141-B31C-14AE4187A213}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{CA380EF7-0E34-4141-B31C-14AE4187A213}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{CA380EF7-0E34-4141-B31C-14AE4187A213}.Release|Any CPU.Build.0 = Release|Any CPU
-		{CA380EF7-0E34-4141-B31C-14AE4187A213}.Release|x86.ActiveCfg = Release|Any CPU
 		{9AE359BF-1576-4833-A542-95C29B6E4064}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{9AE359BF-1576-4833-A542-95C29B6E4064}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9AE359BF-1576-4833-A542-95C29B6E4064}.Debug|x86.ActiveCfg = Debug|Any CPU
@@ -69,6 +63,14 @@ Global
 		{6B475299-098A-4934-B27A-064D75AD5C6A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{6B475299-098A-4934-B27A-064D75AD5C6A}.Release|x86.ActiveCfg = Release|Any CPU
 		{6B475299-098A-4934-B27A-064D75AD5C6A}.Release|x86.Build.0 = Release|Any CPU
+		{92311AC3-5547-4535-B3A3-45E9E2369C69}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{92311AC3-5547-4535-B3A3-45E9E2369C69}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{92311AC3-5547-4535-B3A3-45E9E2369C69}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{92311AC3-5547-4535-B3A3-45E9E2369C69}.Debug|x86.Build.0 = Debug|Any CPU
+		{92311AC3-5547-4535-B3A3-45E9E2369C69}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{92311AC3-5547-4535-B3A3-45E9E2369C69}.Release|Any CPU.Build.0 = Release|Any CPU
+		{92311AC3-5547-4535-B3A3-45E9E2369C69}.Release|x86.ActiveCfg = Release|Any CPU
+		{92311AC3-5547-4535-B3A3-45E9E2369C69}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
