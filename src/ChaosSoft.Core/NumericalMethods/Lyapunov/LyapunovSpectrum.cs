@@ -57,9 +57,9 @@ namespace ChaosSoft.Core.NumericalMethods.Lyapunov
         public override string ToString() =>
             new StringBuilder().Append("LE Spectrum: ")
             .AppendLine(string.Join("; ", Spectrum.Select(le => NumFormat.ToShort(le))))
-            .AppendLine($"Dky: {NumFormat.ToShort(Dky)}")
-            .AppendLine($"Eks: {NumFormat.ToShort(Eks)}")
-            .AppendLine($"PVC: {NumFormat.ToShort(Pvc)}")
+            .AppendLine($"Dky = {NumFormat.ToShort(Dky)}")
+            .AppendLine($"Eks = {NumFormat.ToShort(Eks)}")
+            .AppendLine($"PVC = {NumFormat.ToShort(Pvc)}")
             .ToString();
     }
 }
