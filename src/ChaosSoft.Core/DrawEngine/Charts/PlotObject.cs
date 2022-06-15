@@ -23,6 +23,8 @@ namespace ChaosSoft.Core.DrawEngine.Charts {
         protected DataPoint PicPtMax;
         protected DataPoint PicPtCoeff;
 
+        protected float gridFontSizePx;
+
         /// <summary>
         /// Base constructor for plot object. initializes necessary objects to create plot
         /// </summary>
@@ -30,15 +32,15 @@ namespace ChaosSoft.Core.DrawEngine.Charts {
         /// <param name="thickness">thickness of plot lines</param>
         protected PlotObject(Size bitmapSize, float thickness)
         {
-            this.Size = bitmapSize;
-            this.Thickness = thickness;
+            Size = bitmapSize;
+            Thickness = thickness;
 
-            this.LabelX = "x";
-            this.LabelY = "y";
+            LabelX = "x";
+            LabelY = "y";
 
             float gridFontSize = 10, titleFontSize = 11, gridThickness = 2;
 
-            if (this.HasSmallSize)
+            if (HasSmallSize)
             {
                 gridFontSize = 8;
                 titleFontSize = 9;
@@ -63,7 +65,9 @@ namespace ChaosSoft.Core.DrawEngine.Charts {
 
         protected float Thickness { get; set; }
 
-        protected bool HasSmallSize => this.Size.Width < 216 || this.Size.Height < 161;
+        protected bool HasSmallSize => Size.Width < 216 || Size.Height < 161;
+
+        public bool NeedToDrawGrid { get; set; } = true;
 
         /// <summary>
         /// Plot chart
@@ -77,11 +81,13 @@ namespace ChaosSoft.Core.DrawEngine.Charts {
 
         protected void PrepareChartArea()
         {
-            PlotBitmap = new Bitmap(this.Size.Width, this.Size.Height);
+            PlotBitmap = new Bitmap(Size.Width, Size.Height);
             g = Graphics.FromImage(PlotBitmap);
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.TextRenderingHint = TextRenderingHint.AntiAlias;
-            g.FillRectangle(bgBrush, 0, 0, this.Size.Width, this.Size.Height);
+            g.FillRectangle(bgBrush, 0, 0, Size.Width, Size.Height);
+
+            gridFontSizePx = gridFont.SizeInPoints / 72 * g.DpiX;
         }
 
         protected string GetAxisValue(double value)
@@ -102,7 +108,7 @@ namespace ChaosSoft.Core.DrawEngine.Charts {
                 decimalPlaces = 1;
             }
 
-            if (this.HasSmallSize)
+            if (HasSmallSize)
             {
                 decimalPlaces = 1;
             }
@@ -112,13 +118,17 @@ namespace ChaosSoft.Core.DrawEngine.Charts {
 
         protected void CalculateChartAreaSize(DataPoint amplitude)
         {
-            var minOffset = this.HasSmallSize ? 18 : 25;
+            var minOffset = HasSmallSize ? 18 : 25;
 
             //set plot default area size
-            var axisOffset = Math.Max(Math.Min(this.Size.Height, this.Size.Width) * 0.1, minOffset);
-            PicPtMin = new DataPoint(axisOffset, this.Size.Height - axisOffset);
-            PicPtMax = new DataPoint(this.Size.Width, 0);
-            PicPtCoeff = new DataPoint((PicPtMax.X - PicPtMin.X) / amplitude.X, (PicPtMin.Y - PicPtMax.Y - this.Thickness) / amplitude.Y);
+
+            var axisOffset = NeedToDrawGrid ?
+                Math.Max(Math.Min(Size.Height, Size.Width) * 0.1, minOffset) :
+                0;
+
+            PicPtMin = new DataPoint(axisOffset, Size.Height - axisOffset);
+            PicPtMax = new DataPoint(Size.Width, 0);
+            PicPtCoeff = new DataPoint((PicPtMax.X - PicPtMin.X) / amplitude.X, (PicPtMin.Y - PicPtMax.Y - Thickness) / amplitude.Y);
         }
 
         protected void SetAxisValues(string xMin, string xMax, string yMin, string yMax)
@@ -127,7 +137,7 @@ namespace ChaosSoft.Core.DrawEngine.Charts {
             g.DrawLine(gridPen, (float)PicPtMin.X, (float)PicPtMin.Y, (float)PicPtMax.X, (float)PicPtMin.Y);
             
             // x axis text
-            float xAxisY = this.Size.Height - axisTitleFont.Size;
+            float xAxisY = Size.Height - axisTitleFont.Size;
 
             var FormatX = new StringFormat();
             FormatX.LineAlignment = StringAlignment.Center;
@@ -174,7 +184,7 @@ namespace ChaosSoft.Core.DrawEngine.Charts {
             format.LineAlignment = StringAlignment.Center;
             format.Alignment = StringAlignment.Center;
 
-            g.DrawString("No data to plot.", gridFont, txtBrush, this.Size.Width / 2, this.Size.Height / 2);
+            g.DrawString("No data to plot.", gridFont, txtBrush, Size.Width / 2, Size.Height / 2);
         }
     }
 }

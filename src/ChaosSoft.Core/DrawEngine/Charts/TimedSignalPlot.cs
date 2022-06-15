@@ -40,18 +40,23 @@ namespace ChaosSoft.Core.DrawEngine.Charts
             {
                 if (currentStep == 0)
                 {
-                    CalculateChartAreaSize(this.tsAmplitude);
+                    CalculateChartAreaSize(tsAmplitude);
                 }
 
                 DrawDataSeries(ts, PlotPens[currentStep]);
 
-                DrawGrid();
+                if (NeedToDrawGrid)
+                {
+                    DrawGrid();
+                }
 
                 var formatT = new StringFormat();
                 formatT.LineAlignment = StringAlignment.Center;
                 formatT.Alignment = StringAlignment.Far;
 
-                g.DrawString(GetAxisValue(double.Parse(ts.Name)), gridFont, txtBrush, (int)PicPtMax.X, this.Size.Height - 4 * axisTitleFont.Size, formatT);
+                float offset = NeedToDrawGrid ? 2 * gridFontSizePx : 1 * gridFontSizePx;
+
+                g.DrawString(GetAxisValue(double.Parse(ts.Name)), gridFont, txtBrush, (int)PicPtMax.X, Size.Height - offset, formatT);
             }
 
             g.Dispose();
@@ -85,7 +90,7 @@ namespace ChaosSoft.Core.DrawEngine.Charts
             foreach (var p in ds.DataPoints)
             {
                 xPl = PicPtMin.X + (p.X - tsPointMin.X) * PicPtCoeff.X;
-                yPl = PicPtMin.Y - (p.Y - tsPointMin.Y) * PicPtCoeff.Y - this.Thickness / 2d;
+                yPl = PicPtMin.Y - (p.Y - tsPointMin.Y) * PicPtCoeff.Y - Thickness / 2d;
                 points.Add(new PointF((float)xPl, (float)yPl));
             }
 
