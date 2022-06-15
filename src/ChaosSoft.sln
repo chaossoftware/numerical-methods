@@ -5,11 +5,6 @@ VisualStudioVersion = 17.2.32526.322
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChaosSoft.Core", "ChaosSoft.Core\ChaosSoft.Core.csproj", "{EDA2C4F0-1D19-4FC8-A608-5B0607EEA67A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ModelledSystems", "ModelledSystems\ModelledSystems.csproj", "{F54C531B-1F6C-4A67-9341-8745778B1CDF}"
-	ProjectSection(ProjectDependencies) = postProject
-		{EDA2C4F0-1D19-4FC8-A608-5B0607EEA67A} = {EDA2C4F0-1D19-4FC8-A608-5B0607EEA67A}
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EbPanelTemperature", "EbPanelTemperature\EbPanelTemperature.csproj", "{687D9242-3BD8-4254-8019-19C5A01DF501}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AttractorViewer", "AttractorViewer\AttractorViewer.csproj", "{6B475299-098A-4934-B27A-064D75AD5C6A}"
@@ -17,6 +12,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeuralNetTsa", "NeuralNetTsa\NeuralNetTsa.csproj", "{92311AC3-5547-4535-B3A3-45E9E2369C69}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TsaToolbox", "TsaToolbox\TsaToolbox.csproj", "{2F6746CC-728E-441A-8216-AAC0497408A3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ModelledSystems", "ModelledSystems\ModelledSystems.csproj", "{D678310D-C275-40E8-A88C-90B6D243D8F0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -28,11 +25,6 @@ Global
 		{EDA2C4F0-1D19-4FC8-A608-5B0607EEA67A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EDA2C4F0-1D19-4FC8-A608-5B0607EEA67A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EDA2C4F0-1D19-4FC8-A608-5B0607EEA67A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F54C531B-1F6C-4A67-9341-8745778B1CDF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F54C531B-1F6C-4A67-9341-8745778B1CDF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F54C531B-1F6C-4A67-9341-8745778B1CDF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F54C531B-1F6C-4A67-9341-8745778B1CDF}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F54C531B-1F6C-4A67-9341-8745778B1CDF}.Release|Any CPU.Deploy.0 = Release|Any CPU
 		{687D9242-3BD8-4254-8019-19C5A01DF501}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{687D9242-3BD8-4254-8019-19C5A01DF501}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{687D9242-3BD8-4254-8019-19C5A01DF501}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -49,6 +41,10 @@ Global
 		{2F6746CC-728E-441A-8216-AAC0497408A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2F6746CC-728E-441A-8216-AAC0497408A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2F6746CC-728E-441A-8216-AAC0497408A3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D678310D-C275-40E8-A88C-90B6D243D8F0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D678310D-C275-40E8-A88C-90B6D243D8F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D678310D-C275-40E8-A88C-90B6D243D8F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D678310D-C275-40E8-A88C-90B6D243D8F0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
