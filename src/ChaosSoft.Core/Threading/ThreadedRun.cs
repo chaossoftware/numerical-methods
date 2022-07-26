@@ -9,18 +9,18 @@ namespace ChaosSoft.Core.Threading
         private static int TotalProcessors = Environment.ProcessorCount;
         private static int ProcessorInWork = 0;
 
-        public void RunOnSeparateProcessor(Action<object[]> task, object[] parameters)
+        public void RunOnSeparateProcessor(Action action)
         {
             while (ProcessorInWork > TotalProcessors - 1) ;
             Interlocked.Increment(ref ProcessorInWork);
-            new Thread(delegate() { Task(task, parameters); }).Start();
+            new Thread(delegate() { Task(action); }).Start();
         }
 
-        private void Task(Action<object[]> task, object[] parameters)
+        private void Task(Action action)
         {
             try
             {
-                task(parameters);
+                action();
             }
             catch
             {
