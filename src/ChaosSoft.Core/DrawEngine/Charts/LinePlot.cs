@@ -15,16 +15,6 @@ namespace ChaosSoft.Core.DrawEngine.Charts
         {
         }
 
-        public LinePlot(Size bitmapSize, Timeseries dataSeries, Color color, float thickness) 
-            : base(bitmapSize, dataSeries, color, thickness)
-        {
-        }
-
-        public LinePlot(Size bitmapSize, Timeseries dataSeries) 
-            : base(bitmapSize, dataSeries)
-        {
-        }
-
         protected override void DrawDataSeries(Timeseries ds, Pen pen)
         {
             double xPl, yPl;

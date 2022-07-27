@@ -12,12 +12,6 @@ namespace ChaosSoft.Core.DrawEngine.Charts
     {
         private int currentStep = 0;
 
-        public TimedSignalPlot(List<Timeseries> historicalData, Size bitmapSize) 
-            : this(historicalData, bitmapSize, 1f)
-        {
-
-        }
-
         public TimedSignalPlot(List<Timeseries> historicalData, Size bitmapSize, float thickness)
             : base(bitmapSize)
         {

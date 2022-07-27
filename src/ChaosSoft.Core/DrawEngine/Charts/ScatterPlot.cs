@@ -13,11 +13,6 @@ namespace ChaosSoft.Core.DrawEngine.Charts
         {
         }
 
-        public ScatterPlot(Size bitmapSize, Timeseries dataSeries, Color color, float thickness) 
-            : base(bitmapSize, dataSeries, color, thickness)
-        {
-        }
-
         public ScatterPlot(Size bitmapSize, Timeseries dataSeries) 
             : base(bitmapSize, dataSeries)
         {
