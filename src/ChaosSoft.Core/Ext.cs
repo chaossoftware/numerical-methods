@@ -24,6 +24,21 @@ namespace ChaosSoft.Core
             return maxVal;
         }
 
+        public static double Max(double[,] matrix)
+        {
+            double maxVal = double.MinValue;
+
+            for (int x = 0; x < matrix.GetLength(0); x++)
+            {
+                for (int y = 0; y < matrix.GetLength(1); y++)
+                {
+                    maxVal = FastMath.Max(maxVal, matrix[x, y]);
+                }
+            }
+
+            return maxVal;
+        }
+
         public static double RescaleData(double[] series)
         {
             var max = FastMath.Max(series);
