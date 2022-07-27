@@ -43,8 +43,6 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
-    <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Windows.Forms.DataVisualization" />
     <Reference Include="System.Xml" />
     <Reference Include="WindowsBase" />
   </ItemGroup>
@@ -54,18 +52,10 @@
     <Compile Include="DrawEngine\Charts\ColorMaps\OrangeColorMap.cs" />
     <Compile Include="DrawEngine\Charts\ColorMaps\ParulaColorMap.cs" />
     <Compile Include="DrawEngine\Charts\DataSeriesPlot.cs" />
-    <Compile Include="DrawEngine\Charts\ScatterPlot.cs" />
-    <Compile Include="DrawEngine\Charts\LinePlot.cs" />
     <Compile Include="DrawEngine\Charts\TimedSignalPlot.cs" />
     <Compile Include="DrawEngine\Charts\PlotObject.cs" />
     <Compile Include="Data\Timeseries.cs" />
     <Compile Include="Data\DataPoint.cs" />
-    <Compile Include="DrawEngine\MathChart.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="DrawEngine\MathChart.Designer.cs">
-      <DependentUpon>MathChart.cs</DependentUpon>
-    </Compile>
     <Compile Include="ArrayUtil.cs" />
     <Compile Include="FastMath.cs" />
     <Compile Include="Ext.cs" />

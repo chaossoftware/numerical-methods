@@ -8,11 +8,11 @@ namespace ChaosSoft.Core.DrawEngine
 {
     public class Animation
     {
-        private GifBitmapEncoder gifEncoder;
+        private readonly GifBitmapEncoder _gifEncoder;
 
         public Animation()
         {
-            this.gifEncoder = new GifBitmapEncoder();
+            _gifEncoder = new GifBitmapEncoder();
         }
 
         public void AddFrame(Bitmap frame)
@@ -25,7 +25,7 @@ namespace ChaosSoft.Core.DrawEngine
                 System.Windows.Int32Rect.Empty,
                 BitmapSizeOptions.FromEmptyOptions());
 
-            this.gifEncoder.Frames.Add(BitmapFrame.Create(bitmap));
+            _gifEncoder.Frames.Add(BitmapFrame.Create(bitmap));
 
             DeleteObject(hBitmap);
         }
@@ -34,7 +34,7 @@ namespace ChaosSoft.Core.DrawEngine
         {
             using (FileStream fs = new FileStream(fileName, FileMode.Create))
             {
-                this.gifEncoder.Save(fs);
+                _gifEncoder.Save(fs);
             }
         }
 
