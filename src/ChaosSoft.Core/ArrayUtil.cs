@@ -13,6 +13,18 @@
 
             return array;
         }
+
+        public static int[] GenerateArray(int length, int start, int step)
+        {
+            int[] array = new int[length];
+
+            for (int i = 0; i < length; i++)
+            {
+                array[i] = start + step * i;
+            }
+
+            return array;
+        }
     }
 
 }
