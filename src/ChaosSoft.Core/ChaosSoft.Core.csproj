@@ -84,6 +84,7 @@
     <Compile Include="NumericalMethods\Solvers\SystemEquations.cs" />
     <Compile Include="NumericalMethods\Lyapunov\LleWolf.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Transform\Wavelet.cs" />
     <Compile Include="Transform\Fourier.cs" />
     <Compile Include="Transform\Model3D.cs" />
     <Compile Include="Transform\PoincareMap.cs" />
