@@ -4,9 +4,9 @@ namespace ChaosSoft.Core.Transform
 {
     public static class PseudoPoincareMap
     {
-        public static Timeseries GetMapDataFrom(double[] timeSeries, int step)
+        public static DataSeries GetMapDataFrom(double[] timeSeries, int step)
         {
-            var ppDataSeries = new Timeseries();
+            var ppDataSeries = new DataSeries();
 
             for (int i = 0; i < timeSeries.Length - step; i++)
             {
@@ -16,6 +16,6 @@ namespace ChaosSoft.Core.Transform
             return ppDataSeries;
         }
 
-        public static Timeseries GetMapDataFrom(double[] timeSeries) => GetMapDataFrom(timeSeries, 1);
+        public static DataSeries GetMapDataFrom(double[] timeSeries) => GetMapDataFrom(timeSeries, 1);
     }
 }

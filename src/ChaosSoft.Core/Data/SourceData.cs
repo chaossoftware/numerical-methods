@@ -1,32 +1,37 @@
-﻿using System;
-using System.Globalization;
-using System.IO;
+﻿using System.IO;
 using System.Text;
-using System.Text.RegularExpressions;
 using ChaosSoft.Core.IO;
 
 namespace ChaosSoft.Core.Data
 {
     public class SourceData
     {
-        private const string NumberRegex = "\\s+";
+        private readonly double[][] _dataColumns;
 
-        private double[][] dataColumns;
-
-        public SourceData(string filePath, int startOffset, int readLines)
+        public SourceData(string filePath, int startOffset, int readLines) :
+            this(DataReader.ReadColumnsFromFile(filePath, startOffset, readLines), filePath)
         {
-            ReadFromFile(filePath, startOffset, readLines);
-
-            FileName = Path.GetFileName(filePath);
-            Folder = Path.GetDirectoryName(filePath);
-            LinesCount = dataColumns[0].Length;
-            ColumnsCount = dataColumns.Length;
-
-            SetTimeSeries(0, 0, LinesCount, 1, false);
         }
 
-        public SourceData(string filePath) : this (filePath, 0, 0)
+        public SourceData(string filePath) : 
+            this(DataReader.ReadColumnsFromFile(filePath, 0, 0), filePath)
         {
+        }
+
+        public SourceData(double[][] data, string filePath)
+        {
+            _dataColumns = data;
+
+            if (!string.IsNullOrEmpty(filePath))
+            {
+                FileName = Path.GetFileName(filePath);
+                Folder = Path.GetDirectoryName(filePath);
+            }
+            
+            LinesCount = _dataColumns[0].Length;
+            ColumnsCount = _dataColumns.Length;
+
+            SetTimeSeries(0, 0, LinesCount, 1, false);
         }
 
         public int LinesCount { get; }
@@ -37,9 +42,15 @@ namespace ChaosSoft.Core.Data
 
         public string Folder { get; }
 
-        public Timeseries TimeSeries { get; protected set; }
+        public DataSeries TimeSeries { get; protected set; }
 
         public double Step { get; protected set; }
+
+        public static SourceData FromBytesFile(string filePath)
+        {
+            double[][] data = DataReader.ReadColumnsFromByteFile(filePath);
+            return new SourceData(data, filePath);
+        }
 
         /// <summary>
         /// Set current time series from column and data range.
@@ -52,13 +63,13 @@ namespace ChaosSoft.Core.Data
         public void SetTimeSeries(int colIndex, int startPoint, int endPoint, int pts, bool timeInFirstColumn)
         {
             int max = (endPoint - startPoint) / pts;
-            TimeSeries = new Timeseries();
+            TimeSeries = new DataSeries();
 
             for (int i = 0; i < max; i++)
             {
                 int row = startPoint + i * pts;
-                var x = timeInFirstColumn ? dataColumns[0][row] : i + 1;
-                var y = dataColumns[colIndex][row];
+                var x = timeInFirstColumn ? _dataColumns[0][row] : i + 1;
+                var y = _dataColumns[colIndex][row];
                 TimeSeries.AddDataPoint(x, y);
             }
                     
@@ -66,7 +77,7 @@ namespace ChaosSoft.Core.Data
         }
 
         public double[] GetColumn(int index) =>
-            dataColumns[index];
+            _dataColumns[index];
 
         public string GetTimeSeriesString()
         {
@@ -74,7 +85,7 @@ namespace ChaosSoft.Core.Data
 
             foreach (double value in TimeSeries.YValues)
             {
-                timeSeriesOut.AppendLine(NumFormat.ToLong(value));
+                timeSeriesOut.AppendLine(NumFormatter.ToLong(value));
             }
 
             return timeSeriesOut.ToString();
@@ -82,46 +93,5 @@ namespace ChaosSoft.Core.Data
 
         public override string ToString() =>
             $"File: {FileName}\nLines: {LinesCount}\nColumns: {ColumnsCount}";
-
-        private void ReadFromFile(string file, int startOffset, int readLines)
-        {
-            if (!File.Exists(file))
-            {
-                throw new FileNotFoundException("Source data file not found.", file);
-            }
-
-            int i, j;
-
-            var sourceData = File.ReadAllLines(file);
-
-            // Determine how many numbers in line.
-            var columns = Regex.Split(sourceData[startOffset].Trim(), NumberRegex).Length;
-
-            var length = readLines == 0 ? sourceData.Length - startOffset : readLines;
-
-            dataColumns = new double[columns][];
-            
-            for (i = 0; i < dataColumns.Length; i++)
-            {
-                dataColumns[i] = new double[length];
-            }
-
-            for (i = startOffset; i < length + startOffset; i++)
-            {
-                var numbers = Regex.Split(sourceData[i].Trim(), NumberRegex);
-
-                for (j = 0; j < columns; j++)
-                {
-                    if (double.TryParse(numbers[j], NumberStyles.Any, CultureInfo.InvariantCulture, out double value))
-                    {
-                        dataColumns[j][i - startOffset] = value;
-                    }
-                    else
-                    {
-                        throw new ArgumentException($"Unable to parse value (Line: {i + 1}, Column: {j} [value: {numbers[j]}])");
-                    }
-                }
-            }
-        }
     }
 }

@@ -5,19 +5,19 @@ namespace ChaosSoft.Core.NumericalMethods.Orthogonalization {
     /// <summary>
     /// Householder orthogonalization
     /// </summary>
-    public class HouseholderTransformation : Orthogonalization
+    public class HouseholderTransformation : OrthogonalizationBase
     {
         public HouseholderTransformation(int equationsCount) : base(equationsCount) { }
 
         public override void Perform(double[,] qMatrix, double[] rMatrix)
         {
-            int nn = n + 1;
-            double[,] qr = new double[nn, n];
+            int nn = N + 1;
+            double[,] qr = new double[nn, N];
 
             Array.Copy(qMatrix, qr, qMatrix.Length);
 
             // Main loop.
-            for (int k = 0; k < n; k++)
+            for (int k = 0; k < N; k++)
             {
                 // Compute 2-norm of k-th column without under/overflow.
                 double nrm = 0;
@@ -42,7 +42,7 @@ namespace ChaosSoft.Core.NumericalMethods.Orthogonalization {
                     qr[k + 1, k] += 1.0;
 
                     // Apply transformation to remaining columns.
-                    for (int j = k + 1; j < n; j++)
+                    for (int j = k + 1; j < N; j++)
                     {
                         double s = 0.0;
 
@@ -63,7 +63,7 @@ namespace ChaosSoft.Core.NumericalMethods.Orthogonalization {
                 rMatrix[k] = nrm; //Rmatrix[k] = -nrm; ///why doe not work???
             }
 
-            for (int k = n - 1; k >= 0; k--)
+            for (int k = N - 1; k >= 0; k--)
             {
                 for (int i = 1; i < nn; i++)
                 {
@@ -72,7 +72,7 @@ namespace ChaosSoft.Core.NumericalMethods.Orthogonalization {
 
                 qMatrix[k + 1, k] = 1.0;
 
-                for (int j = k; j < n; j++)
+                for (int j = k; j < N; j++)
                 {
                     if (qr[k + 1, k] != 0)
                     {
@@ -95,7 +95,7 @@ namespace ChaosSoft.Core.NumericalMethods.Orthogonalization {
 
             for (int i = 1; i < nn; i++)
             {
-                for (int j = 0; j < n; j++)
+                for (int j = 0; j < N; j++)
                 {
                     qMatrix[i, j] = -qMatrix[i, j];
                 }

@@ -4,10 +4,13 @@ using System.Text;
 
 namespace ChaosSoft.Core.Transform
 {
+    /// <summary>
+    /// Provides methods to transform series to sound.
+    /// </summary>
     public class Sound
     {
         /// <summary>
-        /// Create WAV file of signal "sound" with specified quality params
+        /// Create WAV file of signal "sound" with specified quality params.
         /// </summary>
         /// <param name="filePath">output sound file name</param>
         /// <param name="freq">frequency of quantization</param>

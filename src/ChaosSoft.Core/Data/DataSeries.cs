@@ -5,7 +5,7 @@ using System.Text;
 
 namespace ChaosSoft.Core.Data
 {
-    public class Timeseries
+    public class DataSeries
     {
         private DataPoint max;
         private DataPoint min;
@@ -14,7 +14,7 @@ namespace ChaosSoft.Core.Data
         private double[] yValues;
         private bool outdated;
 
-        public Timeseries()
+        public DataSeries()
         {
             DataPoints = new List<DataPoint>();
             min = new DataPoint(0, 0);
@@ -23,7 +23,7 @@ namespace ChaosSoft.Core.Data
             outdated = true;
         }
 
-        public Timeseries(double[] timeSeries) : this()
+        public DataSeries(double[] timeSeries) : this()
         {
             foreach (double val in timeSeries)
             {
@@ -120,7 +120,7 @@ namespace ChaosSoft.Core.Data
 
             foreach (DataPoint dp in DataPoints)
             {
-                sb.AppendLine($"{NumFormat.ToLong(dp.X)}\t{NumFormat.ToLong(dp.Y)}");
+                sb.AppendLine($"{NumFormatter.ToLong(dp.X)}\t{NumFormatter.ToLong(dp.Y)}");
             }
                 
             return sb.ToString();
@@ -128,12 +128,9 @@ namespace ChaosSoft.Core.Data
 
         private void UpdateProperties()
         {
-            min.X = XValues.Min();
-            min.Y = YValues.Min();
-            max.X = XValues.Max();
-            max.Y = YValues.Max();
-            amplitude.X = max.X - min.X;
-            amplitude.Y = max.Y - min.Y;
+            min = new DataPoint(XValues.Min(), YValues.Min());
+            max = new DataPoint(XValues.Max(), YValues.Max());
+            amplitude = new DataPoint(max.X - min.X, max.Y - min.Y);
             outdated = false;
         }
     }

@@ -5,29 +5,28 @@ namespace ChaosSoft.Core.NumericalMethods.Lyapunov
     /// <summary>
     /// Lyapunov Methods class
     /// Methods:
-    /// - Calculae Lyapunov exponents
+    /// - Calculate Lyapunov exponents
     /// - Calculate Kaplan-Yorke dimension
     /// - Calculate KS Entropy (h)
     /// - Calculate Phase volume compression (d)
     /// </summary>
-    public class BenettinMethod
+    public sealed class BenettinMethod
     {
-        private int n;              //Number of equations
-        private int i;              //counter
-        private double[] ltot;       //sum array of lyapunov exponents
+        private readonly int _n;            //Number of equations
+        private readonly double[] _ltot;    //sum array of lyapunov exponents
 
         /// <summary>
         /// Lyapunov related methods
         /// </summary>
-        /// <param name="numberOfEquations">Number of equations</param>
-        public BenettinMethod(int numberOfEquations)
+        /// <param name="equationsCount">Number of equations</param>
+        public BenettinMethod(int equationsCount)
         {
-            this.n = numberOfEquations;
-            this.ltot = new double[n];
-            this.Result = new LyapunovSpectrum(numberOfEquations);
+            _n = equationsCount;
+            _ltot = new double[_n];
+            Result = new double[equationsCount];
         }
 
-        public LyapunovSpectrum Result { get; set; }
+        public double[] Result { get; }
 
         /// <summary>
         /// <para>Updating array of Lyapunov exponents (not averaged by time).</para>
@@ -36,12 +35,12 @@ namespace ChaosSoft.Core.NumericalMethods.Lyapunov
         public void CalculateLyapunovSpectrum(double[] rMatrix, double totalTime)
         {
             // update vector magnitudes 
-            for (int i = 0; i < n; i++)
+            for (int i = 0; i < _n; i++)
             {
                 if (rMatrix[i] > 0)
                 {
-                    ltot[i] += Math.Log(rMatrix[i]);
-                    this.Result.Spectrum[i] = ltot[i] / totalTime;
+                    _ltot[i] += Math.Log(rMatrix[i]);
+                    Result[i] = _ltot[i] / totalTime;
                 }
             }
         }

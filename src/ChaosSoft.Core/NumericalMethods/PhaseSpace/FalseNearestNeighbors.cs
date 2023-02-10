@@ -1,9 +1,10 @@
-﻿using ChaosSoft.Core.IO;
+﻿using ChaosSoft.Core.Extensions;
+using ChaosSoft.Core.IO;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace ChaosSoft.Core.NumericalMethods.EmbeddingDimension
+namespace ChaosSoft.Core.NumericalMethods.PhaseSpace
 {
     /// <summary>
     /// Determines the fraction of false nearest neighbors.
@@ -13,15 +14,12 @@ namespace ChaosSoft.Core.NumericalMethods.EmbeddingDimension
         private const ushort BoxSize = 1024;
         private const ushort IBoxSize = BoxSize - 1;
 
-        private readonly double[] _series;
         private readonly int _theiler = 0;
         private readonly int _tau = 1;
         private readonly int _minDim = 1;
         private readonly int _maxDim = 5;
         private readonly double _rt = 10.0;
         
-        private readonly int _length;
-
         double eps0 = 1e-5;
         double aveps, vareps;
         double variance;
@@ -30,16 +28,13 @@ namespace ChaosSoft.Core.NumericalMethods.EmbeddingDimension
         int[] list;
         uint toolarge;
 
-        public FalseNearestNeighbors(double[] series, int minDim, int maxDim, int delay, double escapeFactor, int theilerWindow)
+        public FalseNearestNeighbors(int minDim, int maxDim, int delay, double escapeFactor, int theilerWindow)
         {
-            _series = series;
             _minDim = minDim;
             _maxDim = maxDim;
             _tau = delay;
             _rt = escapeFactor;
             _theiler = theilerWindow;
-
-            _length = _series.Length;
 
             Log = new StringBuilder();
             FalseNeighbors = new Dictionary<int, int>();
@@ -49,18 +44,20 @@ namespace ChaosSoft.Core.NumericalMethods.EmbeddingDimension
 
         public Dictionary<int, int> FalseNeighbors;
 
-        public void Calculate()
+        public void Calculate(double[] timeSeries)
         {
             int i;
+            double[] series = new double[timeSeries.Length];
+            Array.Copy(timeSeries, series, series.Length);
 
             // to calculate only if not retrieved in constructor;
-            double inter = Ext.RescaleData(_series);
+            double inter = Arrays.Rescale(series);
 
             // to calculate only if not retrieved in constructor;
-            variance = Ext.Variance(_series);
+            variance = Statistics.Variance(series);
 
-            list = new int[_length];
-            bool[] nearest = new bool[_length];
+            list = new int[series.Length];
+            bool[] nearest = new bool[series.Length];
             box = new int[BoxSize, BoxSize];
 
             for (int dim = _minDim; dim <= _maxDim; dim++)
@@ -72,7 +69,7 @@ namespace ChaosSoft.Core.NumericalMethods.EmbeddingDimension
                 aveps = 0.0;
                 vareps = 0.0;
 
-                for (i = 0; i < _length; i++)
+                for (i = 0; i < series.Length; i++)
                 {
                     nearest[i] = false;
                 }
@@ -81,13 +78,13 @@ namespace ChaosSoft.Core.NumericalMethods.EmbeddingDimension
                 while (!alldone && (epsilon < 2d * variance / _rt))
                 {
                     alldone = true;
-                    PutInBox(dim, epsilon);
+                    PutInBox(series, dim, epsilon);
 
-                    for (i = (dim - 1) * _tau; i < _length - 1; i++)
+                    for (i = (dim - 1) * _tau; i < series.Length - 1; i++)
                     {
                         if (!nearest[i])
                         {
-                            nearest[i] = FindNearest(i, dim, epsilon);
+                            nearest[i] = FindNearest(series, i, dim, epsilon);
                             alldone &= nearest[i];
 
                             if (nearest[i])
@@ -97,7 +94,7 @@ namespace ChaosSoft.Core.NumericalMethods.EmbeddingDimension
                         }
                     }
 
-                    Log.Append($"Found {donesofar} up to epsilon = {NumFormat.ToShort(epsilon * inter)}");
+                    Log.Append($"Found {donesofar} up to epsilon = {NumFormatter.ToShort(epsilon * inter)}");
                     epsilon *= Math.Sqrt(2.0);
 
                     //if (!donesofar)
@@ -115,19 +112,19 @@ namespace ChaosSoft.Core.NumericalMethods.EmbeddingDimension
                 aveps *= (1d / donesofar);
                 vareps *= (1d / donesofar);
 
-                Log.AppendLine($"Dimension: {dim}; False neighbors: {(double)toolarge / donesofar} | {NumFormat.ToShort(aveps)} | {NumFormat.ToShort(vareps)}");
+                Log.AppendLine($"Dimension: {dim}; False neighbors: {(double)toolarge / donesofar} | {NumFormatter.ToShort(aveps)} | {NumFormatter.ToShort(vareps)}");
                 FalseNeighbors.Add(dim, (int)toolarge);
             }
         }
 
-        private bool FindNearest(int n, int dim, double eps)
+        private bool FindNearest(double[] series, int n, int dim, double eps)
         {
             int x2, y1, i, i1;
             int element, which = -1;
             double dx, maxdx, mindx = 1.1, factor;
 
-            int x = (int)(_series[n - (dim - 1) * _tau] / eps) & IBoxSize;
-            int y = (int)(_series[n] / eps) & IBoxSize;
+            int x = (int)(series[n - (dim - 1) * _tau] / eps) & IBoxSize;
+            int y = (int)(series[n] / eps) & IBoxSize;
 
             for (int x1 = x - 1; x1 <= x + 1; x1++)
             {
@@ -141,12 +138,12 @@ namespace ChaosSoft.Core.NumericalMethods.EmbeddingDimension
                     {
                         if (Math.Abs(element - n) > _theiler)
                         {
-                            maxdx = Math.Abs(_series[n] - _series[element]);
+                            maxdx = Math.Abs(series[n] - series[element]);
 
                             for (i = 1; i < dim; i++)
                             {
                                 i1 = i * _tau;
-                                dx = Math.Abs(_series[n - i1] - _series[element - i1]);
+                                dx = Math.Abs(series[n - i1] - series[element - i1]);
 
                                 if (dx > maxdx)
                                 {
@@ -169,7 +166,7 @@ namespace ChaosSoft.Core.NumericalMethods.EmbeddingDimension
             {
                 aveps += mindx;
                 vareps += mindx * mindx;
-                factor = Math.Abs(_series[n + 1] - _series[which + 1]) / mindx;
+                factor = Math.Abs(series[n + 1] - series[which + 1]) / mindx;
 
                 if (factor > _rt)
                 {
@@ -182,7 +179,7 @@ namespace ChaosSoft.Core.NumericalMethods.EmbeddingDimension
             return false;
         }
 
-        private void PutInBox(int dim, double eps)
+        private void PutInBox(double[] series, int dim, double eps)
         {
             int x, y;
             int xShift = (dim - 1) * _tau;
@@ -195,10 +192,10 @@ namespace ChaosSoft.Core.NumericalMethods.EmbeddingDimension
                 }
             }
 
-            for (int i = xShift; i < _length - 1; i++)
+            for (int i = xShift; i < series.Length - 1; i++)
             {
-                x = (int)(_series[i - xShift] / eps) & IBoxSize;
-                y = (int)(_series[i] / eps) & IBoxSize;
+                x = (int)(series[i - xShift] / eps) & IBoxSize;
+                y = (int)(series[i] / eps) & IBoxSize;
                 list[i] = box[x, y];
                 box[x, y] = i;
             }

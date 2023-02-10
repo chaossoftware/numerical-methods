@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 
 namespace ChaosSoft.Core.IO
@@ -22,13 +23,28 @@ namespace ChaosSoft.Core.IO
             {
                 for (int j = 0; j < data.GetLength(0); j++)
                 {
-                    output.Append($"{NumFormat.ToShort(data[j, i])}\t");
+                    output.Append($"{NumFormatter.ToShort(data[j, i])}\t");
                 }
 
                 output.AppendLine();
             }
 
             CreateDataFile(fileName, output.ToString());
+        }
+
+        public static void CreateBytesDataFile(string fileName, double[][] data)
+        {
+            using (MemoryStream ms = new MemoryStream())
+            {
+                new BinaryFormatter().Serialize(ms, data);
+                byte[] bytes = ms.ToArray();
+
+                using (FileStream fs = new FileStream(fileName, FileMode.Create))
+                {
+                    fs.Write(bytes, 0, bytes.Length);
+                    fs.Close();
+                }
+            }
         }
     }
 }

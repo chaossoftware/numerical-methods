@@ -1,15 +1,15 @@
 ﻿using System;
 
-namespace ChaosSoft.Core.NumericalMethods.EmbeddingDimension
+namespace ChaosSoft.Core.NumericalMethods.PhaseSpace
 {
-    public class BoxAssistedFnn
+    internal class BoxAssistedFnn
     {
         private readonly ushort _boxSize;
         private readonly ushort _iBoxSize;
         private readonly int[,] _boxes;
         private readonly int[] _list;
 
-        public BoxAssistedFnn(ushort boxSize, int timeSeriesSize)
+        internal BoxAssistedFnn(ushort boxSize, int timeSeriesSize)
         {
             _boxSize = boxSize;
             _iBoxSize = (ushort)(boxSize - 1);
@@ -18,7 +18,7 @@ namespace ChaosSoft.Core.NumericalMethods.EmbeddingDimension
             Found = new int[timeSeriesSize];
         }
 
-        public int[] Found { get; protected set; }
+        internal int[] Found { get; }
 
         /// <summary>
         /// Optimized False Nearest Neighbors (FNN):
@@ -27,14 +27,13 @@ namespace ChaosSoft.Core.NumericalMethods.EmbeddingDimension
         /// All its neighbors closer than eps have to lie in either the same box or one of the adjacent ones
         /// </summary>
         /// <param name="series"></param>
-        /// <param name="list"></param>
         /// <param name="epsilon"></param>
         /// <param name="startIndex"></param>
         /// <param name="endIndex"></param>
         /// <param name="xShift"></param>
         /// <param name="yShift"></param>
         // Shift (Kantz = Tau) (Rosenstein = Tau * (Dim - 1)) (Jakobian = 0)
-        public void PutInBoxes(double[] series, double epsilon, int startIndex, int endIndex, int xShift, int yShift)
+        internal void PutInBoxes(double[] series, double epsilon, int startIndex, int endIndex, int xShift, int yShift)
         {
             for (var x = 0; x < _boxSize; x++)
             {
@@ -53,7 +52,7 @@ namespace ChaosSoft.Core.NumericalMethods.EmbeddingDimension
             }
         }
 
-        public int FindNeighborsJ(double[] series, int eDim, int tau, double epsilon, int act)
+        internal int FindNeighborsJ(double[] series, int eDim, int tau, double epsilon, int act)
         {
             int element;
             int nf = 0;
@@ -61,7 +60,7 @@ namespace ChaosSoft.Core.NumericalMethods.EmbeddingDimension
             double dx = 0.0;
 
             x = (int)(series[act] / epsilon) & _iBoxSize;
-            y = (int)(series[act] / epsilon) & _iBoxSize;
+            y = x;
 
             for (i = x - 1; i <= x + 1; i++)
             {
@@ -98,7 +97,7 @@ namespace ChaosSoft.Core.NumericalMethods.EmbeddingDimension
             return nf;
         }
 
-        public int FindNeighborsK(double[] series, int eDim, int tau, double epsilon, int act, int window)
+        internal int FindNeighborsK(double[] series, int eDim, int tau, double epsilon, int act, int window)
         {
             int element;
             int nf = 0;
@@ -146,7 +145,7 @@ namespace ChaosSoft.Core.NumericalMethods.EmbeddingDimension
             return nf;
         }
 
-        public bool FindNeighborsR(double[] timeSeries, int eDim, int tau, double epsilon, long act, int window, out int minelement)
+        internal bool FindNeighborsR(double[] timeSeries, int eDim, int tau, double epsilon, long act, int window, out int minelement)
         {
             int element;
             bool ok = false;

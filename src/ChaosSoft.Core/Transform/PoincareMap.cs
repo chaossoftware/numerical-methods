@@ -21,10 +21,10 @@ namespace ChaosSoft.Core.Transform
             maxt = max = -1000;
             w2 = 0;
 
-            PoincareOut = new Timeseries();
+            PoincareOut = new DataSeries();
         }
 
-        public Timeseries PoincareOut { get; protected set; }
+        public DataSeries PoincareOut { get; protected set; }
 
         public void NextStep(double t, double val)
         {
