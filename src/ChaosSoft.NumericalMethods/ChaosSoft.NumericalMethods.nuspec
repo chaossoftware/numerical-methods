@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>ChaosSoft.NumericalMethods</id>
+    <title>ChaosSoft.NumericalMethods</title>
+    <version>$version$</version>
+    <authors>Vitaliy Dobriyan</authors>
+    <license type="expression">Apache-2.0</license>
+    <copyright>Copyright (c) Vitaliy Dobriyan 2023</copyright>
+    <projectUrl>https://github.com/chaossoftware/numerical-methods</projectUrl>
+    <repository type="git" url="https://github.com/chaossoftware/numerical-methods.git"/>
+    <icon>images\icon.png</icon>
+    <readme>docs\README.md</readme>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>
+      This package includes variety of numerical methods from different areas.
+    </description>
+    <releaseNotes>First release: lyapunov exponents, equations and solvers, orthogonalization, phase space areas, some methods from algebra and statistics.</releaseNotes>
+    <tags>math numerical-methods lyapunov</tags>
+    <dependencies>
+      <group targetFramework="net6.0">
+        <dependency id="ChaosSoft.Core" version="1.0.0"/>
+      </group>
+      <group targetFramework="netstandard2.0">
+        <dependency id="ChaosSoft.Core" version="1.0.0"/>
+      </group>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="..\..\README.md" target="docs\" />
+    <file src="..\..\icon.png" target="images\" />
+    <file src="bin\Release\netstandard2.0\chaossoft.numericalmethods.dll" target="lib\netstandard2.0" />
+    <file src="bin\Release\netstandard2.0\chaossoft.numericalmethods.xml" target="lib\netstandard2.0" />
+    <file src="bin\Release\net6.0\chaossoft.numericalmethods.dll" target="lib\net6.0" />
+    <file src="bin\Release\net6.0\chaossoft.numericalmethods.xml" target="lib\net6.0" />
+  </files>
+</package>

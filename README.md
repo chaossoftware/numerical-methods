@@ -1,13 +1,28 @@
 # ChaosSoft.Core #
 
-Core of the toolset.
+Set of numerical methods.
 
-* Custom data series implementation
-* Data I/O
-* Numerical methods:  
--- Lyapunov exponents related methods  
--- equations solving  
--- phase space reconstruction  
--- orthogonalization  
+* Lyapunov exponents related methods  
+    - LLE by Wolf  
+    - LLE by Rosenstein  
+    - LLE by Kantz  
+    - LLE by Benettin  
+    - Lyapunov spectrum by Sano-Sawada  
+    - Attractor stochastic properties
+
+* Equations solving  
+    - Abstractions for solvers and systems  
+    - Runge-Kutta of 4th and 5th order  
+    - Discrete systems solver  
+
+* Orthogonalization  
+    - Classic Gram-Schmidt  
+    - Modified Gram-Schmidt
+
+* Phase space reconstruction  
+    - False nearest neighbors  
+    - Mutual information  
+    - Poincare map
+
 * Methods from algebra
 * Methods from statistics
