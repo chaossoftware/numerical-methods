@@ -13,9 +13,9 @@
     <readme>docs\README.md</readme>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>
-      This package includes base data IO, Timeseries related objects, numerical methods.
+      This package includes variety of numerical methods from different areas.
     </description>
-    <releaseNotes>First release: base data IO, Timeseries related objects, numerical methods.</releaseNotes>
+    <releaseNotes>First release: lyapunov exponents, equations and solvers, orthogonalization, phase space areas, some methods from algebra and statistics.</releaseNotes>
     <tags>math numerical-methods lyapunov</tags>
     <dependencies>
       <group targetFramework="net6.0">
