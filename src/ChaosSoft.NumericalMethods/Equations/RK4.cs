@@ -1,12 +1,7 @@
 ﻿namespace ChaosSoft.NumericalMethods.Equations
 {
     /// <summary>
-    /// The 4th ordered Runge-Kutta<para/>
-    /// y₁ = y₀ + 1/6 (k₁ + 2k₂ + 2k₃ + k₄) h, where: <para/>
-    /// k₁ = f(x₀, y₀)<br/>
-    /// k₂ = f(x₀ + 1/2 h, y₀ + 1/2 hk₁)<br/>
-    /// k₃ = f(x₀ + 1/2 h, y₀ + 1/2 hk₂)<br/>
-    /// k₄ = f(x₀ + h, y₀ + hk₃)<br/>
+    /// The 4th ordered Runge-Kutta.
     /// </summary>
     public class RK4 : SolverBase
     {
@@ -38,7 +33,12 @@
         }
 
         /// <summary>
-        /// Solves next step of system of equations by RK4 method.
+        /// Solves next step of system of equations by RK4 method:<para/>
+        /// y₁ = y₀ + 1/6 (k₁ + 2k₂ + 2k₃ + k₄) h, where: <para/>
+        /// k₁ = f(x₀, y₀)<br/>
+        /// k₂ = f(x₀ + 1/2 h, y₀ + 1/2 hk₁)<br/>
+        /// k₃ = f(x₀ + 1/2 h, y₀ + 1/2 hk₂)<br/>
+        /// k₄ = f(x₀ + h, y₀ + hk₃)<br/>
         /// </summary>
         public override void NexStep()
         {

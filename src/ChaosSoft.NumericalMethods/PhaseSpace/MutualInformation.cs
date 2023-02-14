@@ -1,9 +1,12 @@
 ﻿using ChaosSoft.Core.Data;
-using ChaosSoft.Core.Extensions;
+using ChaosSoft.Core.DataUtils;
 using System;
 
 namespace ChaosSoft.NumericalMethods.PhaseSpace
 {
+    /// <summary>
+    /// Estimates the time delayed mutual information of the data using fixed mesh of boxes.
+    /// </summary>
     public class MutualInformation
     {
         private readonly int _partitions;
@@ -14,42 +17,60 @@ namespace ChaosSoft.NumericalMethods.PhaseSpace
         private int[] h11;
         private int[,] h2;
 
-        public MutualInformation(int partitions, int corrlength) 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MutualInformation"/> class for 
+        /// specific count of boxes and max time delay.
+        /// </summary>
+        /// <param name="partitions">number of boxes for the partition</param>
+        /// <param name="corrLength">max time delay</param>
+        public MutualInformation(int partitions, int corrLength) 
         { 
             _partitions = partitions;
-            corrLength = corrlength;
+            this.corrLength = corrLength;
 
-            Slope = new DataSeries();
+            EntropySlope = new DataSeries();
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MutualInformation"/> class for 16 boxes in partition and 
+        /// max time delay 20
+        /// </summary>
         public MutualInformation() : this(16, 20)
         {
         }
 
-        public DataSeries Slope { get; }
+        /// <summary>
+        /// Gets slope of entropy values by delays.
+        /// </summary>
+        public DataSeries EntropySlope { get; }
 
-        public void Calculate(double[] timeSeries)
+        /// <summary>
+        /// Calculates time delayed mutual information of the series.
+        /// The result is stored in <see cref="EntropySlope"/>.
+        /// </summary>
+        /// <param name="series"></param>
+        public void Calculate(double[] series)
         {
-            double[] series = new double[timeSeries.Length];
-            Array.Copy(timeSeries, series, series.Length);
+            double[] data = new double[series.Length];
+            Array.Copy(series, data, data.Length);
 
-            Vector.Rescale(series);
+            Vector.Rescale(data);
 
             h1 = new int[_partitions];
             h11 = new int[_partitions];
             h2 = new int[_partitions, _partitions];
-            array = new int[series.Length];
+            array = new int[data.Length];
 
-            for (int i = 0; i < series.Length; i++)
+            for (int i = 0; i < data.Length; i++)
             {
-                array[i] = series[i] < 1.0 ? (int)(series[i] * _partitions) : _partitions - 1;
+                array[i] = data[i] < 1.0 ? (int)(data[i] * _partitions) : _partitions - 1;
             }
 
-            double shannon = GetShannonEntropy(0, series.Length);
+            double shannon = GetShannonEntropy(0, data.Length);
 
-            if (corrLength >= series.Length)
+            if (corrLength >= data.Length)
             {
-                corrLength = series.Length - 1;
+                corrLength = data.Length - 1;
             }
 
             Console.WriteLine($"#shannon = {shannon}");
@@ -57,8 +78,8 @@ namespace ChaosSoft.NumericalMethods.PhaseSpace
 
             for (int tau = 1; tau <= corrLength; tau++)
             {
-                double entropy = GetShannonEntropy(tau, series.Length);
-                Slope.AddDataPoint(tau, entropy);
+                double entropy = GetShannonEntropy(tau, data.Length);
+                EntropySlope.AddDataPoint(tau, entropy);
                 Console.WriteLine($"{tau} {entropy}");
             }
         }

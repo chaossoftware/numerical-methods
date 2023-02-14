@@ -102,7 +102,7 @@ namespace ChaosSoft.NumericalMethods.PhaseSpace
             int element;
             int nf = 0;
             int x, y, i, i1, j, k, k1;
-            double dx, eps2 = FastMath.Pow2(epsilon);
+            double dx, eps2 = MathHelpers.Pow2(epsilon);
 
             x = (int)(series[act] / epsilon) & _iBoxSize;
             y = (int)(series[act + tau] / epsilon) & _iBoxSize;
@@ -119,13 +119,13 @@ namespace ChaosSoft.NumericalMethods.PhaseSpace
                     {
                         if (element < (act - window) || element > (act + window))
                         {
-                            dx = FastMath.Pow2(series[act] - series[element]);
+                            dx = MathHelpers.Pow2(series[act] - series[element]);
 
                             if (dx <= eps2)
                             {
                                 k = eDim - 1;
                                 k1 = k * tau;
-                                dx += FastMath.Pow2(series[act + k1] - series[element + k1]);
+                                dx += MathHelpers.Pow2(series[act + k1] - series[element + k1]);
 
                                 if (dx > eps2)
                                 {
@@ -152,7 +152,7 @@ namespace ChaosSoft.NumericalMethods.PhaseSpace
             minelement = -1;
             int x, y, i1, k, del1 = eDim * tau;
             
-            double dx, eps2 = FastMath.Pow2(epsilon), mindx = 1.0;
+            double dx, eps2 = MathHelpers.Pow2(epsilon), mindx = 1.0;
 
             x = (int)(timeSeries[act] / epsilon) & _iBoxSize;
             y = (int)(timeSeries[act + tau * (eDim - 1)] / epsilon) & _iBoxSize;
@@ -173,7 +173,7 @@ namespace ChaosSoft.NumericalMethods.PhaseSpace
 
                             for (k = 0; k < del1; k += tau)
                             {
-                                dx += FastMath.Pow2(timeSeries[act + k] - timeSeries[element + k]);
+                                dx += MathHelpers.Pow2(timeSeries[act + k] - timeSeries[element + k]);
 
                                 if (dx > eps2)
                                 {

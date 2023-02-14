@@ -1,11 +1,11 @@
 ﻿using ChaosSoft.Core.Data;
+using ChaosSoft.Core.DataUtils;
+using ChaosSoft.Core.IO;
+using ChaosSoft.NumericalMethods.PhaseSpace;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
-using ChaosSoft.Core.IO;
-using ChaosSoft.NumericalMethods.PhaseSpace;
-using ChaosSoft.Core.Extensions;
 
 namespace ChaosSoft.NumericalMethods.Lyapunov
 {
@@ -30,15 +30,17 @@ namespace ChaosSoft.NumericalMethods.Lyapunov
         private readonly int[] _count;
         private int nf;
 
+        private string result = "not calculated";
+
         /// <summary>
-        /// The method estimates the largest Lyapunov exponent of a given scalar data set using the algorithm of Kantz.
+        /// Initializes a new instance of the<see cref="LleKantz"/> class for full set of parameters.
         /// </summary>
         /// <param name="eDim">embedding dimension</param>
-        /// <param name="tau"></param>
-        /// <param name="iterations"></param>
+        /// <param name="tau">reconstruction time delay</param>
+        /// <param name="iterations">number of iterations</param>
         /// <param name="window">theiler window</param>
-        /// <param name="epsMin"></param>
-        /// <param name="epsMax"></param>
+        /// <param name="epsMin">scales too small</param>
+        /// <param name="epsMax">scales too large</param>
         /// <param name="epsCount">number of length scales to use</param>
         public LleKantz(int eDim, int tau, int iterations, int window, double epsMin, double epsMax, int epsCount)
         {
@@ -59,14 +61,29 @@ namespace ChaosSoft.NumericalMethods.Lyapunov
             Log = new StringBuilder();
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="LleKantz"/> class with default values for:<br/>
+        /// time delay: 1, iterations: 50, theiler window:0, eps. min: 0, eps. max: 0, scales to use: 5<br/>
+        /// (eps. min and eps. max are 0 to obtain further their default values)
+        /// </summary>
+        /// <param name="eDim">embedding dimension</param>
         public LleKantz(int eDim) : this(eDim, 1, 50, 0, 0, 0, 5)
         {
         }
 
+        /// <summary>
+        /// Gets lyapunov exponent slope.
+        /// </summary>
         public DataSeries Slope { get; set; }
 
+        /// <summary>
+        /// Gets execution log.
+        /// </summary>
         public StringBuilder Log { get; }
 
+        /// <summary>
+        /// Gets list of lyapunov exponent slopes by epsilon.
+        /// </summary>
         public Dictionary<string, DataSeries> SlopesList { get; set; }
 
         /// <summary>
@@ -80,8 +97,8 @@ namespace ChaosSoft.NumericalMethods.Lyapunov
             .AppendLine($"τ = {_tau}")
             .AppendLine($"iterations = {_iterations}")
             .AppendLine($"theiler window = {_window}")
-            .AppendLine($"min ε = {NumFormatter.ToShort(epsMin)}")
-            .AppendLine($"max ε = {NumFormatter.ToShort(epsMax)}")
+            .AppendLine($"min ε = {Format.General(epsMin)}")
+            .AppendLine($"max ε = {Format.General(epsMax)}")
             .ToString();
 
         /// <summary>
@@ -99,8 +116,17 @@ namespace ChaosSoft.NumericalMethods.Lyapunov
             .AppendLine($"max ε - Max scale (default: 1e-2)")
             .ToString();
 
-        public string GetResultAsString() => "Successful";
+        /// <summary>
+        /// Gets string representation of result (calculated or not).
+        /// </summary>
+        /// <returns></returns>
+        public string GetResultAsString() => result;
 
+        /// <summary>
+        /// Calculates largest lyapunov exponent from timeseries.
+        /// The result is stored in <see cref="Slope"/> (lle corresponds to the most smooth part of slope).
+        /// </summary>
+        /// <param name="timeSeries">source series</param>
         public void Calculate(double[] timeSeries)
         {
             double[] series = new double[timeSeries.Length];
@@ -175,8 +201,14 @@ namespace ChaosSoft.NumericalMethods.Lyapunov
                     SlopesList.Add(string.Format("ε = {0:F5}", epsilon * interval), dict);
                 }
             }
+
+            result = "slope calculated";
         }
 
+        /// <summary>
+        /// Sets current slope from calculated set.
+        /// </summary>
+        /// <param name="index">slope index (eps value)</param>
         public void SetSlope(string index)
         {
             if (SlopesList.ContainsKey(index))
@@ -199,7 +231,7 @@ namespace ChaosSoft.NumericalMethods.Lyapunov
             
                 for (i = 0; i <= _iterations; i++)
                 {
-                    dx[i] = FastMath.Pow2(series[act + i] - series[element + i]);
+                    dx[i] = MathHelpers.Pow2(series[act + i] - series[element + i]);
                 }
 
                 for (l = 1; l < _eDim; l++)
@@ -208,7 +240,7 @@ namespace ChaosSoft.NumericalMethods.Lyapunov
             
                     for (i = 0; i <= _iterations; i++)
                     {
-                        dx[i] += FastMath.Pow2(series[act + i + l1] - series[element + l1 + i]);
+                        dx[i] += MathHelpers.Pow2(series[act + i + l1] - series[element + l1 + i]);
                     }
                 }
             

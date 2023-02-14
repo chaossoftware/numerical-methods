@@ -7,8 +7,19 @@ namespace ChaosSoft.NumericalMethods.Orthogonalization {
     /// </summary>
     public class HouseholderTransformation : OrthogonalizationBase
     {
-        public HouseholderTransformation(int equationsCount) : base(equationsCount) { }
+        /// <summary>
+        /// Initializes a new instance of the <see cref="HouseholderTransformation"/> class for specified equations count.
+        /// </summary>
+        /// <param name="equationsCount">equations count</param>
+        public HouseholderTransformation(int equationsCount) : base(equationsCount) 
+        { 
+        }
 
+        /// <summary>
+        /// Performs orthogonalization.
+        /// </summary>
+        /// <param name="qMatrix">orthogonal matrix</param>
+        /// <param name="rMatrix">normalized vector (triangular matrix)</param>
         public override void Perform(double[,] qMatrix, double[] rMatrix)
         {
             int nn = N + 1;

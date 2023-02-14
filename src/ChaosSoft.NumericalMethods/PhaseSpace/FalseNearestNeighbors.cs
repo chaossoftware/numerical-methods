@@ -1,4 +1,4 @@
-﻿using ChaosSoft.Core.Extensions;
+﻿using ChaosSoft.Core.DataUtils;
 using ChaosSoft.Core.IO;
 using System;
 using System.Collections.Generic;
@@ -14,11 +14,11 @@ namespace ChaosSoft.NumericalMethods.PhaseSpace
         private const ushort BoxSize = 1024;
         private const ushort IBoxSize = BoxSize - 1;
 
-        private readonly int _theiler = 0;
-        private readonly int _tau = 1;
-        private readonly int _minDim = 1;
-        private readonly int _maxDim = 5;
-        private readonly double _rt = 10.0;
+        private readonly int _theiler;
+        private readonly int _tau;
+        private readonly int _minDim;
+        private readonly int _maxDim;
+        private readonly double _rt;
         
         double eps0 = 1e-5;
         double aveps, vareps;
@@ -28,6 +28,14 @@ namespace ChaosSoft.NumericalMethods.PhaseSpace
         int[] list;
         uint toolarge;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FalseNearestNeighbors"/> class for set of parameters.
+        /// </summary>
+        /// <param name="minDim">min dimension</param>
+        /// <param name="maxDim">max dimension</param>
+        /// <param name="delay">delay of the vectors</param>
+        /// <param name="escapeFactor">ratio factor</param>
+        /// <param name="theilerWindow">theiler window</param>
         public FalseNearestNeighbors(int minDim, int maxDim, int delay, double escapeFactor, int theilerWindow)
         {
             _minDim = minDim;
@@ -40,24 +48,46 @@ namespace ChaosSoft.NumericalMethods.PhaseSpace
             FalseNeighbors = new Dictionary<int, int>();
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FalseNearestNeighbors"/> class with default values for:<br/>
+        /// delay: 1, escapeFactor: 10, theiler window: 0
+        /// </summary>
+        /// <param name="minDim">min dimension</param>
+        /// <param name="maxDim">max dimension</param>
+        public FalseNearestNeighbors(int minDim, int maxDim) : this(minDim, maxDim, 1, 10d, 0)
+        {
+        }
+
+        /// <summary>
+        /// Gets execution log.
+        /// </summary>
         public StringBuilder Log { get; }
 
+        /// <summary>
+        /// Gets false neighbors data by dimension.
+        /// </summary>
         public Dictionary<int, int> FalseNeighbors;
 
-        public void Calculate(double[] timeSeries)
+        /// <summary>
+        /// Calculate false neighbors for each dimension in range.
+        /// The result is stored in <see cref="FalseNeighbors"/>.
+        /// </summary>
+        /// <param name="series">input series</param>
+        /// <exception cref="ArgumentException"></exception>
+        public void Calculate(double[] series)
         {
             int i;
-            double[] series = new double[timeSeries.Length];
-            Array.Copy(timeSeries, series, series.Length);
+            double[] data = new double[series.Length];
+            Array.Copy(series, data, data.Length);
 
             // to calculate only if not retrieved in constructor;
-            double inter = Vector.Rescale(series);
+            double inter = Vector.Rescale(data);
 
             // to calculate only if not retrieved in constructor;
-            variance = Statistics.Variance(series);
+            variance = Statistics.Variance(data);
 
-            list = new int[series.Length];
-            bool[] nearest = new bool[series.Length];
+            list = new int[data.Length];
+            bool[] nearest = new bool[data.Length];
             box = new int[BoxSize, BoxSize];
 
             for (int dim = _minDim; dim <= _maxDim; dim++)
@@ -69,7 +99,7 @@ namespace ChaosSoft.NumericalMethods.PhaseSpace
                 aveps = 0.0;
                 vareps = 0.0;
 
-                for (i = 0; i < series.Length; i++)
+                for (i = 0; i < data.Length; i++)
                 {
                     nearest[i] = false;
                 }
@@ -78,13 +108,13 @@ namespace ChaosSoft.NumericalMethods.PhaseSpace
                 while (!alldone && (epsilon < 2d * variance / _rt))
                 {
                     alldone = true;
-                    PutInBox(series, dim, epsilon);
+                    PutInBox(data, dim, epsilon);
 
-                    for (i = (dim - 1) * _tau; i < series.Length - 1; i++)
+                    for (i = (dim - 1) * _tau; i < data.Length - 1; i++)
                     {
                         if (!nearest[i])
                         {
-                            nearest[i] = FindNearest(series, i, dim, epsilon);
+                            nearest[i] = FindNearest(data, i, dim, epsilon);
                             alldone &= nearest[i];
 
                             if (nearest[i])
@@ -94,7 +124,7 @@ namespace ChaosSoft.NumericalMethods.PhaseSpace
                         }
                     }
 
-                    Log.Append($"Found {donesofar} up to epsilon = {NumFormatter.ToShort(epsilon * inter)}");
+                    Log.Append($"Found {donesofar} up to epsilon = {Format.General(epsilon * inter)}");
                     epsilon *= Math.Sqrt(2.0);
 
                     //if (!donesofar)
@@ -112,7 +142,7 @@ namespace ChaosSoft.NumericalMethods.PhaseSpace
                 aveps *= (1d / donesofar);
                 vareps *= (1d / donesofar);
 
-                Log.AppendLine($"Dimension: {dim}; False neighbors: {(double)toolarge / donesofar} | {NumFormatter.ToShort(aveps)} | {NumFormatter.ToShort(vareps)}");
+                Log.AppendLine($"Dimension: {dim}; False neighbors: {(double)toolarge / donesofar} | {Format.General(aveps)} | {Format.General(vareps)}");
                 FalseNeighbors.Add(dim, (int)toolarge);
             }
         }

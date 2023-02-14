@@ -3,35 +3,34 @@
 namespace ChaosSoft.NumericalMethods.Lyapunov
 {
     /// <summary>
-    /// Lyapunov Methods class
-    /// Methods:
-    /// - Calculate Lyapunov exponents
-    /// - Calculate Kaplan-Yorke dimension
-    /// - Calculate KS Entropy (h)
-    /// - Calculate Phase volume compression (d)
+    /// Wrapper to calculate lyapunov spectrum from Normalized vector (triangular matrix).
     /// </summary>
-    public sealed class BenettinMethod
+    public sealed class LeSpecBenettin
     {
         private readonly int _n;            //Number of equations
         private readonly double[] _ltot;    //sum array of lyapunov exponents
 
         /// <summary>
-        /// Lyapunov related methods
+        /// Initializes a new instance of the<see cref="LeSpecSanoSawada"/> class for specific number of equations.
         /// </summary>
-        /// <param name="equationsCount">Number of equations</param>
-        public BenettinMethod(int equationsCount)
+        /// <param name="equationsCount">number of equations</param>
+        public LeSpecBenettin(int equationsCount)
         {
             _n = equationsCount;
             _ltot = new double[_n];
             Result = new double[equationsCount];
         }
 
+        /// <summary>
+        /// Gets lyapunov exponents spectrum.
+        /// </summary>
         public double[] Result { get; }
 
         /// <summary>
-        /// <para>Updating array of Lyapunov exponents (not averaged by time).</para>
+        /// Updating array of Lyapunov exponents (not averaged by time).
         /// </summary>
         /// <param name="rMatrix">Normalized vector (triangular matrix)</param>
+        /// <param name="totalTime">total modelling time passed</param>
         public void CalculateLyapunovSpectrum(double[] rMatrix, double totalTime)
         {
             // update vector magnitudes 

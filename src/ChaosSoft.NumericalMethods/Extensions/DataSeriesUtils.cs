@@ -5,9 +5,19 @@ using System.Linq;
 
 namespace ChaosSoft.NumericalMethods.Extensions
 {
-    public static class DataSeriesExt
+    /// <summary>
+    /// Helpers for <see cref="DataSeries"/>.
+    /// </summary>
+    public static class DataSeriesUtils
     {
-        public static int SlopeChangePointIndex(DataSeries timeseries, int groupingCoefficient, double cutOffValue)
+        /// <summary>
+        /// Gets index of point where slope changes.
+        /// </summary>
+        /// <param name="series">input series</param>
+        /// <param name="groupingCoefficient">groupping coefficient</param>
+        /// <param name="cutOffValue">cut-off value</param>
+        /// <returns></returns>
+        public static int SlopeChangePointIndex(DataSeries series, int groupingCoefficient, double cutOffValue)
         {
             var smoothed = new List<DataPoint>();     // reduced smoothed data
             var d1 = new List<DataPoint>();     // 1st derivative
@@ -15,13 +25,13 @@ namespace ChaosSoft.NumericalMethods.Extensions
             var m = new List<DataPoint>();      // reasonably large values from D2
 
             // smoothen the data
-            for (int i = 1; i < timeseries.Length / groupingCoefficient; i++)
+            for (int i = 1; i < series.Length / groupingCoefficient; i++)
             {
                 double ysum = 0d;
 
                 for (int j = 0; j < groupingCoefficient; j++)
                 {
-                    ysum += timeseries.DataPoints[i * groupingCoefficient + j].Y;
+                    ysum += series.DataPoints[i * groupingCoefficient + j].Y;
                 }
 
                 smoothed.Add(new DataPoint(i, ysum / groupingCoefficient));

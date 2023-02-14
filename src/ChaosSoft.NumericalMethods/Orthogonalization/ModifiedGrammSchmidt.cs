@@ -7,11 +7,20 @@ namespace ChaosSoft.NumericalMethods.Orthogonalization
     /// </summary>
     public class ModifiedGrammSchmidt : OrthogonalizationBase
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ModifiedGrammSchmidt"/> class for specified equations count.
+        /// </summary>
+        /// <param name="equationsCount">equations count</param>
         public ModifiedGrammSchmidt(int equationsCount) : base(equationsCount)
         {
 
         }
 
+        /// <summary>
+        /// Performs orthogonalization.
+        /// </summary>
+        /// <param name="qMatrix">orthogonal matrix</param>
+        /// <param name="rMatrix">normalized vector (triangular matrix)</param>
         public override void Perform(double[,] qMatrix, double[] rMatrix)
         {
             //generate a new orthonormal set

@@ -1,5 +1,8 @@
 ﻿namespace ChaosSoft.NumericalMethods.Equations
 {
+    /// <summary>
+    /// Provides with abstraction for ode systems implementations.
+    /// </summary>
     public abstract class SystemBase
     {
         /// <summary>

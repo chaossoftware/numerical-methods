@@ -2,6 +2,9 @@
 
 namespace ChaosSoft.NumericalMethods
 {
+    /// <summary>
+    /// Provides with tools from math statistics.
+    /// </summary>
     public static class Statistics
     {
         /// <summary>

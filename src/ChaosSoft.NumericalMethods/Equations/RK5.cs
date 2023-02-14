@@ -1,14 +1,7 @@
 ﻿namespace ChaosSoft.NumericalMethods.Equations
 {
     /// <summary>
-    /// The 5th ordered Runge-Kutta<para/>
-    /// y₁ = y₀ + 1/90 (7k₁ + 32k₃ + 12k₄ + 32k₅ + 7k₆), where: <para/>
-    /// k₁ = f(x₀, y₀)<br/>
-    /// k₂ = f(x₀ + 1/4 h, y₀ + 1/4 k₁h)<br/>
-    /// k₃ = f(x₀ + 1/4 h, y₀ + 1/8 k₁h + 1/8 k₂h)<br/>
-    /// k₄ = f(x₀ + 1/2 h, y₀ - 1/2 k₂h + k₃h)<br/>
-    /// k₅ = f(x₀ + 3/4 h, y₀ + 3/16 k₁h + 9/16 k₄h)<br/>
-    /// k₆ = f(x₀ + h, y₀ - 3/7 k₁h + 2/7 k₂h + 12/7 k₃h - 12/7 k₄h + 8/7 k₅h)<br/>
+    /// The 5th ordered Runge-Kutta.
     /// </summary>
     public class RK5 : SolverBase
     {
@@ -44,7 +37,14 @@
         }
 
         /// <summary>
-        /// Solves next step of system of equations by RK4 method.
+        /// Solves next step of system of equations by RK5 method.<para/>
+        /// y₁ = y₀ + 1/90 (7k₁ + 32k₃ + 12k₄ + 32k₅ + 7k₆), where: <para/>
+        /// k₁ = f(x₀, y₀)<br/>
+        /// k₂ = f(x₀ + 1/4 h, y₀ + 1/4 k₁h)<br/>
+        /// k₃ = f(x₀ + 1/4 h, y₀ + 1/8 k₁h + 1/8 k₂h)<br/>
+        /// k₄ = f(x₀ + 1/2 h, y₀ - 1/2 k₂h + k₃h)<br/>
+        /// k₅ = f(x₀ + 3/4 h, y₀ + 3/16 k₁h + 9/16 k₄h)<br/>
+        /// k₆ = f(x₀ + h, y₀ - 3/7 k₁h + 2/7 k₂h + 12/7 k₃h - 12/7 k₄h + 8/7 k₅h)<br/>
         /// </summary>
         public override void NexStep()
         {

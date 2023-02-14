@@ -1,7 +1,7 @@
 ﻿namespace ChaosSoft.NumericalMethods.Equations
 {
     /// <summary>
-    /// Base class for ODE solvers.
+    /// Provides with abstraction for equations solvers.
     /// </summary>
     public abstract class SolverBase
     {

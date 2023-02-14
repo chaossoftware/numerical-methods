@@ -1,10 +1,9 @@
 ﻿using ChaosSoft.Core.Data;
-using ChaosSoft.Core.Extensions;
+using ChaosSoft.Core.DataUtils;
 using ChaosSoft.Core.IO;
 using ChaosSoft.NumericalMethods.PhaseSpace;
 using System;
 using System.Diagnostics;
-using System.Linq;
 using System.Text;
 
 namespace ChaosSoft.NumericalMethods.Lyapunov
@@ -37,25 +36,23 @@ namespace ChaosSoft.NumericalMethods.Lyapunov
         private int[] indexes;
 
         /// <summary>
-        /// The method estimates the whole spectrum of Lyapunov exponents for a given, possibly multivariate, time series. 
-        /// Whole spectrum means: If d components are given and the embedding dimension is m than m*d exponents will be determined. 
-        /// The method is based on the work of Sano and Sawada.
+        /// Initializes a new instance of the<see cref="LeSpecSanoSawada"/> class for full set of parameters.
         /// </summary>
-        /// <param name="eDim"></param>
-        /// <param name="tau"></param>
-        /// <param name="iterations"></param>
-        /// <param name="scaleMin"></param>
-        /// <param name="epsstep"></param>
-        /// <param name="minNeigh"></param>
-        /// <param name="inverse"></param>
-        public LeSpecSanoSawada(int eDim, int tau, int iterations, double scaleMin, double epsstep, int minNeigh, bool inverse)
+        /// <param name="eDim">embedding dimension</param>
+        /// <param name="tau">reconstruction time delay</param>
+        /// <param name="iterations">number of iterations</param>
+        /// <param name="epsMin">initial size of the neighborhoods</param>
+        /// <param name="epsStep">factor to increase the size of the neighborhood</param>
+        /// <param name="minNeigh">number of neighbors to use</param>
+        /// <param name="inverse">inverse time series or not</param>
+        public LeSpecSanoSawada(int eDim, int tau, int iterations, double epsMin, double epsStep, int minNeigh, bool inverse)
         {
             _eDim = eDim;
             _tau = tau;
             this.iterations = iterations;
-            epsMin = scaleMin;
-            _epsSet = scaleMin != 0;
-            _epsStep = epsstep;
+            this.epsMin = epsMin;
+            _epsSet = epsMin != 0;
+            _epsStep = epsStep;
             _minNeighbors = minNeigh;
             _inverse = inverse;
             
@@ -64,16 +61,29 @@ namespace ChaosSoft.NumericalMethods.Lyapunov
             Log = new StringBuilder();
         }
 
-
-        // 3rd from end parameter (eps) is 0 to obtain further it's default value
+        /// <summary>
+        /// Initializes a new instance of the <see cref="LeSpecSanoSawada"/> class with default values for:<br/>
+        /// time delay: 1, iterations: 0, eps. min: 0, eps. step: 1.2, min neighbors: 30, inverse series: false<br/>
+        /// (scaleMin and iterations are 0 to obtain further their default values)
+        /// </summary>
+        /// <param name="eDim">embedding dimension</param>
         public LeSpecSanoSawada(int eDim) : this(eDim, 1, 0, 0, 1.2, 30, false)
         {
         }
 
+        /// <summary>
+        /// Not impemented yet.
+        /// </summary>
         public DataSeries Slope { get; set; }
 
+        /// <summary>
+        /// Gets execution log.
+        /// </summary>
         public StringBuilder Log { get; }
 
+        /// <summary>
+        /// Gets lyapunov exponents spectrum.
+        /// </summary>
         public double[] Result { get; }
 
         /// <summary>
@@ -86,8 +96,8 @@ namespace ChaosSoft.NumericalMethods.Lyapunov
             .AppendLine($"m = {_eDim}")
             .AppendLine($"τ = {_tau}")
             .AppendLine($"iterations = {iterations}")
-            .AppendLine($"min ε = {NumFormatter.ToShort(epsMin)}")
-            .AppendLine($"neighbour size increase factor = {NumFormatter.ToShort(_epsStep)}")
+            .AppendLine($"min ε = {Format.General(epsMin)}")
+            .AppendLine($"neighbour size increase factor = {Format.General(_epsStep)}")
             .AppendLine($"neighbors count = {_minNeighbors}")
             .AppendLine($"invert timeseries = {_inverse}")
             .ToString();
@@ -108,14 +118,24 @@ namespace ChaosSoft.NumericalMethods.Lyapunov
             .AppendLine($"invert timeseries (default: false)")
             .ToString();
 
+        /// <summary>
+        /// Gets results in string representation (Lyapunov spectrum + attractor properties).
+        /// </summary>
+        /// <returns></returns>
         public string GetResultAsString() =>
             new StringBuilder().Append("LE Spectrum: ")
-                .AppendLine(string.Join("; ", Result.Select(le => NumFormatter.ToShort(le))))
-                .AppendLine($"Dky = {NumFormatter.ToShort(StochasticProperties.KYDimension(Result))}")
-                .AppendLine($"Eks = {NumFormatter.ToShort(StochasticProperties.KSEntropy(Result))}")
-                .AppendLine($"PVC = {NumFormatter.ToShort(StochasticProperties.PhaseVolumeContractionSpeed(Result))}")
+                .AppendLine(Format.General(Result))
+                .AppendLine($"Dky = {Format.General(StochasticProperties.KYDimension(Result))}")
+                .AppendLine($"Eks = {Format.General(StochasticProperties.KSEntropy(Result))}")
+                .AppendLine($"PVC = {Format.General(StochasticProperties.PhaseVolumeContractionSpeed(Result))}")
                 .ToString();
 
+        /// <summary>
+        /// The method estimates the whole spectrum of Lyapunov exponents for a given time series. 
+        /// Whole spectrum means: If embedding dimension is m than m exponents will be determined. 
+        /// The result is stored in <see cref="Result"/>.
+        /// </summary>
+        /// <param name="timeSeries">source series</param>
         public void Calculate(double[] timeSeries)
         {
             double[] series = new double[timeSeries.Length];
@@ -206,7 +226,7 @@ namespace ChaosSoft.NumericalMethods.Lyapunov
 
                     for (j = 0; j < _eDim; j++)
                     {
-                        Log.Append($"{NumFormatter.ToShort(factor[j] / count)} ");
+                        Log.Append($"{Format.General(factor[j] / count)} ");
                         Result[j] = factor[j] / count;
                     }
 
@@ -215,10 +235,10 @@ namespace ChaosSoft.NumericalMethods.Lyapunov
             }
 
             Log.AppendLine();
-            Log.AppendLine($"Avg. rel. forecast error = {NumFormatter.ToShort(Math.Sqrt(errorAvg / count) / variance)}");
-            Log.AppendLine($"Avg. abs. forecast error = {NumFormatter.ToShort(Math.Sqrt(errorAvg / count) * interval)}");
-            Log.AppendLine($"Avg. neighborhood size   = {NumFormatter.ToShort(epsAvg * interval / count)}");
-            Log.AppendLine($"Avg. number of neighbors = {NumFormatter.ToShort(neighborsAvg / count)}");
+            Log.AppendLine($"Avg. rel. forecast error = {Format.General(Math.Sqrt(errorAvg / count) / variance)}");
+            Log.AppendLine($"Avg. abs. forecast error = {Format.General(Math.Sqrt(errorAvg / count) * interval)}");
+            Log.AppendLine($"Avg. neighborhood size   = {Format.General(epsAvg * interval / count)}");
+            Log.AppendLine($"Avg. number of neighbors = {Format.General(neighborsAvg / count)}");
         }
 
         private double Sort(double[] series, BoxAssistedFnn fnn, long act, long nFound, out long nfound, out bool enough)
@@ -474,7 +494,7 @@ namespace ChaosSoft.NumericalMethods.Lyapunov
 
                 for (j = 0; j < _eDim; j++)
                 {
-                    norm += FastMath.Pow2(delta[i, j] + diff[j]);
+                    norm += MathHelpers.Pow2(delta[i, j] + diff[j]);
                 }
 
                 norm = Math.Sqrt(norm);

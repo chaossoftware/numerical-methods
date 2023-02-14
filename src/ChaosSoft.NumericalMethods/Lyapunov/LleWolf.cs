@@ -32,6 +32,15 @@ namespace ChaosSoft.NumericalMethods.Lyapunov
         private double zmult;
         private double angleMax;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="LleWolf"/> class for full set of parameters.
+        /// </summary>
+        /// <param name="eDim">embedding dimension</param>
+        /// <param name="tau">reconstruction time delay</param>
+        /// <param name="dt">series time step</param>
+        /// <param name="epsMin">scales too small</param>
+        /// <param name="epsMax">scales too large</param>
+        /// <param name="evolv">constant propagation time</param>
         public LleWolf(int eDim, int tau, double dt, double epsMin, double epsMax, int evolv) : base()
         {
             _eDim = eDim;
@@ -50,19 +59,39 @@ namespace ChaosSoft.NumericalMethods.Lyapunov
             Log = new StringBuilder();
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="LleWolf"/> class with default values for:<br/>
+        /// time delay: 1, eps. min: 1e-3, eps. max = 1e-2, evolution time: 1
+        /// </summary>
+        /// <param name="eDim">embedding dimension</param>
+        /// <param name="stepSize">series time step</param>
         public LleWolf(int eDim, double stepSize) : this(eDim, 1, stepSize, 1e-3, 1e-2, 1)
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="LleWolf"/> class with default values for:<br/>
+        /// time delay: 1, series time step: 1, eps. min: 1e-3, eps. max = 1e-2, evolution time: 1
+        /// </summary>
+        /// <param name="eDim">embedding dimension</param>
         public LleWolf(int eDim) : this(eDim, 1, 1d, 1e-3, 1e-2, 1)
         {
         }
 
+        /// <summary>
+        /// Gets LLE change in time.
+        /// </summary>
         public DataSeries Slope { get; set; }
 
+        /// <summary>
+        /// Gets execution log.
+        /// </summary>
         public StringBuilder Log { get; }
 
-        public double Result { get; protected set; }
+        /// <summary>
+        /// Gets largest Lyapunov exponent.
+        /// </summary>
+        public double Result { get; private set; }
 
         /// <summary>
         /// Gets method setup info (parameters values)
@@ -73,9 +102,9 @@ namespace ChaosSoft.NumericalMethods.Lyapunov
                 .AppendLine("LLE by Wolf (fixed evolution time)")
                 .AppendLine($"m = {_eDim}")
                 .AppendLine($"τ = {_tau}")
-                .AppendLine($"Δt = {NumFormatter.ToShort(_dt)}")
-                .AppendLine($"min ε = {NumFormatter.ToShort(_epsMin)}")
-                .AppendLine($"max ε = {NumFormatter.ToShort(_epsMax)}")
+                .AppendLine($"Δt = {Format.General(_dt)}")
+                .AppendLine($"min ε = {Format.General(_epsMin)}")
+                .AppendLine($"max ε = {Format.General(_epsMax)}")
                 .AppendLine($"evolution steps: {_evolv}")
                 .ToString();
 
@@ -95,11 +124,16 @@ namespace ChaosSoft.NumericalMethods.Lyapunov
                 .ToString();
 
         /// <summary>
-        /// Gets result in string format
+        /// Gets result in string representation (LLE).
         /// </summary>
         /// <returns></returns>
-        public string GetResultAsString() => NumFormatter.ToShort(Result);
+        public string GetResultAsString() => Format.General(Result);
 
+        /// <summary>
+        /// Calculates largest lyapunov exponent from timeseries.
+        /// The result is stored in <see cref="Result"/>.
+        /// </summary>
+        /// <param name="timeSeries">source series</param>
         public void Calculate(double[] timeSeries)
         {
             double zlyap = 0;
@@ -125,7 +159,7 @@ namespace ChaosSoft.NumericalMethods.Lyapunov
 
                 for (int j = 0; j < _eDim; j++)
                 {
-                    d += FastMath.Pow2(GetAttractorPoint(timeSeries, 0, j) - GetAttractorPoint(timeSeries, i, j));
+                    d += MathHelpers.Pow2(GetAttractorPoint(timeSeries, 0, j) - GetAttractorPoint(timeSeries, i, j));
                 }
 
                 d = Math.Sqrt(d);
@@ -155,7 +189,7 @@ namespace ChaosSoft.NumericalMethods.Lyapunov
 
                 for (int j = 0; j < _eDim; j++)
                 {
-                    df += FastMath.Pow2(_pt1[j] - _pt2[j]);
+                    df += MathHelpers.Pow2(_pt1[j] - _pt2[j]);
                 }
 
                 df = Math.Sqrt(df);
@@ -207,7 +241,7 @@ namespace ChaosSoft.NumericalMethods.Lyapunov
 
                 for (int j = 0; j < _eDim; j++)
                 {
-                    dnew += FastMath.Pow2(_pt1[j] - GetAttractorPoint(series, i, j));
+                    dnew += MathHelpers.Pow2(_pt1[j] - GetAttractorPoint(series, i, j));
                 }
 
                 dnew = Math.Sqrt(dnew);

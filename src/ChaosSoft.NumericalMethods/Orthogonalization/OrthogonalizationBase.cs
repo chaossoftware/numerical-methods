@@ -26,7 +26,7 @@
         protected double[] Gsc { get; }
 
         /// <summary>
-        /// Make orthogonalization
+        /// Performs orthogonalization.
         /// </summary>
         /// <param name="qMatrix">orthogonal matrix</param>
         /// <param name="rMatrix">normalized vector (triangular matrix)</param>

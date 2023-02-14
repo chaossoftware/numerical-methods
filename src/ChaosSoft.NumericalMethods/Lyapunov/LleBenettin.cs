@@ -5,7 +5,10 @@ using System.Text;
 
 namespace ChaosSoft.NumericalMethods.Lyapunov
 {
-    public class LleBenettin : IDescribable
+    /// <summary>
+    /// LLE by Benettin.
+    /// </summary>
+    public sealed class LleBenettin : IDescribable
     {
         private readonly int _eqCount;
         private readonly long _iterations;
@@ -16,6 +19,13 @@ namespace ChaosSoft.NumericalMethods.Lyapunov
         private double lsum;
         private long nl;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="LleBenettin"/> class for specific equations system, solver and modelling parameters.
+        /// </summary>
+        /// <param name="equations">equations to solve</param>
+        /// <param name="solverType">type of solver to use</param>
+        /// <param name="step">solution step</param>
+        /// <param name="iterations">number of iterations to solve</param>
         public LleBenettin(SystemBase equations, Type solverType, double step, long iterations)
         {
             _equations = equations;
@@ -26,8 +36,15 @@ namespace ChaosSoft.NumericalMethods.Lyapunov
             _iterations = iterations;
         }
 
+        /// <summary>
+        /// Gets largest Lyapunov exponent.
+        /// </summary>
         public double Result { get; private set; }
 
+        /// <summary>
+        /// Calculates largest lyapunov exponent by solving same equations with slightly different initial conditions.
+        /// The result is stored in <see cref="Result"/>.
+        /// </summary>
         public void Calculate()
         {
             _solver2.Solution[0, 0] += _solver1.Solution[0, 0] + 1e-8;
@@ -38,6 +55,10 @@ namespace ChaosSoft.NumericalMethods.Lyapunov
             }
         }
 
+        /// <summary>
+        /// Gets method setup info (parameters values).
+        /// </summary>
+        /// <returns></returns>
         public override string ToString() =>
             new StringBuilder()
             .AppendLine("Largest Lyapunov exponent by Benettin\n")
@@ -45,14 +66,24 @@ namespace ChaosSoft.NumericalMethods.Lyapunov
             .AppendLine($"iterations: {_iterations:#,#}")
             .ToString();
 
-        public string GetHelp()
-        {
+        /// <summary>
+        /// Gets help on the method and its params
+        /// </summary>
+        /// <returns></returns>
+        public string GetHelp() =>
             throw new NotImplementedException();
-        }
 
+        /// <summary>
+        /// Gets result in string representation (LLE).
+        /// </summary>
+        /// <returns></returns>
         public string GetResultAsString() =>
-            NumFormatter.ToShort(Result);
+            Format.General(Result);
 
+        /// <summary>
+        /// Makes solving iteration:<br/>
+        /// solves next step for pair of systems of equations and tracks orbits divergention
+        /// </summary>
         public void MakeIteration()
         {
             _solver1.NexStep();
@@ -62,7 +93,7 @@ namespace ChaosSoft.NumericalMethods.Lyapunov
 
             for (int _i = 0; _i < _eqCount; _i++)
             {
-                dl2 += FastMath.Pow2(_solver2.Solution[0, _i] - _solver1.Solution[0, _i]);
+                dl2 += MathHelpers.Pow2(_solver2.Solution[0, _i] - _solver1.Solution[0, _i]);
             }
 
             if (dl2 > 0)

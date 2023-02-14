@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Text;
 using ChaosSoft.Core.Data;
-using ChaosSoft.Core.Extensions;
+using ChaosSoft.Core.DataUtils;
 using ChaosSoft.Core.IO;
 using ChaosSoft.NumericalMethods.PhaseSpace;
 
 namespace ChaosSoft.NumericalMethods.Lyapunov
 {
     /// <summary>
+    /// LLE by rosenstein<br/>
     /// M. T. Rosenstein, J. J. Collins, C. J. De Luca, A practical method for calculating largest Lyapunov exponents from small data sets, Physica D 65, 117 (1993)
     /// </summary>
     public sealed class LleRosenstein : ITimeSeriesLyapunov, IDescribable
@@ -26,14 +27,16 @@ namespace ChaosSoft.NumericalMethods.Lyapunov
         private readonly double[] _lyap;
         private readonly int[] _found;
 
+        private string result = "not calculated";
+
         /// <summary>
-        /// The method estimates the largest Lyapunov exponent of a given scalar data set using the algorithm of Rosenstein et al.
+        /// Initializes a new instance of the<see cref="LleRosenstein"/> class for full set of parameters.
         /// </summary>
         /// <param name="eDim">embedding dimension</param>
-        /// <param name="tau"></param>
-        /// <param name="iterations"></param>
+        /// <param name="tau">reconstruction time delay</param>
+        /// <param name="iterations">number of iterations</param>
         /// <param name="window">window around the reference point which should be omitted</param>
-        /// <param name="epsMin"></param>
+        /// <param name="epsMin">scales too small</param>
         public LleRosenstein(int eDim, int tau, int iterations, int window, double epsMin)
         {
             _eDim = eDim;
@@ -50,12 +53,24 @@ namespace ChaosSoft.NumericalMethods.Lyapunov
         }
 
         // last parameter (eps) is 0 to obtain further it's default value
+        /// <summary>
+        /// Initializes a new instance of the <see cref="LleRosenstein"/> class with default values for:<br/>
+        /// time delay: 1, iterations: 50, theiler window:0, eps. min: 0<br/>
+        /// (eps. min is 0 to obtain further its default value)
+        /// </summary>
+        /// <param name="eDim">embedding dimension</param>
         public LleRosenstein(int eDim) : this(eDim, 1, 50, 0, 0) 
         {
         }
 
+        /// <summary>
+        /// Gets lyapunov exponent slope.
+        /// </summary>
         public DataSeries Slope { get; set; }
 
+        /// <summary>
+        /// Gets execution log.
+        /// </summary>
         public StringBuilder Log { get; }
 
         /// <summary>
@@ -69,7 +84,7 @@ namespace ChaosSoft.NumericalMethods.Lyapunov
             .AppendLine($"τ = {_tau}")
             .AppendLine($"iterations = {_iterations}")
             .AppendLine($"theiler window = {_window}")
-            .AppendLine($"min ε = {NumFormatter.ToShort(epsilon)}")
+            .AppendLine($"min ε = {Format.General(epsilon)}")
             .ToString();
 
         /// <summary>
@@ -86,8 +101,17 @@ namespace ChaosSoft.NumericalMethods.Lyapunov
             .AppendLine("min ε - Min scale (default: 1e-3)")
             .ToString();
 
-        public string GetResultAsString() => "Successful";
+        /// <summary>
+        /// Gets string representation of result (calculated or not).
+        /// </summary>
+        /// <returns></returns>
+        public string GetResultAsString() => result;
 
+        /// <summary>
+        /// Calculates largest lyapunov exponent from timeseries.
+        /// The result is stored in <see cref="Slope"/> (lle corresponds to the most smooth part of slope).
+        /// </summary>
+        /// <param name="timeSeries">source series</param>
         public void Calculate(double[] timeSeries)
         {
             double[] series = new double[timeSeries.Length];
@@ -150,6 +174,8 @@ namespace ChaosSoft.NumericalMethods.Lyapunov
                     Slope.AddDataPoint(i, val);
                 }
             }
+
+            result = "slope calculated";
         }
 
         private void Iterate(double[] series, int act, int minelement)
@@ -170,7 +196,7 @@ namespace ChaosSoft.NumericalMethods.Lyapunov
                     
                     for (int j = 0; j < del1; j += _tau)
                     {
-                        dx += FastMath.Pow2(series[act + j] - series[minelement + j]);
+                        dx += MathHelpers.Pow2(series[act + j] - series[minelement + j]);
                     }
 
                     if (dx > 0.0)
