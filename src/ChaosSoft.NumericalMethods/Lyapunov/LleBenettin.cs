@@ -34,6 +34,8 @@ namespace ChaosSoft.NumericalMethods.Lyapunov
             
             _eqCount = equations.Count;
             _iterations = iterations;
+
+            IntroduceDifferenceInInitialConditions();
         }
 
         /// <summary>
@@ -47,11 +49,15 @@ namespace ChaosSoft.NumericalMethods.Lyapunov
         /// </summary>
         public void Calculate()
         {
-            _solver2.Solution[0, 0] += _solver1.Solution[0, 0] + 1e-8;
-
             for (int i = 0; i < _iterations; i++)
             {
                 MakeIteration();
+
+                if (_solver1.IsSolutionDecayed() || _solver2.IsSolutionDecayed())
+                {
+                    Result = double.NaN;
+                    return;
+                }
             }
         }
 
@@ -113,5 +119,11 @@ namespace ChaosSoft.NumericalMethods.Lyapunov
 
             Result = 0.5 * lsum / nl / Math.Abs(_solver1.Dt);
         }
+
+        /// <summary>
+        /// Introduces small difference in initial conditions between two solvers (1e-8)
+        /// </summary>
+        public void IntroduceDifferenceInInitialConditions() =>
+            _solver2.Solution[0, 0] += _solver1.Solution[0, 0] + 1e-8;
     }
 }

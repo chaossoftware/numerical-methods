@@ -122,13 +122,8 @@ namespace ChaosSoft.NumericalMethods.Lyapunov
         /// Gets results in string representation (Lyapunov spectrum + attractor properties).
         /// </summary>
         /// <returns></returns>
-        public string GetResultAsString() =>
-            new StringBuilder().Append("LE Spectrum: ")
-                .AppendLine(Format.General(Result))
-                .AppendLine($"Dky = {Format.General(StochasticProperties.KYDimension(Result))}")
-                .AppendLine($"Eks = {Format.General(StochasticProperties.KSEntropy(Result))}")
-                .AppendLine($"PVC = {Format.General(StochasticProperties.PhaseVolumeContractionSpeed(Result))}")
-                .ToString();
+        public string GetResultAsString() => 
+            Format.General(Result);
 
         /// <summary>
         /// The method estimates the whole spectrum of Lyapunov exponents for a given time series. 

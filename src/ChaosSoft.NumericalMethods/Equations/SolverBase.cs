@@ -5,6 +5,10 @@
     /// </summary>
     public abstract class SolverBase
     {
+        private readonly int _eqRows;
+        private readonly int _eqCount;
+        private readonly double[,] _solution;
+
         private double time = 0;
 
         /// <summary>
@@ -17,8 +21,10 @@
         {
             Equations = equations;
             Dt = dt;
-            Solution = new double[Equations.Rows, Equations.Count];
-            Equations.SetInitialConditions(Solution);
+            _eqRows = Equations.Rows;
+            _eqCount = Equations.Count;
+            _solution = new double[_eqRows, _eqCount];
+            Equations.SetInitialConditions(_solution);
         }
 
         /// <summary>
@@ -43,7 +49,7 @@
         /// <summary>
         /// Gets current solution matrix.
         /// </summary>
-        public double[,] Solution { get; }
+        public double[,] Solution => _solution;
 
         /// <summary>
         /// Gets systems of equations.
@@ -56,11 +62,11 @@
         /// <param name="conditions">matrix of initial conditions</param>
         public void SetInitialConditions(double[,] conditions)
         {
-            for (int i = 0; i < conditions.GetLength(0); i++)
+            for (int i = 0; i < _eqRows; i++)
             {
-                for (int j = 0; j < conditions.GetLength(1); j++)
+                for (int j = 0; j < _eqCount; j++)
                 {
-                    Solution[i, j] = conditions[i, j];
+                    _solution[i, j] = conditions[i, j];
                 }
             }
         }
@@ -75,5 +81,28 @@
         /// </summary>
         public void TimeIncrement() =>
             time += Dt;
+
+        /// <summary>
+        /// Checks if the solutions contains any NaN of Infinity.
+        /// </summary>
+        /// <returns>true - if solution has NaN or Infinity members, otherwise - false</returns>
+        public bool IsSolutionDecayed()
+        {
+            for (int i = 0; i < _eqRows; i++)
+            {
+                for (int j = 0; j < _eqCount; j++)
+                {
+                    if (IsNanOrInfinity(_solution[i, j]))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        private static bool IsNanOrInfinity(double value) =>
+            double.IsInfinity(value) || double.IsNaN(value);
     }
 }
