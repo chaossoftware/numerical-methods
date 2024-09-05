@@ -1,18 +1,22 @@
 ﻿using System;
+using ChaosSoft.Core.DataUtils;
 
 namespace ChaosSoft.NumericalMethods.Orthogonalization {
 
     /// <summary>
     /// Householder orthogonalization
     /// </summary>
-    public class HouseholderTransformation : OrthogonalizationBase
+    public sealed class HouseholderTransformation : IQrDecomposition
     {
+        private readonly int _n;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="HouseholderTransformation"/> class for specified equations count.
         /// </summary>
         /// <param name="equationsCount">equations count</param>
-        public HouseholderTransformation(int equationsCount) : base(equationsCount) 
-        { 
+        public HouseholderTransformation(int equationsCount)
+        {
+            _n = equationsCount;
         }
 
         /// <summary>
@@ -20,96 +24,70 @@ namespace ChaosSoft.NumericalMethods.Orthogonalization {
         /// </summary>
         /// <param name="qMatrix">orthogonal matrix</param>
         /// <param name="rMatrix">normalized vector (triangular matrix)</param>
-        public override void Perform(double[,] qMatrix, double[] rMatrix)
+        public void Perform(double[,] qMatrix, double[] rMatrix)
         {
-            int nn = N + 1;
-            double[,] qr = new double[nn, N];
+            int n = _n;
+            double[,] Q = new double[n, n];
+            double[,] R = new double[n, n];
 
-            Array.Copy(qMatrix, qr, qMatrix.Length);
-
-            // Main loop.
-            for (int k = 0; k < N; k++)
+            for (int i = 0; i < n; i++)
             {
-                // Compute 2-norm of k-th column without under/overflow.
-                double nrm = 0;
+                double[] ai = Matrix.GetRow(qMatrix, i);
+                double normAi = Math.Sqrt(ai[0] * ai[0] + ai[1] * ai[1]);
+                double s = ai[0] > 0 ? normAi : -normAi;
+                double t = 2 * s / (s + normAi);
+                double c = 1 + t;
+                double[] v = new double[] { t * c, t * c };
 
-                for (int i = k + 1; i < nn; i++)
+                for (int j = i + 1; j < n; j++)
                 {
-                    nrm = Math.Sqrt(nrm * nrm + qr[i, k] * qr[i, k]);
+                    double temp = 0;
+                    for (int k = 0; k <= i; k++)
+                    {
+                        temp += Q[j, k] * v[k];
+                    }
+                    for (int k = i; k < n; k++)
+                    {
+                        double u = qMatrix[j, k] - temp;
+                        v[k - i] = u;
+                    }
                 }
 
-                if (nrm != 0.0) {
-                    // Form k-th Householder vector.
-                    if (qr[k + 1, k] < 0)
-                    {
-                        nrm = -nrm;
-                    }
-
-                    for (int i = k + 1; i < nn; i++)
-                    {
-                        qr[i, k] /= nrm;
-                    }
-
-                    qr[k + 1, k] += 1.0;
-
-                    // Apply transformation to remaining columns.
-                    for (int j = k + 1; j < N; j++)
-                    {
-                        double s = 0.0;
-
-                        for (int i = k + 1; i < nn; i++)
-                        {
-                            s += qr[i, k] * qr[i, j];
-                        }
-
-                        s = -s / qr[k + 1, k];
-
-                        for (int i = k + 1; i < nn; i++)
-                        {
-                            qr[i, j] += s * qr[i, k];
-                        }
-                    }
-                }
-                
-                rMatrix[k] = nrm; //Rmatrix[k] = -nrm; ///why doe not work???
-            }
-
-            for (int k = N - 1; k >= 0; k--)
-            {
-                for (int i = 1; i < nn; i++)
+                for (int j = 0; j <= i; j++)
                 {
-                    qMatrix[i, k] = 0.0;
+                    double temp = 0;
+                    for (int k = 0; k <= i; k++)
+                    {
+                        temp += Q[j, k] * v[k];
+                    }
+                    R[j, i] = temp;
                 }
 
-                qMatrix[k + 1, k] = 1.0;
-
-                for (int j = k; j < N; j++)
+                for (int j = i + 1; j < n; j++)
                 {
-                    if (qr[k + 1, k] != 0)
+                    double temp = 0;
+                    for (int k = 0; k <= i; k++)
                     {
-                        double s = 0.0;
-
-                        for (int i = k + 1; i < nn; i++)
-                        {
-                            s += qr[i, k] * qMatrix[i, j];
-                        }
-
-                        s = -s / qr[k + 1, k];
-
-                        for (int i = k + 1; i < nn; i++)
-                        {
-                            qMatrix[i, j] += s * qr[i, k];
-                        }
+                        temp += Q[j, k] * v[k];
                     }
+                    R[j, i] = temp;
+                    for (int k = i; k < n; k++)
+                    {
+                        double u = qMatrix[j, k] - temp;
+                        v[k - i] = u;
+                    }
+                }
+
+                for (int j = 0; j < n; j++)
+                {
+                    Q[j, i] = v[j];
                 }
             }
 
-            for (int i = 1; i < nn; i++)
+            Array.Copy(Q, qMatrix, qMatrix.Length);
+            for (int i = 0; i < n; i++)
             {
-                for (int j = 0; j < N; j++)
-                {
-                    qMatrix[i, j] = -qMatrix[i, j];
-                }
+                rMatrix[i] = R[i, i];
             }
         }
     }

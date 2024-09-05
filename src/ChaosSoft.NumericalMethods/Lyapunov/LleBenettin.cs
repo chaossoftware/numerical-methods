@@ -1,5 +1,5 @@
 ﻿using ChaosSoft.Core.IO;
-using ChaosSoft.NumericalMethods.Equations;
+using ChaosSoft.NumericalMethods.Ode;
 using System;
 using System.Text;
 
@@ -12,9 +12,9 @@ namespace ChaosSoft.NumericalMethods.Lyapunov
     {
         private readonly int _eqCount;
         private readonly long _iterations;
-        private readonly SolverBase _solver1;
-        private readonly SolverBase _solver2;
-        private readonly SystemBase _equations;
+        private readonly OdeSolverBase _solver1;
+        private readonly OdeSolverBase _solver2;
+        private readonly IOdeSys _equations;
 
         private double lsum;
         private long nl;
@@ -26,13 +26,16 @@ namespace ChaosSoft.NumericalMethods.Lyapunov
         /// <param name="solverType">type of solver to use</param>
         /// <param name="step">solution step</param>
         /// <param name="iterations">number of iterations to solve</param>
-        public LleBenettin(SystemBase equations, Type solverType, double step, long iterations)
+        public LleBenettin(IOdeSys equations, Type solverType, double[] initialConditions, double step, long iterations)
         {
             _equations = equations;
-            _solver1 = Activator.CreateInstance(solverType, equations, step) as SolverBase;
-            _solver2 = Activator.CreateInstance(solverType, equations, step) as SolverBase;
-            
-            _eqCount = equations.Count;
+            _solver1 = Activator.CreateInstance(solverType, equations, step) as OdeSolverBase;
+            _solver2 = Activator.CreateInstance(solverType, equations, step) as OdeSolverBase;
+
+            _solver1.SetInitialConditions(0, initialConditions);
+            _solver2.SetInitialConditions(0, initialConditions);
+
+            _eqCount = equations.N;
             _iterations = iterations;
 
             IntroduceDifferenceInInitialConditions();
@@ -53,9 +56,8 @@ namespace ChaosSoft.NumericalMethods.Lyapunov
             {
                 MakeIteration();
 
-                if (_solver1.IsSolutionDecayed() || _solver2.IsSolutionDecayed())
+                if (NumUtils.IsNanOrInfinity(Result))
                 {
-                    Result = double.NaN;
                     return;
                 }
             }
@@ -92,14 +94,14 @@ namespace ChaosSoft.NumericalMethods.Lyapunov
         /// </summary>
         public void MakeIteration()
         {
-            _solver1.NexStep();
-            _solver2.NexStep();
+            _solver1.NextStep();
+            _solver2.NextStep();
 
             double dl2 = 0;
 
             for (int _i = 0; _i < _eqCount; _i++)
             {
-                dl2 += MathHelpers.Pow2(_solver2.Solution[0, _i] - _solver1.Solution[0, _i]);
+                dl2 += MathHelpers.Pow2(_solver2.Solution[_i] - _solver1.Solution[_i]);
             }
 
             if (dl2 > 0)
@@ -109,8 +111,8 @@ namespace ChaosSoft.NumericalMethods.Lyapunov
 
                 for (int _i = 0; _i < _eqCount; _i++)
                 {
-                    _solver2.Solution[0, _i] =
-                        _solver1.Solution[0, _i] + rs * (_solver2.Solution[0, _i] - _solver1.Solution[0, _i]);
+                    _solver2.Solution[_i] =
+                        _solver1.Solution[_i] + rs * (_solver2.Solution[_i] - _solver1.Solution[_i]);
                 }
 
                 lsum += Math.Log(df);
@@ -124,6 +126,6 @@ namespace ChaosSoft.NumericalMethods.Lyapunov
         /// Introduces small difference in initial conditions between two solvers (1e-8)
         /// </summary>
         public void IntroduceDifferenceInInitialConditions() =>
-            _solver2.Solution[0, 0] += _solver1.Solution[0, 0] + 1e-8;
+            _solver2.Solution[0] += _solver1.Solution[0] + 1e-8;
     }
 }

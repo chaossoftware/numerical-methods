@@ -1,53 +1,37 @@
-﻿using ChaosSoft.NumericalMethods.Equations;
+﻿using ChaosSoft.NumericalMethods.Ode;
 
-namespace UnitTests.DataGenerators.OdeSys
+namespace UnitTests.DataGenerators.OdeSys;
+
+public class HenonMap : IOdeSys
 {
-    public class HenonMap : SystemBase
+    protected const int EqCount = 2;
+    protected double a;
+    protected double b;
+
+    public HenonMap() : this(1.4, 0.3)
     {
-        protected const int EqCount = 2;
-        private double x, y;
+    }
 
-        public HenonMap() : this(1.4, 0.3)
-        {
-        }
+    public HenonMap(double a, double b)
+    {
+        this.a = a;
+        this.b = b;
+        N = EqCount;
+    }
 
-        public HenonMap(double a, double b) : base(EqCount)
-        {
-            A = a;
-            B = b;
-        }
+    public int N { get; }
 
-        public double A { get; private set; }
+    public string Name { get; } = "Hénon map";
 
-        public double B { get; private set; }
+    public void SetParameters(params double[] parameters)
+    {
+        a = parameters[0];
+        b = parameters[1];
+    }
 
-        public override string Name => "Hénon map";
-
-        public override void SetParameters(params double[] parameters)
-        {
-            A = parameters[0];
-            B = parameters[1];
-        }
-
-        public override void GetDerivatives(double[,] current, double[,] derivs)
-        {
-            x = current[0, 0];
-            y = current[0, 1];
-
-            derivs[0, 0] = 1 - A * x * x + y;
-            derivs[0, 1] = B * x;
-        }
-
-        public override void SetInitialConditions(double[,] current)
-        {
-            for (int i = 0; i < Count; i++)
-            {
-                current[0, i] = 0;
-            }
-        }
-
-        public override string ToString() => string.Empty;
-
-        public override string ToFileName() => string.Empty;
+    public void F(double t, double[] solution, double[] derivs)
+    {
+        derivs[0] = 1 - a * solution[0] * solution[0] + solution[1];
+        derivs[1] = b * solution[0];
     }
 }

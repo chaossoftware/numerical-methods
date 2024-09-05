@@ -1,60 +1,45 @@
-﻿using ChaosSoft.NumericalMethods.Equations;
+﻿using ChaosSoft.NumericalMethods.Ode;
 
-namespace UnitTests.DataGenerators.OdeSys
+namespace UnitTests.DataGenerators.OdeSys;
+
+public class LorenzAttractor : IOdeSys
 {
-    public class LorenzAttractor : SystemBase
+    protected const int EqCount = 3;
+    protected double sg;
+    protected double r;
+    protected double b;
+
+    public LorenzAttractor() : this(10, 28, 8d / 3d)
     {
-        protected const int EqCount = 3;
+    }
 
-        private double x, y, z;
+    public LorenzAttractor(double sg, double r, double b)
+    {
+        this.sg = sg;
+        this.r = r;
+        this.b = b;
+        N = EqCount;
+    }
 
-        public LorenzAttractor() : this(10, 28, 8d / 3d)
-        {
-        }
+    public int N { get; }
 
-        public LorenzAttractor(double sg, double r, double b) : base(EqCount)
-        {
-            Sg = sg;
-            R = r;
-            B = b;
-        }
+    public virtual string Name { get; } = "Lorenz system";
 
-        public double Sg { get; private set; }
+    public void SetParameters(params double[] parameters)
+    {
+        sg = parameters[0];
+        r = parameters[1];
+        b = parameters[2];
+    }
 
-        public double R { get; private set; }
+    public void F(double t, double[] solution, double[] derivs)
+    {
+        double x = solution[0];
+        double y = solution[1];
+        double z = solution[2];
 
-        public double B { get; private set; }
-
-        public override string Name => "Lorenz system";
-
-        public override void SetParameters(params double[] parameters)
-        {
-            Sg = parameters[0];
-            R = parameters[1];
-            B = parameters[2];
-        }
-
-        public override void GetDerivatives(double[,] current, double[,] derivs)
-        {
-            x = current[0, 0];
-            y = current[0, 1];
-            z = current[0, 2];
-
-            derivs[0, 0] = Sg * (y - x);
-            derivs[0, 1] = x * (R - z) - y;
-            derivs[0, 2] = x * y - B * z;
-        }
-
-        public override void SetInitialConditions(double[,] current)
-        {
-            for (int i = 0; i < Count; i++)
-            {
-                current[0, i] = 1;
-            }
-        }
-
-        public override string ToString() => string.Empty;
-
-        public override string ToFileName() => string.Empty;
+        derivs[0] = sg * (y - x);
+        derivs[1] = x * (r - z) - y;
+        derivs[2] = x * y - b * z;
     }
 }
