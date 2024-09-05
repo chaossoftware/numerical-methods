@@ -1,7 +1,7 @@
 ﻿using ChaosSoft.Core.Data;
 using ChaosSoft.NumericalMethods.Ode;
 using ChaosSoft.NumericalMethods.Ode.Linearized;
-using ChaosSoft.NumericalMethods.Orthogonalization;
+using ChaosSoft.NumericalMethods.QrDecomposition;
 using Unicorn.Taf.Core.Testing;
 using Unicorn.Taf.Core.Testing.Attributes;
 using Unicorn.Taf.Core.Verification;

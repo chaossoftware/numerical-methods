@@ -1,4 +1,6 @@
-﻿namespace ChaosSoft.NumericalMethods.Ode.Linearized;
+﻿using ChaosSoft.NumericalMethods.Algebra;
+
+namespace ChaosSoft.NumericalMethods.Ode.Linearized;
 
 /// <summary>
 /// Provides with abstraction for equations solvers.
@@ -55,7 +57,7 @@ public abstract class LinearizedOdeSolverBase : OdeSolverBase
 
         foreach(double num in Linearization)
         {
-            if (NumUtils.IsNanOrInfinity(num))
+            if (Numbers.IsNanOrInfinity(num))
             {
                 return true;
             }

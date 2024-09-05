@@ -1,6 +1,7 @@
 ﻿using ChaosSoft.Core.Data;
 using ChaosSoft.Core.DataUtils;
 using ChaosSoft.Core.IO;
+using ChaosSoft.NumericalMethods.Algebra;
 using ChaosSoft.NumericalMethods.PhaseSpace;
 using System;
 using System.Diagnostics;
@@ -489,7 +490,7 @@ namespace ChaosSoft.NumericalMethods.Lyapunov
 
                 for (j = 0; j < _eDim; j++)
                 {
-                    norm += MathHelpers.Pow2(delta[i, j] + diff[j]);
+                    norm += Numbers.QuickPow2(delta[i, j] + diff[j]);
                 }
 
                 norm = Math.Sqrt(norm);

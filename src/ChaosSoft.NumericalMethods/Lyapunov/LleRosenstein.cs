@@ -3,6 +3,7 @@ using System.Text;
 using ChaosSoft.Core.Data;
 using ChaosSoft.Core.DataUtils;
 using ChaosSoft.Core.IO;
+using ChaosSoft.NumericalMethods.Algebra;
 using ChaosSoft.NumericalMethods.PhaseSpace;
 
 namespace ChaosSoft.NumericalMethods.Lyapunov
@@ -196,7 +197,7 @@ namespace ChaosSoft.NumericalMethods.Lyapunov
                     
                     for (int j = 0; j < del1; j += _tau)
                     {
-                        dx += MathHelpers.Pow2(series[act + j] - series[minelement + j]);
+                        dx += Numbers.QuickPow2(series[act + j] - series[minelement + j]);
                     }
 
                     if (dx > 0.0)

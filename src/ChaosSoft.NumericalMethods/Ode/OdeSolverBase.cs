@@ -1,4 +1,6 @@
-﻿namespace ChaosSoft.NumericalMethods.Ode;
+﻿using ChaosSoft.NumericalMethods.Algebra;
+
+namespace ChaosSoft.NumericalMethods.Ode;
 
 /// <summary>
 /// Provides with abstraction for equations solvers.
@@ -74,7 +76,7 @@ public abstract class OdeSolverBase
     {
         for (int i = 0; i < OdeSys.N; i++)
         {
-            if (NumUtils.IsNanOrInfinity(Solution[i]))
+            if (Numbers.IsNanOrInfinity(Solution[i]))
             {
                 return true;
             }

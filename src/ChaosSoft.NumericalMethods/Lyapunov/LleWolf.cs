@@ -1,5 +1,6 @@
 ﻿using ChaosSoft.Core.Data;
 using ChaosSoft.Core.IO;
+using ChaosSoft.NumericalMethods.Algebra;
 using System;
 using System.Text;
 
@@ -159,7 +160,7 @@ namespace ChaosSoft.NumericalMethods.Lyapunov
 
                 for (int j = 0; j < _eDim; j++)
                 {
-                    d += MathHelpers.Pow2(GetAttractorPoint(timeSeries, 0, j) - GetAttractorPoint(timeSeries, i, j));
+                    d += Numbers.QuickPow2(GetAttractorPoint(timeSeries, 0, j) - GetAttractorPoint(timeSeries, i, j));
                 }
 
                 d = Math.Sqrt(d);
@@ -189,7 +190,7 @@ namespace ChaosSoft.NumericalMethods.Lyapunov
 
                 for (int j = 0; j < _eDim; j++)
                 {
-                    df += MathHelpers.Pow2(_pt1[j] - _pt2[j]);
+                    df += Numbers.QuickPow2(_pt1[j] - _pt2[j]);
                 }
 
                 df = Math.Sqrt(df);
@@ -241,7 +242,7 @@ namespace ChaosSoft.NumericalMethods.Lyapunov
 
                 for (int j = 0; j < _eDim; j++)
                 {
-                    dnew += MathHelpers.Pow2(_pt1[j] - GetAttractorPoint(series, i, j));
+                    dnew += Numbers.QuickPow2(_pt1[j] - GetAttractorPoint(series, i, j));
                 }
 
                 dnew = Math.Sqrt(dnew);

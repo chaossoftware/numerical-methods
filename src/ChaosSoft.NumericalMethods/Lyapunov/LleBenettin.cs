@@ -1,4 +1,5 @@
 ﻿using ChaosSoft.Core.IO;
+using ChaosSoft.NumericalMethods.Algebra;
 using ChaosSoft.NumericalMethods.Ode;
 using System;
 using System.Text;
@@ -56,7 +57,7 @@ namespace ChaosSoft.NumericalMethods.Lyapunov
             {
                 MakeIteration();
 
-                if (NumUtils.IsNanOrInfinity(Result))
+                if (Numbers.IsNanOrInfinity(Result))
                 {
                     return;
                 }
@@ -101,7 +102,7 @@ namespace ChaosSoft.NumericalMethods.Lyapunov
 
             for (int _i = 0; _i < _eqCount; _i++)
             {
-                dl2 += MathHelpers.Pow2(_solver2.Solution[_i] - _solver1.Solution[_i]);
+                dl2 += Numbers.QuickPow2(_solver2.Solution[_i] - _solver1.Solution[_i]);
             }
 
             if (dl2 > 0)

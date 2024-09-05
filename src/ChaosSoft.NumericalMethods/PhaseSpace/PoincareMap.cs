@@ -1,4 +1,5 @@
 ﻿using ChaosSoft.Core.Data;
+using ChaosSoft.NumericalMethods.Algebra;
 using System;
 
 namespace ChaosSoft.NumericalMethods.PhaseSpace
@@ -52,7 +53,7 @@ namespace ChaosSoft.NumericalMethods.PhaseSpace
             {
                 double K = (t - maxt) / _period;
 
-                double frac = MathHelpers.Fraction(K);
+                double frac = Numbers.Fraction(K);
 
                 if (frac < 0.0001 || 1 - frac < 0.0001)
                 {

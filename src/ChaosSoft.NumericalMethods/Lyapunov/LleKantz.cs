@@ -1,6 +1,7 @@
 ﻿using ChaosSoft.Core.Data;
 using ChaosSoft.Core.DataUtils;
 using ChaosSoft.Core.IO;
+using ChaosSoft.NumericalMethods.Algebra;
 using ChaosSoft.NumericalMethods.PhaseSpace;
 using System;
 using System.Collections.Generic;
@@ -231,7 +232,7 @@ namespace ChaosSoft.NumericalMethods.Lyapunov
             
                 for (i = 0; i <= _iterations; i++)
                 {
-                    dx[i] = MathHelpers.Pow2(series[act + i] - series[element + i]);
+                    dx[i] = Numbers.QuickPow2(series[act + i] - series[element + i]);
                 }
 
                 for (l = 1; l < _eDim; l++)
@@ -240,7 +241,7 @@ namespace ChaosSoft.NumericalMethods.Lyapunov
             
                     for (i = 0; i <= _iterations; i++)
                     {
-                        dx[i] += MathHelpers.Pow2(series[act + i + l1] - series[element + l1 + i]);
+                        dx[i] += Numbers.QuickPow2(series[act + i + l1] - series[element + l1 + i]);
                     }
                 }
             
