@@ -40,7 +40,7 @@ public abstract class OdeSolverBase
     /// <summary>
     /// Gets systems of equations.
     /// </summary>
-    protected IOdeSys OdeSys { get; }
+    public IOdeSys OdeSys { get; }
 
     /// <summary>
     /// Sets initial conditions for the solution.
