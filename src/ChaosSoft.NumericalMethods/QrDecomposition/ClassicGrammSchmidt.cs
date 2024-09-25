@@ -1,5 +1,4 @@
-﻿using System;
-using ChaosSoft.NumericalMethods.Algebra;
+﻿using ChaosSoft.NumericalMethods.Algebra;
 
 namespace ChaosSoft.NumericalMethods.QrDecomposition;
 
@@ -23,9 +22,10 @@ public sealed class ClassicGrammSchmidt : IQrDecomposition
     /// Performs orthogonalization.
     /// </summary>
     /// <param name="qMatrix">orthogonal matrix</param>
-    /// <param name="rMatrix">normalized vector (triangular matrix)</param>
-    public void Perform(double[,] qMatrix, double[] rMatrix)
+    /// <returns>normalized vector (triangular matrix) as double[]/></returns>
+    public double[] Perform(double[,] qMatrix)
     {
+        double[] rMatrix = new double[_n];
         double[] gsc = new double[_n];
 
         //normalize the first vector
@@ -72,5 +72,7 @@ public sealed class ClassicGrammSchmidt : IQrDecomposition
                 qMatrix[k, j] /= rMatrix[j];
             }
         }
+
+        return rMatrix;
     }
 }

@@ -41,8 +41,8 @@ namespace UnitTests.Suites.Ode
         {
             string expectedDataFile = GetDataFileName(solverType, qrType);
 
-            IOdeSys odeSys = solverType == SolverType.Discrete ? 
-                new HenonMap() : 
+            IOdeSys odeSys = solverType == SolverType.Discrete ?
+                new HenonMap() :
                 new LorenzAttractor();
 
             OdeSolverBase solver = solverType switch
@@ -128,7 +128,7 @@ namespace UnitTests.Suites.Ode
             for (int k = 0; k < Steps; k++)
             {
                 solver.NextStep();
-                ort.Perform(solver.Linearization, rMatrix);
+                rMatrix = ort.Perform(solver.Linearization);
 
                 int col = 0;
 

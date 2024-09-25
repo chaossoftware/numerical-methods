@@ -9,6 +9,6 @@ public interface IQrDecomposition
     /// Performs orthogonalization.
     /// </summary>
     /// <param name="qMatrix">orthogonal matrix</param>
-    /// <param name="rMatrix">normalized vector (triangular matrix)</param>
-    void Perform(double[,] qMatrix, double[] rMatrix);
+    /// <returns>normalized vector (triangular matrix) as double[] </returns>
+    double[] Perform(double[,] qMatrix);
 }

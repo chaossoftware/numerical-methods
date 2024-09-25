@@ -22,9 +22,10 @@ public sealed class ModifiedGrammSchmidt : IQrDecomposition
     /// Performs orthogonalization.
     /// </summary>
     /// <param name="qMatrix">orthogonal matrix</param>
-    /// <param name="rMatrix">normalized vector (triangular matrix)</param>
-    public void Perform(double[,] qMatrix, double[] rMatrix)
+    /// <returns>normalized vector (triangular matrix) as double[] </returns>
+    public double[] Perform(double[,] qMatrix)
     {
+        double[] rMatrix = new double[_n];
         double[] gsc = new double[_n];
 
         //generate a new orthonormal set
@@ -62,5 +63,7 @@ public sealed class ModifiedGrammSchmidt : IQrDecomposition
                 }
             }
         }
+
+        return rMatrix;
     }
 }

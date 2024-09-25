@@ -3,7 +3,6 @@ using ChaosSoft.Core.DataUtils;
 
 namespace ChaosSoft.NumericalMethods.QrDecomposition;
 
-
 /// <summary>
 /// Householder orthogonalization
 /// </summary>
@@ -24,10 +23,11 @@ public sealed class HouseholderTransformation : IQrDecomposition
     /// Performs orthogonalization.
     /// </summary>
     /// <param name="qMatrix">orthogonal matrix</param>
-    /// <param name="rMatrix">normalized vector (triangular matrix)</param>
-    public void Perform(double[,] qMatrix, double[] rMatrix)
+    /// <returns>normalized vector (triangular matrix) as double[] </returns>
+    public double[] Perform(double[,] qMatrix)
     {
         int n = _n;
+        double[] rMatrix = new double[n];
         double[,] Q = new double[n, n];
         double[,] R = new double[n, n];
 
@@ -86,9 +86,12 @@ public sealed class HouseholderTransformation : IQrDecomposition
         }
 
         Array.Copy(Q, qMatrix, qMatrix.Length);
+
         for (int i = 0; i < n; i++)
         {
             rMatrix[i] = R[i, i];
         }
+
+        return rMatrix;
     }
 }
