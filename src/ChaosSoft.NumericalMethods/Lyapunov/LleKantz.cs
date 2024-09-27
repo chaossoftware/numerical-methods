@@ -31,8 +31,6 @@ public sealed class LleKantz : ITimeSeriesLyapunov, IHasDescription
     private readonly int[] _count;
     private int nf;
 
-    public string Result { get; set; } = "not calculated";
-
     /// <summary>
     /// Initializes a new instance of the<see cref="LleKantz"/> class for full set of parameters.
     /// </summary>
@@ -80,6 +78,11 @@ public sealed class LleKantz : ITimeSeriesLyapunov, IHasDescription
     /// Gets list of lyapunov exponent slopes by epsilon.
     /// </summary>
     public Dictionary<string, DataSeries> SlopesList { get; set; }
+
+    /// <summary>
+    /// Gets or sets string indication of calculation success.
+    /// </summary>
+    public string Result { get; set; } = "not calculated";
 
     /// <summary>
     /// Gets method setup info (parameters values)
@@ -220,7 +223,7 @@ public sealed class LleKantz : ITimeSeriesLyapunov, IHasDescription
         
             for (i = 0; i <= _iterations; i++)
             {
-                dx[i] = Numbers.QuickPow2(series[act + i] - series[element + i]);
+                dx[i] = Numbers.FastPow2(series[act + i] - series[element + i]);
             }
 
             for (l = 1; l < _eDim; l++)
@@ -229,7 +232,7 @@ public sealed class LleKantz : ITimeSeriesLyapunov, IHasDescription
         
                 for (i = 0; i <= _iterations; i++)
                 {
-                    dx[i] += Numbers.QuickPow2(series[act + i + l1] - series[element + l1 + i]);
+                    dx[i] += Numbers.FastPow2(series[act + i + l1] - series[element + l1 + i]);
                 }
             }
         

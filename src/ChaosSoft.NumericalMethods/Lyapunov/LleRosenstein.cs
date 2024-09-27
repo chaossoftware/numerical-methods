@@ -29,8 +29,6 @@ public sealed class LleRosenstein : ITimeSeriesLyapunov, IHasDescription
     private readonly double[] _lyap;
     private readonly int[] _found;
 
-    public string Result { get; set; } = "not calculated";
-
     /// <summary>
     /// Initializes a new instance of the<see cref="LleRosenstein"/> class for full set of parameters.
     /// </summary>
@@ -68,6 +66,11 @@ public sealed class LleRosenstein : ITimeSeriesLyapunov, IHasDescription
     /// Gets lyapunov exponent slope.
     /// </summary>
     public DataSeries Slope { get; set; }
+
+    /// <summary>
+    /// Gets or sets string indication of calculation success.
+    /// </summary>
+    public string Result { get; set; } = "not calculated";
 
     /// <summary>
     /// Gets method setup info (parameters values)
@@ -186,7 +189,7 @@ public sealed class LleRosenstein : ITimeSeriesLyapunov, IHasDescription
                 
                 for (int j = 0; j < del1; j += _tau)
                 {
-                    dx += Numbers.QuickPow2(series[act + j] - series[minelement + j]);
+                    dx += Numbers.FastPow2(series[act + j] - series[minelement + j]);
                 }
 
                 if (dx > 0.0)

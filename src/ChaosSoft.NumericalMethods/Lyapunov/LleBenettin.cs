@@ -109,7 +109,7 @@ public sealed class LleBenettin : IHasDescription
 
         for (int _i = 0; _i < _eqCount; _i++)
         {
-            dl2 += Numbers.QuickPow2(_solver2.Solution[_i] - _solver1.Solution[_i]);
+            dl2 += Numbers.FastPow2(_solver2.Solution[_i] - _solver1.Solution[_i]);
         }
 
         if (dl2 > 0)

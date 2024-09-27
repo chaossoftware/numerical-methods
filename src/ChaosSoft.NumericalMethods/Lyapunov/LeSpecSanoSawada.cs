@@ -478,7 +478,7 @@ public sealed class LeSpecSanoSawada : ITimeSeriesLyapunov, IHasDescription
 
             for (j = 0; j < _eDim; j++)
             {
-                norm += Numbers.QuickPow2(delta[i, j] + diff[j]);
+                norm += Numbers.FastPow2(delta[i, j] + diff[j]);
             }
 
             norm = Math.Sqrt(norm);

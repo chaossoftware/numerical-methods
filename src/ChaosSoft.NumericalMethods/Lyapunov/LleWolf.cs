@@ -150,7 +150,7 @@ public sealed class LleWolf : ITimeSeriesLyapunov, IHasDescription
 
             for (int j = 0; j < _eDim; j++)
             {
-                d += Numbers.QuickPow2(GetAttractorPoint(timeSeries, 0, j) - GetAttractorPoint(timeSeries, i, j));
+                d += Numbers.FastPow2(GetAttractorPoint(timeSeries, 0, j) - GetAttractorPoint(timeSeries, i, j));
             }
 
             d = Math.Sqrt(d);
@@ -180,7 +180,7 @@ public sealed class LleWolf : ITimeSeriesLyapunov, IHasDescription
 
             for (int j = 0; j < _eDim; j++)
             {
-                df += Numbers.QuickPow2(_pt1[j] - _pt2[j]);
+                df += Numbers.FastPow2(_pt1[j] - _pt2[j]);
             }
 
             df = Math.Sqrt(df);
@@ -232,7 +232,7 @@ public sealed class LleWolf : ITimeSeriesLyapunov, IHasDescription
 
             for (int j = 0; j < _eDim; j++)
             {
-                dnew += Numbers.QuickPow2(_pt1[j] - GetAttractorPoint(series, i, j));
+                dnew += Numbers.FastPow2(_pt1[j] - GetAttractorPoint(series, i, j));
             }
 
             dnew = Math.Sqrt(dnew);
