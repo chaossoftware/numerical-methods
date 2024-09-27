@@ -4,230 +4,229 @@ using ChaosSoft.Core.Logging;
 using System;
 using System.Collections.Generic;
 
-namespace ChaosSoft.NumericalMethods.PhaseSpace
+namespace ChaosSoft.NumericalMethods.PhaseSpace;
+
+/// <summary>
+/// Determines the fraction of false nearest neighbors.
+/// </summary>
+public class FalseNearestNeighbors
 {
+    private const ushort BoxSize = 1024;
+    private const ushort IBoxSize = BoxSize - 1;
+
+    private readonly int _theiler;
+    private readonly int _tau;
+    private readonly int _minDim;
+    private readonly int _maxDim;
+    private readonly double _rt;
+    
+    double eps0 = 1e-5;
+    double aveps, vareps;
+    double variance;
+
+    int[,] box;
+    int[] list;
+    uint toolarge;
+
     /// <summary>
-    /// Determines the fraction of false nearest neighbors.
+    /// Initializes a new instance of the <see cref="FalseNearestNeighbors"/> class for set of parameters.
     /// </summary>
-    public class FalseNearestNeighbors
+    /// <param name="minDim">min dimension</param>
+    /// <param name="maxDim">max dimension</param>
+    /// <param name="delay">delay of the vectors</param>
+    /// <param name="escapeFactor">ratio factor</param>
+    /// <param name="theilerWindow">theiler window</param>
+    public FalseNearestNeighbors(int minDim, int maxDim, int delay, double escapeFactor, int theilerWindow)
     {
-        private const ushort BoxSize = 1024;
-        private const ushort IBoxSize = BoxSize - 1;
+        _minDim = minDim;
+        _maxDim = maxDim;
+        _tau = delay;
+        _rt = escapeFactor;
+        _theiler = theilerWindow;
 
-        private readonly int _theiler;
-        private readonly int _tau;
-        private readonly int _minDim;
-        private readonly int _maxDim;
-        private readonly double _rt;
-        
-        double eps0 = 1e-5;
-        double aveps, vareps;
-        double variance;
+        FalseNeighbors = new Dictionary<int, int>();
+    }
 
-        int[,] box;
-        int[] list;
-        uint toolarge;
+    /// <summary>
+    /// Initializes a new instance of the <see cref="FalseNearestNeighbors"/> class with default values for:<br/>
+    /// delay: 1, escapeFactor: 10, theiler window: 0
+    /// </summary>
+    /// <param name="minDim">min dimension</param>
+    /// <param name="maxDim">max dimension</param>
+    public FalseNearestNeighbors(int minDim, int maxDim) : this(minDim, maxDim, 1, 10d, 0)
+    {
+    }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="FalseNearestNeighbors"/> class for set of parameters.
-        /// </summary>
-        /// <param name="minDim">min dimension</param>
-        /// <param name="maxDim">max dimension</param>
-        /// <param name="delay">delay of the vectors</param>
-        /// <param name="escapeFactor">ratio factor</param>
-        /// <param name="theilerWindow">theiler window</param>
-        public FalseNearestNeighbors(int minDim, int maxDim, int delay, double escapeFactor, int theilerWindow)
+    /// <summary>
+    /// Gets false neighbors data by dimension.
+    /// </summary>
+    public Dictionary<int, int> FalseNeighbors;
+
+    /// <summary>
+    /// Calculate false neighbors for each dimension in range.
+    /// The result is stored in <see cref="FalseNeighbors"/>.
+    /// </summary>
+    /// <param name="series">input series</param>
+    /// <exception cref="ArgumentException"></exception>
+    public void Calculate(double[] series)
+    {
+        int i;
+        double[] data = new double[series.Length];
+        Array.Copy(series, data, data.Length);
+
+        // to calculate only if not retrieved in constructor;
+        double inter = Vector.Rescale(data);
+
+        // to calculate only if not retrieved in constructor;
+        variance = Statistics.Variance(data);
+
+        list = new int[data.Length];
+        bool[] nearest = new bool[data.Length];
+        box = new int[BoxSize, BoxSize];
+
+        for (int dim = _minDim; dim <= _maxDim; dim++)
         {
-            _minDim = minDim;
-            _maxDim = maxDim;
-            _tau = delay;
-            _rt = escapeFactor;
-            _theiler = theilerWindow;
+            double epsilon = eps0;
+            toolarge = 0;
+            bool alldone = false;
+            int donesofar = 0;
+            aveps = 0.0;
+            vareps = 0.0;
 
-            FalseNeighbors = new Dictionary<int, int>();
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="FalseNearestNeighbors"/> class with default values for:<br/>
-        /// delay: 1, escapeFactor: 10, theiler window: 0
-        /// </summary>
-        /// <param name="minDim">min dimension</param>
-        /// <param name="maxDim">max dimension</param>
-        public FalseNearestNeighbors(int minDim, int maxDim) : this(minDim, maxDim, 1, 10d, 0)
-        {
-        }
-
-        /// <summary>
-        /// Gets false neighbors data by dimension.
-        /// </summary>
-        public Dictionary<int, int> FalseNeighbors;
-
-        /// <summary>
-        /// Calculate false neighbors for each dimension in range.
-        /// The result is stored in <see cref="FalseNeighbors"/>.
-        /// </summary>
-        /// <param name="series">input series</param>
-        /// <exception cref="ArgumentException"></exception>
-        public void Calculate(double[] series)
-        {
-            int i;
-            double[] data = new double[series.Length];
-            Array.Copy(series, data, data.Length);
-
-            // to calculate only if not retrieved in constructor;
-            double inter = Vector.Rescale(data);
-
-            // to calculate only if not retrieved in constructor;
-            variance = Statistics.Variance(data);
-
-            list = new int[data.Length];
-            bool[] nearest = new bool[data.Length];
-            box = new int[BoxSize, BoxSize];
-
-            for (int dim = _minDim; dim <= _maxDim; dim++)
+            for (i = 0; i < data.Length; i++)
             {
-                double epsilon = eps0;
-                toolarge = 0;
-                bool alldone = false;
-                int donesofar = 0;
-                aveps = 0.0;
-                vareps = 0.0;
+                nearest[i] = false;
+            }
 
-                for (i = 0; i < data.Length; i++)
+            Log.Info("Start for dimension = {0}", dim);
+            while (!alldone && (epsilon < 2d * variance / _rt))
+            {
+                alldone = true;
+                PutInBox(data, dim, epsilon);
+
+                for (i = (dim - 1) * _tau; i < data.Length - 1; i++)
                 {
-                    nearest[i] = false;
-                }
-
-                Log.Info("Start for dimension = {0}", dim);
-                while (!alldone && (epsilon < 2d * variance / _rt))
-                {
-                    alldone = true;
-                    PutInBox(data, dim, epsilon);
-
-                    for (i = (dim - 1) * _tau; i < data.Length - 1; i++)
+                    if (!nearest[i])
                     {
-                        if (!nearest[i])
-                        {
-                            nearest[i] = FindNearest(data, i, dim, epsilon);
-                            alldone &= nearest[i];
+                        nearest[i] = FindNearest(data, i, dim, epsilon);
+                        alldone &= nearest[i];
 
-                            if (nearest[i])
-                            {
-                                donesofar++;
-                            }
+                        if (nearest[i])
+                        {
+                            donesofar++;
                         }
                     }
-
-                    Log.Debug("Found {0} up to epsilon = {1}", donesofar, NumFormat.Format(epsilon * inter));
-                    epsilon *= Math.Sqrt(2.0);
-
-                    //if (!donesofar)
-                    if (donesofar == 0)
-                    {
-                        eps0 = epsilon;
-                    }
                 }
 
+                Log.Debug("Found {0} up to epsilon = {1}", donesofar, NumFormat.Format(epsilon * inter));
+                epsilon *= Math.Sqrt(2.0);
+
+                //if (!donesofar)
                 if (donesofar == 0)
                 {
-                    throw new ArgumentException("Not enough points found.");
+                    eps0 = epsilon;
                 }
-
-                aveps *= (1d / donesofar);
-                vareps *= (1d / donesofar);
-
-                Log.Debug("Dimension: {0}; False neighbors: {1} | {2} | {3}",
-                    dim,
-                    (double)toolarge / donesofar,
-                    NumFormat.Format(aveps),
-                    NumFormat.Format(vareps));
-
-                FalseNeighbors.Add(dim, (int)toolarge);
             }
-        }
 
-        private bool FindNearest(double[] series, int n, int dim, double eps)
-        {
-            int x2, y1, i, i1;
-            int element, which = -1;
-            double dx, maxdx, mindx = 1.1, factor;
-
-            int x = (int)(series[n - (dim - 1) * _tau] / eps) & IBoxSize;
-            int y = (int)(series[n] / eps) & IBoxSize;
-
-            for (int x1 = x - 1; x1 <= x + 1; x1++)
+            if (donesofar == 0)
             {
-                x2 = x1 & IBoxSize;
+                throw new ArgumentException("Not enough points found.");
+            }
 
-                for (y1 = y - 1; y1 <= y + 1; y1++)
+            aveps *= (1d / donesofar);
+            vareps *= (1d / donesofar);
+
+            Log.Debug("Dimension: {0}; False neighbors: {1} | {2} | {3}",
+                dim,
+                (double)toolarge / donesofar,
+                NumFormat.Format(aveps),
+                NumFormat.Format(vareps));
+
+            FalseNeighbors.Add(dim, (int)toolarge);
+        }
+    }
+
+    private bool FindNearest(double[] series, int n, int dim, double eps)
+    {
+        int x2, y1, i, i1;
+        int element, which = -1;
+        double dx, maxdx, mindx = 1.1, factor;
+
+        int x = (int)(series[n - (dim - 1) * _tau] / eps) & IBoxSize;
+        int y = (int)(series[n] / eps) & IBoxSize;
+
+        for (int x1 = x - 1; x1 <= x + 1; x1++)
+        {
+            x2 = x1 & IBoxSize;
+
+            for (y1 = y - 1; y1 <= y + 1; y1++)
+            {
+                element = box[x2, y1 & IBoxSize];
+
+                while (element != -1)
                 {
-                    element = box[x2, y1 & IBoxSize];
-
-                    while (element != -1)
+                    if (Math.Abs(element - n) > _theiler)
                     {
-                        if (Math.Abs(element - n) > _theiler)
+                        maxdx = Math.Abs(series[n] - series[element]);
+
+                        for (i = 1; i < dim; i++)
                         {
-                            maxdx = Math.Abs(series[n] - series[element]);
+                            i1 = i * _tau;
+                            dx = Math.Abs(series[n - i1] - series[element - i1]);
 
-                            for (i = 1; i < dim; i++)
+                            if (dx > maxdx)
                             {
-                                i1 = i * _tau;
-                                dx = Math.Abs(series[n - i1] - series[element - i1]);
-
-                                if (dx > maxdx)
-                                {
-                                    maxdx = dx;
-                                }
-                            }
-
-                            if (maxdx < mindx && maxdx > 0.0)
-                            {
-                                which = element;
-                                mindx = maxdx;
+                                maxdx = dx;
                             }
                         }
-                        element = list[element];
+
+                        if (maxdx < mindx && maxdx > 0.0)
+                        {
+                            which = element;
+                            mindx = maxdx;
+                        }
                     }
+                    element = list[element];
                 }
             }
-
-            if (which != -1 && mindx <= eps && mindx <= variance / _rt)
-            {
-                aveps += mindx;
-                vareps += mindx * mindx;
-                factor = Math.Abs(series[n + 1] - series[which + 1]) / mindx;
-
-                if (factor > _rt)
-                {
-                    toolarge++;
-                }
-
-                return true;
-            }
-
-            return false;
         }
 
-        private void PutInBox(double[] series, int dim, double eps)
+        if (which != -1 && mindx <= eps && mindx <= variance / _rt)
         {
-            int x, y;
-            int xShift = (dim - 1) * _tau;
+            aveps += mindx;
+            vareps += mindx * mindx;
+            factor = Math.Abs(series[n + 1] - series[which + 1]) / mindx;
 
-            for (x = 0; x < BoxSize; x++)
+            if (factor > _rt)
             {
-                for (y = 0; y < BoxSize; y++)
-                {
-                    box[x, y] = -1;
-                }
+                toolarge++;
             }
 
-            for (int i = xShift; i < series.Length - 1; i++)
+            return true;
+        }
+
+        return false;
+    }
+
+    private void PutInBox(double[] series, int dim, double eps)
+    {
+        int x, y;
+        int xShift = (dim - 1) * _tau;
+
+        for (x = 0; x < BoxSize; x++)
+        {
+            for (y = 0; y < BoxSize; y++)
             {
-                x = (int)(series[i - xShift] / eps) & IBoxSize;
-                y = (int)(series[i] / eps) & IBoxSize;
-                list[i] = box[x, y];
-                box[x, y] = i;
+                box[x, y] = -1;
             }
+        }
+
+        for (int i = xShift; i < series.Length - 1; i++)
+        {
+            x = (int)(series[i - xShift] / eps) & IBoxSize;
+            y = (int)(series[i] / eps) & IBoxSize;
+            list[i] = box[x, y];
+            box[x, y] = i;
         }
     }
 }
