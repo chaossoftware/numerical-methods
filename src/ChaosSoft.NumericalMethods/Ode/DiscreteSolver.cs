@@ -15,7 +15,7 @@ public sealed class DiscreteSolver : OdeSolverBase
     /// <param name="equations">equations system to solve</param>
     public DiscreteSolver(IOdeSys equations) : base(equations, 1)
     {
-        _derivs = new double[equations.N];
+        _derivs = new double[equations.EqCount];
     }
 
     /// <summary>

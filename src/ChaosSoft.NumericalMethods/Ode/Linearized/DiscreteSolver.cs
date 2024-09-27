@@ -16,8 +16,8 @@ public sealed class DiscreteSolver : LinearizedOdeSolverBase
     /// <param name="equations">equations system to solve</param>
     public DiscreteSolver(ILinearizedOdeSys equations) : base(equations, 1)
     {
-        _derivs = new double[equations.N];
-        _derivsLinear = new double[equations.N, equations.N];
+        _derivs = new double[equations.EqCount];
+        _derivsLinear = new double[equations.EqCount, equations.EqCount];
     }
 
 

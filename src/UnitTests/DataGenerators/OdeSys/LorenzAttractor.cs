@@ -4,7 +4,6 @@ namespace UnitTests.DataGenerators.OdeSys;
 
 public class LorenzAttractor : IOdeSys
 {
-    protected const int EqCount = 3;
     protected double sg;
     protected double r;
     protected double b;
@@ -18,10 +17,9 @@ public class LorenzAttractor : IOdeSys
         this.sg = sg;
         this.r = r;
         this.b = b;
-        N = EqCount;
     }
 
-    public int N { get; }
+    public int EqCount { get; } = 3;
 
     public virtual string Name { get; } = "Lorenz system";
 

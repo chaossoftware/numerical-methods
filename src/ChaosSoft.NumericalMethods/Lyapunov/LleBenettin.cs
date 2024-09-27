@@ -1,4 +1,4 @@
-﻿using ChaosSoft.Core.IO;
+﻿using ChaosSoft.Core;
 using ChaosSoft.NumericalMethods.Algebra;
 using ChaosSoft.NumericalMethods.Ode;
 using System;
@@ -9,7 +9,7 @@ namespace ChaosSoft.NumericalMethods.Lyapunov;
 /// <summary>
 /// LLE by Benettin.
 /// </summary>
-public sealed class LleBenettin : IDescribable
+public sealed class LleBenettin : IHasDescription
 {
     private readonly int _eqCount;
     private readonly long _iterations;
@@ -29,7 +29,7 @@ public sealed class LleBenettin : IDescribable
     {
         _solver1 = solver1;
         _solver2 = solver2;
-        _eqCount = solver1.OdeSys.N;
+        _eqCount = solver1.OdeSys.EqCount;
         _iterations = iterations;
     }
 
@@ -49,7 +49,7 @@ public sealed class LleBenettin : IDescribable
         _solver1.SetInitialConditions(0, initialConditions);
         _solver2.SetInitialConditions(0, initialConditions);
 
-        _eqCount = odeSys.N;
+        _eqCount = odeSys.EqCount;
         _iterations = iterations;
     }
 
@@ -93,15 +93,8 @@ public sealed class LleBenettin : IDescribable
     /// Gets help on the method and its params
     /// </summary>
     /// <returns></returns>
-    public string GetHelp() =>
+    public string Description =>
         throw new NotImplementedException();
-
-    /// <summary>
-    /// Gets result in string representation (LLE).
-    /// </summary>
-    /// <returns></returns>
-    public string GetResultAsString() =>
-        Format.General(Result);
 
     /// <summary>
     /// Makes solving iteration:<br/>

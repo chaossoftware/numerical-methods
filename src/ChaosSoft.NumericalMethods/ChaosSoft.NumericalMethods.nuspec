@@ -19,10 +19,10 @@
     <tags>math numerical-methods lyapunov</tags>
     <dependencies>
       <group targetFramework="net6.0">
-        <dependency id="ChaosSoft.Core" version="1.0.0"/>
+        <dependency id="ChaosSoft.Core" version="2.0.0"/>
       </group>
       <group targetFramework="netstandard2.0">
-        <dependency id="ChaosSoft.Core" version="1.0.0"/>
+        <dependency id="ChaosSoft.Core" version="2.0.0"/>
       </group>
     </dependencies>
   </metadata>

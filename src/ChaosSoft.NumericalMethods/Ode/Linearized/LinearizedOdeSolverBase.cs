@@ -16,7 +16,7 @@ public abstract class LinearizedOdeSolverBase : OdeSolverBase
     public LinearizedOdeSolverBase(ILinearizedOdeSys equations, double dt) : base(equations, dt)
     {
         LinearizedOdeSys = equations;
-        Linearization = new double[equations.N, equations.N];
+        Linearization = new double[equations.EqCount, equations.EqCount];
     }
 
     /// <summary>
@@ -35,9 +35,9 @@ public abstract class LinearizedOdeSolverBase : OdeSolverBase
     /// <param name="initialConditions">matrix of initial conditions for linearization</param>
     public void SetLinearInitialConditions(double[,] initialConditions)
     {
-        for (int i = 0; i < OdeSys.N; i++)
+        for (int i = 0; i < OdeSys.EqCount; i++)
         {
-            for (int j = 0; j < OdeSys.N; j++)
+            for (int j = 0; j < OdeSys.EqCount; j++)
             {
                 Linearization[i, j] = initialConditions[i, j];
             }

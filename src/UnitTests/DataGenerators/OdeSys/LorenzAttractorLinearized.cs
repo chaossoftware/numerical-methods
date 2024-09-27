@@ -14,7 +14,7 @@ public class LorenzAttractorLinearized : LorenzAttractor, ILinearizedOdeSys
 
     public void F(double t, double[] solution, double[,] linearization, double[,] derivs)
     {
-        for (int i = 0; i < N; i++)
+        for (int i = 0; i < EqCount; i++)
         {
             double xl = linearization[0, i];
             double yl = linearization[1, i];

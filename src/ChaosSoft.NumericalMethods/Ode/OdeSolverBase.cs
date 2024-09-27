@@ -19,7 +19,7 @@ public abstract class OdeSolverBase
     {
         OdeSys = equations;
         Dt = dt;
-        Solution = new double[equations.N];
+        Solution = new double[equations.EqCount];
     }
 
     /// <summary>
@@ -51,7 +51,7 @@ public abstract class OdeSolverBase
     {
         t = t0;
 
-        for (int i = 0; i < OdeSys.N; i++)
+        for (int i = 0; i < OdeSys.EqCount; i++)
         {
             Solution[i] = conditions[i];
         }
@@ -74,7 +74,7 @@ public abstract class OdeSolverBase
     /// <returns>true - if solution has NaN or Infinity members, otherwise - false</returns>
     public virtual bool IsSolutionDecayed()
     {
-        for (int i = 0; i < OdeSys.N; i++)
+        for (int i = 0; i < OdeSys.EqCount; i++)
         {
             if (Numbers.IsNanOrInfinity(Solution[i]))
             {

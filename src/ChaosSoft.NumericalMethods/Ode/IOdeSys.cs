@@ -6,14 +6,9 @@
 public interface IOdeSys
 {
     /// <summary>
-    /// Gets equations system name.
-    /// </summary>
-    string Name { get; }
-
-    /// <summary>
     /// Gets count of system equations.
     /// </summary>
-    int N { get; }
+    int EqCount { get; }
 
     /// <summary>
     /// Gets derivatives from current solution based on defined equations.

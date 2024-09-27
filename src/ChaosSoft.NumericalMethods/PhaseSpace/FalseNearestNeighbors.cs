@@ -1,8 +1,8 @@
-﻿using ChaosSoft.Core.DataUtils;
-using ChaosSoft.Core.IO;
+﻿using ChaosSoft.Core;
+using ChaosSoft.Core.DataUtils;
+using ChaosSoft.Core.Logging;
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace ChaosSoft.NumericalMethods.PhaseSpace
 {
@@ -44,7 +44,6 @@ namespace ChaosSoft.NumericalMethods.PhaseSpace
             _rt = escapeFactor;
             _theiler = theilerWindow;
 
-            Log = new StringBuilder();
             FalseNeighbors = new Dictionary<int, int>();
         }
 
@@ -57,11 +56,6 @@ namespace ChaosSoft.NumericalMethods.PhaseSpace
         public FalseNearestNeighbors(int minDim, int maxDim) : this(minDim, maxDim, 1, 10d, 0)
         {
         }
-
-        /// <summary>
-        /// Gets execution log.
-        /// </summary>
-        public StringBuilder Log { get; }
 
         /// <summary>
         /// Gets false neighbors data by dimension.
@@ -104,7 +98,7 @@ namespace ChaosSoft.NumericalMethods.PhaseSpace
                     nearest[i] = false;
                 }
 
-                Log.AppendLine($"Start for dimension = {dim}");
+                Log.Info("Start for dimension = {0}", dim);
                 while (!alldone && (epsilon < 2d * variance / _rt))
                 {
                     alldone = true;
@@ -124,7 +118,7 @@ namespace ChaosSoft.NumericalMethods.PhaseSpace
                         }
                     }
 
-                    Log.Append($"Found {donesofar} up to epsilon = {Format.General(epsilon * inter)}");
+                    Log.Debug("Found {0} up to epsilon = {1}", donesofar, NumFormat.Format(epsilon * inter));
                     epsilon *= Math.Sqrt(2.0);
 
                     //if (!donesofar)
@@ -142,7 +136,12 @@ namespace ChaosSoft.NumericalMethods.PhaseSpace
                 aveps *= (1d / donesofar);
                 vareps *= (1d / donesofar);
 
-                Log.AppendLine($"Dimension: {dim}; False neighbors: {(double)toolarge / donesofar} | {Format.General(aveps)} | {Format.General(vareps)}");
+                Log.Debug("Dimension: {0}; False neighbors: {1} | {2} | {3}",
+                    dim,
+                    (double)toolarge / donesofar,
+                    NumFormat.Format(aveps),
+                    NumFormat.Format(vareps));
+
                 FalseNeighbors.Add(dim, (int)toolarge);
             }
         }

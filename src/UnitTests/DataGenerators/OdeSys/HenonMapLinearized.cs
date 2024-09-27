@@ -19,7 +19,7 @@ public class HenonMapLinearized : HenonMap, ILinearizedOdeSys
         double min2AX = -2.0 * a * solution[0]; // speed optimization
 
         //Linearized Henon map equations:
-        for (int i = 0; i < N; i++)
+        for (int i = 0; i < EqCount; i++)
         {
             xl = linearization[0, i];
             yl = linearization[1, i];

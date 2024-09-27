@@ -19,7 +19,7 @@ public sealed class RK4 : OdeSolverBase
     /// <param name="dt">solution step</param>
     public RK4(IOdeSys equations, double dt) : base(equations, dt)
     {
-        _n = equations.N;
+        _n = equations.EqCount;
         _dtDiv2 = dt / 2d;
         _dtDiv6 = dt / 6d;
 

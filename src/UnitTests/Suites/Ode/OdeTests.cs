@@ -1,4 +1,5 @@
 ﻿using ChaosSoft.Core.Data;
+using ChaosSoft.Core.IO;
 using ChaosSoft.NumericalMethods.Ode;
 using ChaosSoft.NumericalMethods.Ode.Linearized;
 using ChaosSoft.NumericalMethods.QrDecomposition;
@@ -58,9 +59,9 @@ namespace UnitTests.Suites.Ode
                 solver.SetInitialConditions(0, new double[] { 1, 1, 1 });
             }
 
-            double[][] output = new double[odeSys.N][];
+            double[][] output = new double[odeSys.EqCount][];
 
-            for (int i = 0; i < odeSys.N; i++)
+            for (int i = 0; i < odeSys.EqCount; i++)
             {
                 output[i] = new double[Steps];
             }
@@ -69,13 +70,13 @@ namespace UnitTests.Suites.Ode
             {
                 solver.NextStep();
 
-                for (int j = 0; j < odeSys.N; j++)
+                for (int j = 0; j < odeSys.EqCount; j++)
                 {
                     output[j][k] = solver.Solution[j];
                 }
             }
 
-            PerformCheck(expectedDataFile, odeSys.N, output);
+            PerformCheck(expectedDataFile, odeSys.EqCount, output);
         }
 
         [Test("Linearized ODE solution test")]
@@ -89,8 +90,8 @@ namespace UnitTests.Suites.Ode
                 new LorenzAttractorLinearized();
 
             IQrDecomposition ort = qrType == QrType.CGS ?
-                new ClassicGrammSchmidt(odeSys.N) :
-                new ModifiedGrammSchmidt(odeSys.N);
+                new ClassicGrammSchmidt(odeSys.EqCount) :
+                new ModifiedGrammSchmidt(odeSys.EqCount);
 
             LinearizedOdeSolverBase solver = solverType switch
             {
@@ -105,16 +106,16 @@ namespace UnitTests.Suites.Ode
                 solver.SetInitialConditions(0, new double[] { 1, 1, 1 });
             }
 
-            double[,] initialConditions = new double[odeSys.N, odeSys.N];
+            double[,] initialConditions = new double[odeSys.EqCount, odeSys.EqCount];
 
-            for (int i = 0; i < odeSys.N; i++)
+            for (int i = 0; i < odeSys.EqCount; i++)
             {
                 initialConditions[i, i] = 1;
             }
 
             solver.SetLinearInitialConditions(initialConditions);
 
-            int totalColumns = (odeSys.N + 1) * odeSys.N;
+            int totalColumns = (odeSys.EqCount + 1) * odeSys.EqCount;
 
             double[][] output = new double[totalColumns][];
 
@@ -123,7 +124,7 @@ namespace UnitTests.Suites.Ode
                 output[i] = new double[Steps];
             }
 
-            double[] rMatrix = new double[odeSys.N];
+            double[] rMatrix = new double[odeSys.EqCount];
 
             for (int k = 0; k < Steps; k++)
             {
@@ -132,14 +133,14 @@ namespace UnitTests.Suites.Ode
 
                 int col = 0;
 
-                for (int j = 0; j < odeSys.N; j++)
+                for (int j = 0; j < odeSys.EqCount; j++)
                 {
                     output[col++][k] = solver.Solution[j];
                 }
 
-                for (int i = 0; i < odeSys.N; i++)
+                for (int i = 0; i < odeSys.EqCount; i++)
                 {
-                    for (int j = 0; j < odeSys.N; j++)
+                    for (int j = 0; j < odeSys.EqCount; j++)
                     {
                         output[col++][k] = solver.Linearization[i, j];
                     }
@@ -156,7 +157,8 @@ namespace UnitTests.Suites.Ode
             string path = Path.Combine(currentDir, "TestData", expectedDataFile);
 
             //File.WriteAllText(path, expectedDataFile), sb.ToString());
-            SourceData sd = new SourceData(path);
+            IDataReader reader = new PlainTextFileReader();
+            SourceData sd = new SourceData(reader, path);
 
             for (int i = 0; i < columnsToCheck; i++)
             {

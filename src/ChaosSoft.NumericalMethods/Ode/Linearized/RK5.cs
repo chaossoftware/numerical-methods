@@ -19,7 +19,7 @@ public sealed class RK5 : LinearizedOdeSolverBase
     /// <param name="dt">solution step</param>
     public RK5(ILinearizedOdeSys equations, double dt) : base(equations, dt)
     {
-        _n = equations.N;
+        _n = equations.EqCount;
 
         _dtDiv2 = dt / 2d;
         _dtDiv4 = dt / 4d;

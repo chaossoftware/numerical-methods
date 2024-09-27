@@ -4,7 +4,6 @@ namespace UnitTests.DataGenerators.OdeSys;
 
 public class HenonMap : IOdeSys
 {
-    protected const int EqCount = 2;
     protected double a;
     protected double b;
 
@@ -16,10 +15,9 @@ public class HenonMap : IOdeSys
     {
         this.a = a;
         this.b = b;
-        N = EqCount;
     }
 
-    public int N { get; }
+    public int EqCount { get; } = 2;
 
     public string Name { get; } = "Hénon map";
 
