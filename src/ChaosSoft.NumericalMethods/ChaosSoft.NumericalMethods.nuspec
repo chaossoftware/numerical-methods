@@ -15,7 +15,7 @@
     <description>
       This package includes variety of numerical methods from different areas.
     </description>
-    <releaseNotes>Total rework of ODE and QR decomposition code.</releaseNotes>
+    <releaseNotes>Total rework of ODE and QR decomposition code, added le spec by Benettin, various optimizations.</releaseNotes>
     <tags>math numerical-methods lyapunov</tags>
     <dependencies>
       <group targetFramework="netstandard2.0">

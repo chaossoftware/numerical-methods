@@ -89,13 +89,13 @@ public sealed class LeSpecSanoSawada : ITimeSeriesLyapunov, IHasDescription
     public override string ToString() =>
         new StringBuilder()
         .AppendLine("LES by Sano & Sawada")
-        .AppendLine($"m = {_eDim}")
-        .AppendLine($"τ = {_tau}")
-        .AppendLine($"iterations = {iterations}")
-        .AppendLine($"min ε = {NumFormat.Format(epsMin)}")
-        .AppendLine($"neighbour size increase factor = {NumFormat.Format(_epsStep)}")
-        .AppendLine($"neighbors count = {_minNeighbors}")
-        .AppendLine($"invert timeseries = {_inverse}")
+        .AppendLine($" - m = {_eDim}")
+        .AppendLine($" - τ = {_tau}")
+        .AppendLine($" - iterations = {iterations}")
+        .AppendLine($" - min ε = {NumFormat.Format(epsMin)}")
+        .AppendLine($" - neighbour size increase factor = {NumFormat.Format(_epsStep)}")
+        .AppendLine($" - neighbors count = {_minNeighbors}")
+        .AppendLine($" - invert timeseries = {_inverse}")
         .ToString();
 
     /// <summary>
@@ -104,7 +104,7 @@ public sealed class LeSpecSanoSawada : ITimeSeriesLyapunov, IHasDescription
     /// <returns></returns>
     public string Description =>
         new StringBuilder()
-        .AppendLine($"LES by Sano & Sawada [{Paper}]")
+        .AppendLine($"Lyapunov exponents spectrum by by Sano & Sawada [{Paper}]")
         .AppendLine("m - embedding dimension (default: 2)")
         .AppendLine("τ - reconstruction delay (default: 1)")
         .AppendLine("iterations (default: number of points)")

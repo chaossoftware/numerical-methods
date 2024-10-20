@@ -96,12 +96,12 @@ public sealed class LleWolf : ITimeSeriesLyapunov, IHasDescription
     public override string ToString() =>
         new StringBuilder()
             .AppendLine("LLE by Wolf (fixed evolution time)")
-            .AppendLine($"m = {_eDim}")
-            .AppendLine($"τ = {_tau}")
-            .AppendLine($"Δt = {NumFormat.Format(_dt)}")
-            .AppendLine($"min ε = {NumFormat.Format(_epsMin)}")
-            .AppendLine($"max ε = {NumFormat.Format(_epsMax)}")
-            .AppendLine($"evolution steps: {_evolv}")
+            .AppendLine($" - m = {_eDim}")
+            .AppendLine($" - τ = {_tau}")
+            .AppendLine($" - Δt = {NumFormat.Format(_dt)}")
+            .AppendLine($" - min ε = {NumFormat.Format(_epsMin)}")
+            .AppendLine($" - max ε = {NumFormat.Format(_epsMax)}")
+            .AppendLine($" - evolution steps: {_evolv}")
             .ToString();
 
     /// <summary>
@@ -110,7 +110,7 @@ public sealed class LleWolf : ITimeSeriesLyapunov, IHasDescription
     /// <returns></returns>
     public string Description =>
         new StringBuilder()
-            .AppendLine($"LLE by Wolf (fixed evolution time) [{Paper}]")
+            .AppendLine($"Largest Lyapunov exponent by Wolf (fixed evolution time) [{Paper}]")
             .AppendLine("m - embedding dimension (default: 2)")
             .AppendLine("τ - reconstruction delay (default: 1)")
             .AppendLine("Δt - Step size (default: 1.0)")

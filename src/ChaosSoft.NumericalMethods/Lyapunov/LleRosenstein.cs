@@ -68,9 +68,9 @@ public sealed class LleRosenstein : ITimeSeriesLyapunov, IHasDescription
     public DataSeries Slope { get; set; }
 
     /// <summary>
-    /// Gets or sets string indication of calculation success.
+    /// Gets or sets indication of calculation success.
     /// </summary>
-    public string Result { get; set; } = "not calculated";
+    public bool Success { get; private set; } = false;
 
     /// <summary>
     /// Gets method setup info (parameters values)
@@ -79,11 +79,11 @@ public sealed class LleRosenstein : ITimeSeriesLyapunov, IHasDescription
     public override string ToString() =>
         new StringBuilder()
         .AppendLine("LLE by Rosenstein")
-        .AppendLine($"m = {_eDim}")
-        .AppendLine($"τ = {_tau}")
-        .AppendLine($"iterations = {_iterations}")
-        .AppendLine($"theiler window = {_window}")
-        .AppendLine($"min ε = {NumFormat.Format(epsilon)}")
+        .AppendLine($" - m = {_eDim}")
+        .AppendLine($" - τ = {_tau}")
+        .AppendLine($" - iterations = {_iterations}")
+        .AppendLine($" - theiler window = {_window}")
+        .AppendLine($" - min ε = {NumFormat.Format(epsilon)}")
         .ToString();
 
     /// <summary>
@@ -92,7 +92,7 @@ public sealed class LleRosenstein : ITimeSeriesLyapunov, IHasDescription
     /// <returns></returns>
     public string Description =>
         new StringBuilder()
-        .AppendLine($"LLE by Rosenstein [{Paper}]")
+        .AppendLine($"Largest Lyapunov exponent by Rosenstein [{Paper}]")
         .AppendLine("m - embedding dimension (default: 2)")
         .AppendLine("τ - reconstruction delay (default: 1)")
         .AppendLine("iterations (default: 50)")
@@ -168,7 +168,7 @@ public sealed class LleRosenstein : ITimeSeriesLyapunov, IHasDescription
             }
         }
 
-        Result = "slope calculated";
+        Success = true;
     }
 
     private void Iterate(double[] series, int act, int minelement)
