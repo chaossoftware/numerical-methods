@@ -1,47 +1,101 @@
 ﻿using System;
+using ChaosSoft.Core.DataUtils;
+using ChaosSoft.Core;
+using ChaosSoft.NumericalMethods.Ode.Linearized;
+using ChaosSoft.NumericalMethods.QrDecomposition;
+using System.Text;
 
-namespace ChaosSoft.NumericalMethods.Lyapunov
+namespace ChaosSoft.NumericalMethods.Lyapunov;
+
+/// <summary>
+/// Lyapunov exponents spectrum by Benettin.
+/// </summary>
+public sealed class LeSpecBenettin : IHasDescription
 {
+    private readonly LinearizedOdeSolverBase _solver;
+    private readonly int _eqCount;
+    private readonly long _iterations;
+    private readonly IQrDecomposition _qrDecomposition;
+    private readonly int _qrInterval;
+
     /// <summary>
-    /// Wrapper to calculate lyapunov spectrum from Normalized vector (triangular matrix).
+    /// Initializes a new instance of the <see cref="LeSpecBenettin"/> class for
+    /// initialized instance of solver, solution iterations and QR decomposition.
     /// </summary>
-    public sealed class LeSpecBenettin
+    /// <param name="solver">solver instance</param>
+    /// <param name="iterations">number of iterations to solve</param>
+    /// <param name="qrDecomposition">instance of QR decomposition</param>
+    /// <param name="qrInterval">steps between QR decomposition executions</param>
+    public LeSpecBenettin(LinearizedOdeSolverBase solver, long iterations, IQrDecomposition qrDecomposition, int qrInterval)
     {
-        private readonly int _n;            //Number of equations
-        private readonly double[] _ltot;    //sum array of lyapunov exponents
+        _solver = solver;
+        _eqCount = solver.OdeSys.EqCount;
+        _iterations = iterations;
+        _qrInterval = qrInterval;
+        _qrDecomposition = qrDecomposition;
+        
+        Result = new double[_eqCount];
+    }
 
-        /// <summary>
-        /// Initializes a new instance of the<see cref="LeSpecSanoSawada"/> class for specific number of equations.
-        /// </summary>
-        /// <param name="equationsCount">number of equations</param>
-        public LeSpecBenettin(int equationsCount)
+    /// <summary>
+    /// Gets lyapunov exponents spectrum.
+    /// </summary>
+    public double[] Result { get; }
+
+    /// <summary>
+    /// Gets help on the method and its params
+    /// </summary>
+    /// <returns></returns>
+    public string Description => "Lyapunov exponents spectrum by Benettin";
+
+    /// <summary>
+    /// Calculate Lyapunov exponents spectrum.
+    /// </summary>
+    public void Calculate()
+    {
+        double[] rMatrix;       //normalized vector (triangular matrix)
+        double[] leSpecAccum = new double[_eqCount];
+
+        for (int i = 0; i < _iterations; i += _qrInterval)
         {
-            _n = equationsCount;
-            _ltot = new double[_n];
-            Result = new double[equationsCount];
-        }
-
-        /// <summary>
-        /// Gets lyapunov exponents spectrum.
-        /// </summary>
-        public double[] Result { get; }
-
-        /// <summary>
-        /// Updating array of Lyapunov exponents (not averaged by time).
-        /// </summary>
-        /// <param name="rMatrix">Normalized vector (triangular matrix)</param>
-        /// <param name="totalTime">total modelling time passed</param>
-        public void CalculateLyapunovSpectrum(double[] rMatrix, double totalTime)
-        {
-            // update vector magnitudes 
-            for (int i = 0; i < _n; i++)
+            for (int j = 0; j < _qrInterval; j++)
             {
-                if (rMatrix[i] > 0)
+                _solver.NextStep();
+            }
+
+            if (_solver.IsSolutionDecayed())
+            {
+                Vector.FillWith(Result, double.NaN);
+                return;
+            }
+
+            rMatrix = _qrDecomposition.Perform(_solver.Linearization);
+
+            // update vector magnitudes 
+            for (int k = 0; k < _eqCount; k++)
+            {
+                if (rMatrix[k] > 0)
                 {
-                    _ltot[i] += Math.Log(rMatrix[i]);
-                    Result[i] = _ltot[i] / totalTime;
+                    leSpecAccum[k] += Math.Log(rMatrix[k]);
                 }
             }
         }
+
+        for (int i = 0; i < _eqCount; i++)
+        {
+            Result[i] = leSpecAccum[i] / _solver.T;
+        }
     }
+
+    /// <summary>
+    /// Gets method setup info (parameters values).
+    /// </summary>
+    /// <returns></returns>
+    public override string ToString() =>
+        new StringBuilder()
+        .AppendLine("LES by Benettin")
+        .AppendLine($" - system     : {_solver.OdeSys}")
+        .AppendLine($" - iterations : {_iterations:#,#}")
+        .AppendLine($" - QR         : {_qrDecomposition.GetType().Name} (each {_qrInterval} step(s))")
+        .ToString();
 }

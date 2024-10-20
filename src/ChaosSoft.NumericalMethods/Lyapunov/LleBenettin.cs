@@ -1,129 +1,124 @@
-﻿using ChaosSoft.Core.IO;
-using ChaosSoft.NumericalMethods.Equations;
-using System;
+﻿using System;
 using System.Text;
+using ChaosSoft.Core;
+using ChaosSoft.NumericalMethods.Algebra;
+using ChaosSoft.NumericalMethods.Ode;
 
-namespace ChaosSoft.NumericalMethods.Lyapunov
+namespace ChaosSoft.NumericalMethods.Lyapunov;
+
+/// <summary>
+/// LLE by Benettin.
+/// </summary>
+public sealed class LleBenettin : IHasDescription
 {
+    private readonly int _eqCount;
+    private readonly long _iterations;
+    private readonly OdeSolverBase _solver;
+    private readonly OdeSolverBase _solverCopy;
+
+    private double lsum;
+    private long nl;
+
     /// <summary>
-    /// LLE by Benettin.
+    /// Initializes a new instance of the <see cref="LleBenettin"/> class for specific equations system, solver and modelling parameters.
     /// </summary>
-    public sealed class LleBenettin : IDescribable
+    /// <param name="solver">solver instance</param>
+    /// <param name="solverCopy">second instance of same solver</param>
+    /// <param name="iterations">number of iterations to solve</param>
+    public LleBenettin(OdeSolverBase solver, OdeSolverBase solverCopy, long iterations)
     {
-        private readonly int _eqCount;
-        private readonly long _iterations;
-        private readonly SolverBase _solver1;
-        private readonly SolverBase _solver2;
-        private readonly SystemBase _equations;
+        _solver = solver;
+        _solverCopy = solverCopy;
+        _eqCount = solver.OdeSys.EqCount;
+        _iterations = iterations;
+    }
 
-        private double lsum;
-        private long nl;
+    /// <summary>
+    /// Gets largest Lyapunov exponent.
+    /// </summary>
+    public double Result { get; private set; }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="LleBenettin"/> class for specific equations system, solver and modelling parameters.
-        /// </summary>
-        /// <param name="equations">equations to solve</param>
-        /// <param name="solverType">type of solver to use</param>
-        /// <param name="step">solution step</param>
-        /// <param name="iterations">number of iterations to solve</param>
-        public LleBenettin(SystemBase equations, Type solverType, double step, long iterations)
+    /// <summary>
+    /// Calculates largest lyapunov exponent by solving same equations with slightly different initial conditions.
+    /// The result is stored in <see cref="Result"/>.
+    /// </summary>
+    public void Calculate()
+    {
+        // Introduce small difference in intial condtions between two solvers
+        MakeInitialConditionsDifference();
+
+        for (int i = 0; i < _iterations; i++)
         {
-            _equations = equations;
-            _solver1 = Activator.CreateInstance(solverType, equations, step) as SolverBase;
-            _solver2 = Activator.CreateInstance(solverType, equations, step) as SolverBase;
-            
-            _eqCount = equations.Count;
-            _iterations = iterations;
+            MakeIteration();
 
-            IntroduceDifferenceInInitialConditions();
-        }
-
-        /// <summary>
-        /// Gets largest Lyapunov exponent.
-        /// </summary>
-        public double Result { get; private set; }
-
-        /// <summary>
-        /// Calculates largest lyapunov exponent by solving same equations with slightly different initial conditions.
-        /// The result is stored in <see cref="Result"/>.
-        /// </summary>
-        public void Calculate()
-        {
-            for (int i = 0; i < _iterations; i++)
+            if (Numbers.IsNanOrInfinity(Result))
             {
-                MakeIteration();
-
-                if (_solver1.IsSolutionDecayed() || _solver2.IsSolutionDecayed())
-                {
-                    Result = double.NaN;
-                    return;
-                }
+                return;
             }
         }
+    }
 
-        /// <summary>
-        /// Gets method setup info (parameters values).
-        /// </summary>
-        /// <returns></returns>
-        public override string ToString() =>
-            new StringBuilder()
-            .AppendLine("Largest Lyapunov exponent by Benettin\n")
-            .AppendLine($"system:     {_equations}")
-            .AppendLine($"iterations: {_iterations:#,#}")
-            .ToString();
+    /// <summary>
+    /// Gets method setup info (parameters values).
+    /// </summary>
+    /// <returns></returns>
+    public override string ToString() =>
+        new StringBuilder()
+        .AppendLine("LLE by Benettin")
+        .AppendLine($" - system     : {_solver.OdeSys}")
+        .AppendLine($" - iterations : {_iterations:#,#}")
+        .ToString();
 
-        /// <summary>
-        /// Gets help on the method and its params
-        /// </summary>
-        /// <returns></returns>
-        public string GetHelp() =>
-            throw new NotImplementedException();
+    /// <summary>
+    /// Gets help on the method and its params
+    /// </summary>
+    /// <returns></returns>
+    public string Description => "Largest Lyapunov exponent by Benettin";
 
-        /// <summary>
-        /// Gets result in string representation (LLE).
-        /// </summary>
-        /// <returns></returns>
-        public string GetResultAsString() =>
-            Format.General(Result);
+    /// <summary>
+    /// Makes solving iteration:<br/>
+    /// solves next step for pair of systems of equations and tracks orbits divergention
+    /// </summary>
+    public void MakeIteration()
+    {
+        _solver.NextStep();
+        _solverCopy.NextStep();
 
-        /// <summary>
-        /// Makes solving iteration:<br/>
-        /// solves next step for pair of systems of equations and tracks orbits divergention
-        /// </summary>
-        public void MakeIteration()
+        double dl2 = 0;
+
+        for (int _i = 0; _i < _eqCount; _i++)
         {
-            _solver1.NexStep();
-            _solver2.NexStep();
+            dl2 += Numbers.FastPow2(_solverCopy.Solution[_i] - _solver.Solution[_i]);
+        }
 
-            double dl2 = 0;
+        if (dl2 > 0)
+        {
+            double df = 1e16 * dl2;
+            double rs = 1 / Math.Sqrt(df);
 
             for (int _i = 0; _i < _eqCount; _i++)
             {
-                dl2 += MathHelpers.Pow2(_solver2.Solution[0, _i] - _solver1.Solution[0, _i]);
+                _solverCopy.Solution[_i] =
+                    _solver.Solution[_i] + rs * (_solverCopy.Solution[_i] - _solver.Solution[_i]);
             }
 
-            if (dl2 > 0)
-            {
-                double df = 1e16 * dl2;
-                double rs = 1 / Math.Sqrt(df);
-
-                for (int _i = 0; _i < _eqCount; _i++)
-                {
-                    _solver2.Solution[0, _i] =
-                        _solver1.Solution[0, _i] + rs * (_solver2.Solution[0, _i] - _solver1.Solution[0, _i]);
-                }
-
-                lsum += Math.Log(df);
-                nl++;
-            }
-
-            Result = 0.5 * lsum / nl / Math.Abs(_solver1.Dt);
+            lsum += Math.Log(df);
+            nl++;
         }
 
-        /// <summary>
-        /// Introduces small difference in initial conditions between two solvers (1e-8)
-        /// </summary>
-        public void IntroduceDifferenceInInitialConditions() =>
-            _solver2.Solution[0, 0] += _solver1.Solution[0, 0] + 1e-8;
+        Result = 0.5 * lsum / nl / Math.Abs(_solver.Dt);
     }
+
+    /// <summary>
+    /// Introduces small difference in initial conditions between two solvers (1e-8)
+    /// </summary>
+    public void MakeInitialConditionsDifference() =>
+        MakeInitialConditionsDifference(1e-8);
+
+    /// <summary>
+    /// Introduces specified small difference in initial conditions between two solvers
+    /// </summary>
+    /// <param name="epsilon">initial conditions difference</param>
+    public void MakeInitialConditionsDifference(double epsilon) =>
+        _solverCopy.Solution[0] += _solver.Solution[0] + epsilon;
 }
