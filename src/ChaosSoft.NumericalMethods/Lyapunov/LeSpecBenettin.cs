@@ -49,7 +49,7 @@ public sealed class LeSpecBenettin : IHasDescription
     public string Description => "Lyapunov exponents spectrum by Benettin";
 
     /// <summary>
-    /// 
+    /// Calculate Lyapunov exponents spectrum.
     /// </summary>
     public void Calculate()
     {
